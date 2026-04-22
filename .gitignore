@@ -18,3 +18,4 @@ build/
 *.pdf
 *.sqlite3
 *.db
+*.sql
