@@ -38,6 +38,39 @@ BAD_EXACT_ENDS = [
     "/entretenimento/",
 ]
 
+SECTION_TITLE_PATTERNS = [
+    "tudo sobre ",
+    "últimas notícias",
+    "ultimas noticias",
+    "mídias e entretenimento",
+    "midias e entretenimento",
+    "opinião - artigos",
+    "opiniao - artigos",
+    "política - análises",
+    "politica - analises",
+    "esporte - notícias",
+    "esporte - noticias",
+]
+
+BOILERPLATE_SNIPPETS = [
+    "@2022 - All Right Reserved. Designed and Developed by WSCOM",
+    "Siga o canal do WSCOM no Whatsapp.",
+    "Siga o canal do WSCOM no WhatsApp.",
+]
+
+def clean_text(text: str) -> str:
+    clean = text or ""
+    for snippet in BOILERPLATE_SNIPPETS:
+        clean = clean.replace(snippet, " ")
+    return " ".join(clean.split())
+
+def is_probable_section_title(title: str) -> bool:
+    lower = (title or "").strip().lower()
+    if any(pattern in lower for pattern in SECTION_TITLE_PATTERNS):
+        return True
+    exact = {"política", "politica", "economia", "esporte", "cultura", "saúde", "saude", "opinião", "opiniao"}
+    return lower in exact
+
 def is_probable_news_url(url: str, base_url: str) -> bool:
     if not url.startswith("http"):
         return False
@@ -94,6 +127,8 @@ def collect_article(url):
 
         soup = BeautifulSoup(response.text, "lxml")
         title = soup.title.text.strip() if soup.title else "Sem título"
+        if is_probable_section_title(title):
+            return None
 
         paragraphs = soup.find_all("p")
         text_parts = []
@@ -103,7 +138,7 @@ def collect_article(url):
             if txt and len(txt) > 30:
                 text_parts.append(txt)
 
-        text = " ".join(text_parts)
+        text = clean_text(" ".join(text_parts))
 
         # Rejeita textos curtos demais
         if len(text) < 400:
@@ -120,9 +155,12 @@ def collect_article(url):
             "entretenimento",
             "política",
             "notícias da paraíba",
+            "últimas notícias",
+            "ultimas noticias",
+            "tudo sobre",
         ]
 
-        if title_lower.strip() in generic_titles:
+        if title_lower.strip() in generic_titles or is_probable_section_title(title):
             return None
 
         return {

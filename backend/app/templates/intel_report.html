@@ -2,880 +2,143 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8" />
-  <title>Relatório Executivo de Inteligência de Mercado</title>
+  <title>TV Fiscal WebMonitor — Inteligência de Mercado</title>
   <style>
-    @page {
-      size: A4;
-      margin: 18mm 14mm 16mm 14mm;
-    }
-
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      color: #1f2937;
-      font-size: 12px;
-      line-height: 1.45;
-      margin: 0;
-      padding: 0;
-    }
-
-    .page-break {
-      page-break-before: always;
-    }
-
-    .cover {
-      height: 92vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: stretch;
-      box-sizing: border-box;
-      padding: 10px 0;
-    }
-
-    .cover-band {
-      width: 100%;
-      background: linear-gradient(90deg, #7f1216 0%, #c52625 55%, #db3b38 100%);
-      color: white;
-      border-radius: 18px;
-      padding: 28px 30px;
-      box-sizing: border-box;
-    }
-
-    .cover-kicker {
-      font-size: 13px;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      opacity: 0.94;
-      margin-bottom: 10px;
-      font-weight: bold;
-    }
-
-    .cover-title {
-      font-size: 34px;
-      line-height: 1.08;
-      font-weight: 800;
-      margin: 0 0 12px 0;
-    }
-
-    .cover-subtitle {
-      font-size: 15px;
-      line-height: 1.6;
-      opacity: 0.96;
-      margin: 0;
-      max-width: 720px;
-    }
-
-    .cover-meta {
-      margin-top: 26px;
-      padding: 18px 6px 0 6px;
-      font-size: 14px;
-      line-height: 1.9;
-    }
-
-    .cover-footnote {
-      margin-top: 24px;
-      color: #6b7280;
-      font-size: 12px;
-    }
-
-    .header {
-      background: linear-gradient(90deg, #7f1216 0%, #c52625 55%, #db3b38 100%);
-      color: #fff;
-      padding: 16px 20px;
-      border-radius: 12px;
-      margin-bottom: 18px;
-    }
-
-    .header-top {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      opacity: 0.95;
-      font-weight: bold;
-    }
-
-    .header-title {
-      font-size: 22px;
-      font-weight: 800;
-      margin-top: 6px;
-    }
-
-    .project-line {
-      margin: 14px 0 6px;
-      font-size: 14px;
-      font-weight: bold;
-    }
-
-    .muted {
-      color: #6b7280;
-    }
-
-    .section {
-      margin-top: 22px;
-    }
-
-    h2 {
-      color: #b91c1c;
-      font-size: 18px;
-      margin: 0 0 12px 0;
-    }
-
-    p {
-      margin: 0 0 10px 0;
-    }
-
-    .kpis {
-      display: table;
-      width: 100%;
-      table-layout: fixed;
-      border-spacing: 10px 0;
-      margin: 6px -10px 0 -10px;
-    }
-
-    .kpi {
-      display: table-cell;
-      background: #f4f5f7;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      padding: 14px 12px;
-      text-align: center;
-      vertical-align: top;
-    }
-
-    .kpi-label {
-      color: #6b7280;
-      font-size: 11px;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-      letter-spacing: 0.06em;
-      font-weight: bold;
-    }
-
-    .kpi-value {
-      color: #111827;
-      font-size: 28px;
-      font-weight: 800;
-    }
-
-    .kpi-value.red {
-      color: #b91c1c;
-    }
-
-    .dual {
-      display: table;
-      width: 100%;
-      table-layout: fixed;
-      border-spacing: 14px 0;
-      margin: 4px -14px 0 -14px;
-    }
-
-    .dual-card {
-      display: table-cell;
-      background: #ffffff;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      padding: 16px;
-      vertical-align: top;
-    }
-
-    .card-label {
-      color: #6b7280;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-
-    .card-title {
-      font-size: 18px;
-      font-weight: 800;
-      color: #111827;
-      margin-bottom: 6px;
-    }
-
-    .card-sub {
-      color: #4b5563;
-      font-size: 13px;
-    }
-
-    .alert-box {
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      border-radius: 10px;
-      padding: 12px 14px;
-      margin-bottom: 8px;
-      color: #991b1b;
-      font-weight: 600;
-    }
-
-    .score-strip {
-      display: table;
-      width: 100%;
-      table-layout: fixed;
-      border-spacing: 10px 0;
-      margin: 2px -10px 0 -10px;
-    }
-
-    .score-card {
-      display: table-cell;
-      background: #ffffff;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      padding: 14px 12px;
-      text-align: center;
-      vertical-align: top;
-    }
-
-    .score-label {
-      color: #6b7280;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-
-    .score-value {
-      color: #111827;
-      font-size: 22px;
-      font-weight: 800;
-    }
-
-    .confidence-strip {
-      display: table;
-      width: 100%;
-      table-layout: fixed;
-      border-spacing: 10px 0;
-      margin: 2px -10px 0 -10px;
-    }
-
-    .confidence-card {
-      display: table-cell;
-      background: #ffffff;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      padding: 14px 12px;
-      text-align: center;
-      vertical-align: top;
-    }
-
-    .confidence-title {
-      color: #6b7280;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-
-    .confidence-main {
-      color: #111827;
-      font-size: 22px;
-      font-weight: 800;
-      margin-bottom: 4px;
-    }
-
-    .confidence-sub {
-      color: #6b7280;
-      font-size: 11px;
-    }
-
-    .ranking-grid {
-      display: table;
-      width: 100%;
-      table-layout: fixed;
-      border-spacing: 14px 0;
-      margin: 2px -14px 0 -14px;
-    }
-
-    .ranking-col {
-      display: table-cell;
-      vertical-align: top;
-    }
-
-    .ranking-box {
-      background: #ffffff;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      padding: 16px;
-      min-height: 100%;
-    }
-
-    .ranking-title {
-      font-size: 16px;
-      font-weight: 800;
-      color: #111827;
-      margin-bottom: 12px;
-    }
-
-    .bar-group {
-      margin-bottom: 14px;
-    }
-
-    .bar-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 5px;
-      font-size: 12px;
-      font-weight: bold;
-      color: #1f2937;
-    }
-
-    .bar-head-left {
-      max-width: 78%;
-    }
-
-    .bar-track {
-      width: 100%;
-      height: 10px;
-      border-radius: 999px;
-      background: #eceff3;
-      overflow: hidden;
-    }
-
-    .bar-fill {
-      height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #c52625 0%, #db3b38 100%);
-    }
-
-    .bar-sub {
-      margin-top: 4px;
-      color: #6b7280;
-      font-size: 11px;
-    }
-
-    .mini-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 6px;
-      font-size: 11px;
-    }
-
-    .mini-table th {
-      background: #c52625;
-      color: white;
-      text-align: left;
-      padding: 8px;
-      font-weight: bold;
-    }
-
-    .mini-table td {
-      padding: 8px;
-      border-bottom: 1px solid #e5e7eb;
-      vertical-align: top;
-    }
-
-    .mini-table tr:nth-child(even) td {
-      background: #fafafa;
-    }
-
-    .footer-note {
-      margin-top: 22px;
-      font-size: 11px;
-      color: #6b7280;
-    }
+    @page { size: A4 landscape; margin: 10mm 12mm 14mm 12mm; @bottom-center { content: "© TV Fiscal - Inteligência e Monitoramento de Mídia | Desde 1987"; color:#fff; font-size:8px; } }
+    body { font-family: Arial, Helvetica, sans-serif; color:#0f172a; margin:0; background:#fff; font-size:11px; line-height:1.35; }
+    .footer-band { position: fixed; bottom:-14mm; left:-12mm; right:-12mm; height:12mm; background:#071a2f; border-top:2px solid #c1121f; }
+    .hero { background:#071a2f; color:white; padding:18px 22px 16px 22px; border-bottom:4px solid #c1121f; display:table; width:100%; box-sizing:border-box; }
+    .hero-left { display:table-cell; vertical-align:middle; width:78%; }
+    .hero-right { display:table-cell; vertical-align:middle; text-align:center; width:22%; border-left:1px solid #1e3a5f; }
+    .hero-logo { max-width: 84px; max-height: 58px; object-fit: contain; }
+    .id-quality { background:#f8fafc; border:1px solid #d8e1ec; border-left:4px solid #f97316; padding:9px 10px; margin:8px 0 10px 0; }
+    .id-quality b { color:#071a2f; }
+    .kicker { color:#93c5fd; font-size:9px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; margin-bottom:4px; }
+    .hero-title { font-size:26px; font-weight:800; line-height:1.05; margin:0 0 5px 0; }
+    .hero-sub { color:#dbeafe; font-size:12px; line-height:1.35; margin:0; }
+    .logo-text { font-size:20px; font-weight:800; color:white; }
+    .logo-sub { color:#cbd5e1; font-size:8px; margin-top:3px; }
+    .kpis { display:table; width:100%; table-layout:fixed; margin:10px 0 12px 0; border-collapse:collapse; }
+    .kpi { display:table-cell; padding:10px 8px; text-align:center; background:#fff; border:1px solid #e2e8f0; border-top:3px solid #c1121f; vertical-align:middle; }
+    .kpi:nth-child(2) { border-top-color:#193a5a; } .kpi:nth-child(3){border-top-color:#18b26b;} .kpi:nth-child(4){border-top-color:#f97316;} .kpi:nth-child(5){border-top-color:#635bff;}
+    .kpi-value { font-size:22px; font-weight:800; color:#071a2f; }
+    .kpi-label { font-size:9px; color:#475569; font-weight:700; margin-top:1px; }
+    .grid { display:table; width:100%; table-layout:fixed; border-spacing:8px 0; margin:0 -8px 10px -8px; }
+    .panel { display:table-cell; background:#fff; border:1px solid #d8e1ec; border-top:3px solid #c1121f; padding:10px; vertical-align:top; }
+    .panel h2 { font-size:14px; color:#071a2f; margin:0 0 8px 0; }
+    .muted { color:#64748b; }
+    .alert { background:#fff7ed; border:1px solid #fb923c; color:#9a3412; padding:8px 10px; margin:8px 0; font-weight:700; }
+    .bar { margin:0 0 9px 0; }
+    .bar-head { display:table; width:100%; font-size:10px; font-weight:700; margin-bottom:3px; }
+    .bar-name { display:table-cell; color:#0f172a; }
+    .bar-value { display:table-cell; text-align:right; color:#334155; }
+    .track { height:7px; background:#e2e8f0; border-radius:8px; overflow:hidden; }
+    .fill { height:7px; background:#071a2f; border-radius:8px; }
+    .section-title { font-size:15px; font-weight:800; color:#071a2f; margin:14px 0 7px 0; border-left:4px solid #c1121f; padding-left:8px; }
+    table.data { width:100%; border-collapse:collapse; font-size:9px; margin-top:5px; }
+    table.data th { background:#c1121f; color:white; padding:7px 6px; text-align:left; font-weight:800; }
+    table.data td { border:1px solid #e2e8f0; padding:6px; vertical-align:top; }
+    table.data tr:nth-child(even) td { background:#f8fafc; }
+    .page-break { page-break-before:always; }
+    .small { font-size:9px; color:#64748b; }
   </style>
 </head>
 <body>
-  <div class="cover">
-    <div class="cover-band">
-      <div class="cover-kicker">TV Fiscal WebMonitor</div>
-      <h1 class="cover-title">Inteligência de Mercado Publicitário Digital</h1>
-      <p class="cover-subtitle">
-        Relatório executivo com leitura de concentração, dominância, qualidade de identificação
-        e oportunidades comerciais no ambiente digital monitorado.
-      </p>
-    </div>
+<div class="footer-band"></div>
 
-    <div class="cover-meta">
-      <div><strong>Projeto monitorado:</strong> {{ project_id }}</div>
-      <div><strong>Total de anúncios:</strong> {{ total_ads }}</div>
-      <div><strong>Investimento estimado:</strong> {{ investment }}</div>
-    </div>
-
-    <div class="cover-footnote">
-      TV Fiscal — Monitoramento, inteligência e qualificação de presença publicitária.
-    </div>
+<div class="hero">
+  <div class="hero-left">
+    <div class="kicker">PUBLICIDADE DIGITAL · TV FISCAL WEBMONITOR</div>
+    <div class="hero-title">Inteligência de Mercado Publicitário</div>
+    <p class="hero-sub">Relatório executivo com checking, qualificação de evidências, ranking de anunciantes, portais, concentração e oportunidades comerciais.</p>
+    <p class="hero-sub"><b>Projeto monitorado:</b> {{ project_id }}</p>
   </div>
-
-  <div class="page-break"></div>
-
-  <div class="header">
-    <div class="header-top">TV Fiscal WebMonitor</div>
-    <div class="header-title">Resumo Executivo</div>
+  <div class="hero-right">
+    {% if logo_header_data_uri %}<img class="hero-logo" src="{{ logo_header_data_uri }}" />{% else %}<div class="logo-text">TV Fiscal</div>{% endif %}
+    <div class="logo-sub">O monitor ideal da sua mídia</div>
   </div>
+</div>
 
-  <div class="project-line">
-    Projeto monitorado: <span class="muted">{{ project_id }}</span>
+<div class="kpis">
+  <div class="kpi"><div class="kpi-value">{{ investment }}</div><div class="kpi-label">Investimento estimado</div></div>
+  <div class="kpi"><div class="kpi-value">{{ total_market_items or total_ads }}</div><div class="kpi-label">Itens de mercado</div></div>
+  <div class="kpi"><div class="kpi-value">{{ total_checking_ready or 0 }}</div><div class="kpi-label">Publicidade auditável</div></div>
+  <div class="kpi"><div class="kpi-value">{{ identified_advertisers or advertisers }}</div><div class="kpi-label">Anunciantes identificados</div></div>
+  <div class="kpi"><div class="kpi-value">{{ publishers }}</div><div class="kpi-label">Portais</div></div>
+</div>
+
+{% if unknown_advertiser_items and unknown_advertiser_items > 0 %}
+<div class="id-quality">
+  <b>Qualidade de identificação:</b> {{ unknown_advertiser_items }} item(ns) permanecem como <b>Pendente de identificação</b>
+  ({{ "%.1f"|format(unknown_advertiser_share or 0) }}% dos itens de mercado; {{ unknown_advertiser_investment }}).
+  Este volume fica em fila de auditoria comercial e não é tratado como anunciante líder.
+</div>
+{% endif %}
+
+{% if total_market_items and total_checking_ready == 0 %}
+  <div class="alert">Leitura referencial: há itens para inteligência de mercado, mas nenhuma evidência auditável para checking neste recorte.</div>
+{% endif %}
+
+<div class="grid">
+  <div class="panel">
+    <h2>Top anunciantes identificados</h2>
+    {% for a in top_advertisers %}
+      <div class="bar">
+        <div class="bar-head"><span class="bar-name">{{ loop.index }}. {{ a.name }}</span><span class="bar-value">{{ "%.1f"|format(a.share or 0) }}%</span></div>
+        <div class="track"><div class="fill" style="width: {{ (a.share or 0) if (a.share or 0) <= 100 else 100 }}%;"></div></div>
+        <div class="small">{{ a.banners or 0 }} evidências · {{ a.value_fmt or "R$ 0" }} · Confiança: {{ a.confidence or "n/a" }}</div>
+      </div>
+    {% endfor %}
   </div>
-  <p class="muted">
-    Síntese executiva da presença publicitária digital observada no projeto.
-  </p>
-
-  <div class="section">
-    <div class="kpis">
-      <div class="kpi">
-        <div class="kpi-label">Investimento Estimado</div>
-        <div class="kpi-value red">{{ investment }}</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-label">Anúncios</div>
-        <div class="kpi-value">{{ total_ads }}</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-label">Anunciantes</div>
-        <div class="kpi-value">{{ advertisers }}</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-label">Portais</div>
-        <div class="kpi-value">{{ publishers }}</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <h2>Leitura Executiva</h2>
-    {% if insights and insights|length > 0 %}
-      {% for item in insights %}
-        <p>{{ item }}</p>
-      {% endfor %}
-    {% else %}
-      <p class="muted">Sem insights disponíveis para o projeto informado.</p>
-    {% endif %}
-  </div>
-
-  <div class="section">
-    <div class="dual">
-      <div class="dual-card">
-        <div class="card-label">Maior anunciante</div>
-        <div class="card-title">{{ top_advertiser_name or "Sem dados" }}</div>
-        <div class="card-sub">
-          Share: {{ "%.2f"|format(top_advertiser_share or 0) }}% |
-          Confiança: {{ top_advertiser_confidence or "n/a" }}
-        </div>
-      </div>
-
-      <div class="dual-card">
-        <div class="card-label">Portal líder</div>
-        <div class="card-title">{{ top_portal_name or "Sem dados" }}</div>
-        <div class="card-sub">
-          Receita estimada: {{ top_portal_value or "R$ 0" }}
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <h2>Alertas Estratégicos</h2>
-    {% if insights and insights|length > 0 %}
-      {% for alert in insights %}
-        <div class="alert-box">{{ alert }}</div>
-      {% endfor %}
-    {% else %}
-      <p class="muted">Nenhum alerta crítico relevante neste recorte.</p>
-    {% endif %}
-  </div>
-
-  <div class="section">
-    <h2>Leitura de Concentração</h2>
-    <div class="score-strip">
-      <div class="score-card">
-        <div class="score-label">Líder Anunciante</div>
-        <div class="score-value">{{ "%.2f"|format(top_advertiser_share or 0) }}%</div>
-      </div>
-      <div class="score-card">
-        <div class="score-label">Líder Portal</div>
-        <div class="score-value">{{ top_portal_value or "R$ 0" }}</div>
-      </div>
-      <div class="score-card">
-        <div class="score-label">Anunciantes Ativos</div>
-        <div class="score-value">{{ advertisers }}</div>
-      </div>
-      <div class="score-card">
-        <div class="score-label">Portais Ativos</div>
-        <div class="score-value">{{ publishers }}</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <h2>Confiança da Identificação</h2>
-    <div class="confidence-strip">
-      <div class="confidence-card">
-        <div class="confidence-title">Alta</div>
-        <div class="confidence-main">{{ confidence_high_banners }}</div>
-        <div class="confidence-sub">{{ confidence_high_value }}</div>
-      </div>
-      <div class="confidence-card">
-        <div class="confidence-title">Média</div>
-        <div class="confidence-main">{{ confidence_medium_banners }}</div>
-        <div class="confidence-sub">{{ confidence_medium_value }}</div>
-      </div>
-      <div class="confidence-card">
-        <div class="confidence-title">Baixa</div>
-        <div class="confidence-main">{{ confidence_low_banners }}</div>
-        <div class="confidence-sub">{{ confidence_low_value }}</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="page-break"></div>
-
-  <div class="header">
-    <div class="header-top">TV Fiscal WebMonitor</div>
-    <div class="header-title">Rankings Executivos</div>
-  </div>
-
-  <div class="section">
-    <div class="ranking-grid">
-      <div class="ranking-col">
-        <div class="ranking-box">
-          <div class="ranking-title">Dominância por anunciante</div>
-          {% if top_advertisers and top_advertisers|length > 0 %}
-            {% for a in top_advertisers %}
-              <div class="bar-group">
-                <div class="bar-head">
-                  <span class="bar-head-left">{{ loop.index }}. {{ a.name }}</span>
-                  <span>{{ "%.2f"|format(a.share or 0) }}%</span>
-                </div>
-                <div class="bar-track">
-                  <div class="bar-fill" style="width: {{ (a.share or 0) if (a.share or 0) <= 100 else 100 }}%;"></div>
-                </div>
-                <div class="bar-sub">
-                  {{ a.banners or 0 }} banners · {{ a.value_fmt or "R$ 0" }} · Confiança: {{ a.confidence or "n/a" }}
-                </div>
-              </div>
-            {% endfor %}
-          {% else %}
-            <p class="muted">Sem dados de anunciantes para exibir.</p>
-          {% endif %}
-        </div>
-      </div>
-
-      <div class="ranking-col">
-        <div class="ranking-box">
-          <div class="ranking-title">Performance por portal</div>
-          {% if top_publishers and top_publishers|length > 0 %}
-            {% for p in top_publishers %}
-              <div class="bar-group">
-                <div class="bar-head">
-                  <span class="bar-head-left">{{ loop.index }}. {{ p.name }}</span>
-                  <span>{{ "%.2f"|format(p.share or 0) }}%</span>
-                </div>
-                <div class="bar-track">
-                  <div class="bar-fill" style="width: {{ (p.share or 0) if (p.share or 0) <= 100 else 100 }}%;"></div>
-                </div>
-                <div class="bar-sub">
-                  {{ p.banners or 0 }} banners · {{ p.value_fmt or "R$ 0" }}
-                </div>
-              </div>
-            {% endfor %}
-          {% else %}
-            <p class="muted">Sem dados de portais para exibir.</p>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <h2>Top anunciantes</h2>
-    {% if top_advertisers and top_advertisers|length > 0 %}
-      <table class="mini-table">
-        <thead>
-          <tr>
-            <th>Posição</th>
-            <th>Anunciante</th>
-            <th>Banners</th>
-            <th>Share</th>
-            <th>Investimento</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for a in top_advertisers %}
-            <tr>
-              <td>{{ loop.index }}</td>
-              <td>{{ a.name }}</td>
-              <td>{{ a.banners or 0 }}</td>
-              <td>{{ "%.2f"|format(a.share or 0) }}%</td>
-              <td>{{ a.value_fmt or "R$ 0" }}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-      <p class="muted">Sem dados de anunciantes para exibir.</p>
-    {% endif %}
-  </div>
-
-  <div class="section">
+  <div class="panel">
     <h2>Top portais</h2>
-    {% if top_publishers and top_publishers|length > 0 %}
-      <table class="mini-table">
-        <thead>
-          <tr>
-            <th>Posição</th>
-            <th>Portal</th>
-            <th>Banners</th>
-            <th>Share</th>
-            <th>Investimento</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for p in top_publishers %}
-            <tr>
-              <td>{{ loop.index }}</td>
-              <td>{{ p.name }}</td>
-              <td>{{ p.banners or 0 }}</td>
-              <td>{{ "%.2f"|format(p.share or 0) }}%</td>
-              <td>{{ p.value_fmt or "R$ 0" }}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    {% else %}
-      <p class="muted">Sem dados de portais para exibir.</p>
-    {% endif %}
-  </div>
-
-<div class="section">
-  <h2>Segmentos de Mercado</h2>
-  {% if segment_ranking and segment_ranking|length > 0 %}
-    <table class="mini-table">
-      <thead>
-        <tr>
-          <th>Posição</th>
-          <th>Segmento</th>
-          <th>Banners</th>
-          <th>Share</th>
-          <th>Investimento</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for s in segment_ranking[:8] %}
-          <tr>
-            <td>{{ loop.index }}</td>
-            <td>{{ s.segment }}</td>
-            <td>{{ s.banners }}</td>
-            <td>{{ "%.2f"|format(s.share_percent or 0) }}%</td>
-            <td>R$ {{ "{:,.0f}".format(s.investment).replace(",", ".") }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% else %}
-    <p class="muted">Sem dados de segmentos para exibir.</p>
-  {% endif %}
-</div>
-
-<div class="section">
-  <h2>Mapa Competitivo</h2>
-  {% if competitive_map and competitive_map|length > 0 %}
-    <table class="mini-table">
-      <thead>
-        <tr>
-          <th>Posição</th>
-          <th>Concorrente A</th>
-          <th>Concorrente B</th>
-          <th>Portais em comum</th>
-          <th>Investimento combinado</th>
-          <th>Equilíbrio</th>
-          <th>Score</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for c in competitive_map[:10] %}
-          <tr>
-            <td>{{ loop.index }}</td>
-            <td>{{ c.advertiser_a }}</td>
-            <td>{{ c.advertiser_b }}</td>
-            <td>{{ c.shared_portals_count }} ({{ c.shared_portals|join(", ") }})</td>
-            <td>R$ {{ "{:,.0f}".format(c.combined_investment).replace(",", ".") }}</td>
-            <td>{{ "%.2f"|format(c.balance_score or 0) }}</td>
-            <td>{{ "%.2f"|format(c.competition_score or 0) }}</td>
-          </tr>
-        {% endfor %}
-      </tbody> 
-    </table>
-  {% else %}
-    <p class="muted">Sem dados competitivos suficientes para exibir.</p>
-  {% endif %}
-</div>
-
-<div class="section">
-  <h2>Pressão Competitiva por Portal</h2>
-  {% if portal_pressure_map and portal_pressure_map|length > 0 %}
-    <table class="mini-table">
-      <thead>
-        <tr>
-          <th>Posição</th>
-          <th>Portal</th>
-          <th>Anunciantes</th>
-          <th>Banners</th>
-          <th>Investimento</th>
-          <th>Pressão</th>
-          <th>Score</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for p in portal_pressure_map[:8] %}
-          <tr>
-            <td>{{ loop.index }}</td>
-            <td>{{ p.portal }}</td>
-            <td>{{ p.advertisers_count }}</td>
-            <td>{{ p.banners }}</td>
-            <td>R$ {{ "{:,.0f}".format(p.investment).replace(",", ".") }}</td>
-            <td>{{ p.pressure_label }}</td>
-            <td>{{ "%.2f"|format(p.pressure_score or 0) }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% else %}
-    <p class="muted">Sem dados de pressão competitiva para exibir.</p>
-  {% endif %}
-</div>
-
-<div class="section">
-  <h2>Estrutura Competitiva do Mercado</h2>
-
-  {% if market_analysis and market_analysis.market_roles %}
-    <p><strong>Líder:</strong> {{ market_analysis.market_roles.leader or "Não definido" }}</p>
-
-    <p>
-      <strong>Desafiantes:</strong>
-      {% if market_analysis.market_roles.challengers and market_analysis.market_roles.challengers|length > 0 %}
-        {{ market_analysis.market_roles.challengers | join(", ") }}
-      {% else %}
-        Não identificados
-      {% endif %}
-    </p>
-
-    <p>
-      <strong>Seguidores:</strong>
-      {% if market_analysis.market_roles.followers and market_analysis.market_roles.followers|length > 0 %}
-        {{ market_analysis.market_roles.followers | join(", ") }}
-      {% else %}
-        Não identificados
-      {% endif %}
-    </p>
-
-    <p>
-      <strong>Nicho:</strong>
-      {% if market_analysis.market_roles.niche and market_analysis.market_roles.niche|length > 0 %}
-        {{ market_analysis.market_roles.niche | join(", ") }}
-      {% else %}
-        Não identificados
-      {% endif %}
-    </p>
-  {% else %}
-    <p class="muted">Sem dados de estrutura competitiva para exibir.</p>
-  {% endif %}
-</div>
-
-<div class="section">
-  <h2>Dependência por Portal</h2>
-
-  {% if market_analysis and market_analysis.portal_dependency and market_analysis.portal_dependency|length > 0 %}
-    <table class="mini-table">
-      <thead>
-        <tr>
-          <th>Anunciante</th>
-          <th>Portal principal</th>
-          <th>Dependência</th>
-          <th>Risco</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for d in market_analysis.portal_dependency[:8] %}
-          <tr>
-            <td>{{ d.advertiser }}</td>
-            <td>{{ d.main_portal }}</td>
-            <td>{{ "%.1f"|format(d.dependency or 0) }}%</td>
-            <td>{{ d.risk }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% else %}
-    <p class="muted">Sem dados de dependência por portal para exibir.</p>
-  {% endif %}
-</div>
-
-  <div class="section">
-    <h2>Recomendações Estratégicas</h2>
-
-    {% if market_analysis and market_analysis.recommendations %}
-      <ul>
-        {% for r in market_analysis.recommendations %}
-          <li>{{ r }}</li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p class="muted">Sem recomendações disponíveis.</p>
-    {% endif %}
-  </div>
-
-  <div class="section">
-    <h2>Conclusão Estratégica</h2>
-    {% if has_data %}
-      <p>
-        O recorte analisado evidencia concentração relevante de inventário e forte peso de registros
-        não qualificados, reforçando a necessidade de ampliar a identificação de anunciantes para elevar
-        a inteligência competitiva e a capacidade de leitura comercial do mercado.
-      </p>
-      <p>
-        Em paralelo, os rankings de share e os portais líderes apontam oportunidades claras de priorização
-        de canais, otimização de presença e qualificação de inventário.
-      </p>
-    {% else %}
-      <p>
-        Não há evidências publicitárias registradas para o projeto informado nesta base. O relatório foi
-        gerado em modo informativo para preservar a disponibilidade do endpoint.
-      </p>
-      <p>
-        Recomendação: validar a ingestão de banners, restaurar a base histórica ou reprocessar as coletas
-        antes de utilizar este relatório para leitura executiva de mercado.
-      </p>
-    {% endif %}
-  </div>
-
-  <h2>Inteligência de Mercado</h2>
-
-  <p><strong>Tipo de mercado:</strong> {{ market_analysis.market_type if market_analysis else "Não disponível" }}</p>
-
-  {% if market_analysis and market_analysis.insights %}
-  <h3>Insights</h3>
-  <ul>
-    {% for i in market_analysis.insights %}
-      <li>{{ i }}</li>
+    {% for p in top_publishers %}
+      <div class="bar">
+        <div class="bar-head"><span class="bar-name">{{ loop.index }}. {{ p.name }}</span><span class="bar-value">{{ "%.1f"|format(p.share or 0) }}%</span></div>
+        <div class="track"><div class="fill" style="width: {{ (p.share or 0) if (p.share or 0) <= 100 else 100 }}%;"></div></div>
+        <div class="small">{{ p.banners or 0 }} evidências · {{ p.value_fmt or "R$ 0" }}</div>
+      </div>
     {% endfor %}
-  </ul>
-  {% endif %}
-
-  {% if market_analysis and market_analysis.alerts %}
-  <h3>Alertas</h3>
-  <ul>
-    {% for a in market_analysis.alerts %}
-      <li>{{ a }}</li>
-    {% endfor %}
-  </ul>
-  {% endif %}
-
-  {% if market_analysis and market_analysis.opportunities %}
-  <h3>Oportunidades</h3>
-  <ul>
-    {% for o in market_analysis.opportunities %}
-      <li>{{ o }}</li>
-    {% endfor %}
-  </ul>
-  {% endif %}
-
-  <div class="footer-note">
-    Relatório gerado automaticamente pela plataforma TV Fiscal WebMonitor.
   </div>
+  <div class="panel">
+    <h2>Leitura executiva</h2>
+    {% if insights and insights|length > 0 %}
+      {% for item in insights[:7] %}<p>• {{ item }}</p>{% endfor %}
+    {% else %}<p class="muted">Sem insights disponíveis para o projeto informado.</p>{% endif %}
+  </div>
+</div>
+
+<div class="section-title">Qualificação de evidências</div>
+<div class="kpis">
+  <div class="kpi"><div class="kpi-value">{{ total_detected_items or 0 }}</div><div class="kpi-label">Itens detectados</div></div>
+  <div class="kpi"><div class="kpi-value">{{ total_checking_ready or 0 }}</div><div class="kpi-label">Auditáveis</div></div>
+  <div class="kpi"><div class="kpi-value">{{ total_checking_review or 0 }}</div><div class="kpi-label">Revisão/parcial</div></div>
+  <div class="kpi"><div class="kpi-value">{{ total_news_candidates or 0 }}</div><div class="kpi-label">Candidatos a notícia</div></div>
+  <div class="kpi"><div class="kpi-value">{{ total_preserved_evidence or 0 }}</div><div class="kpi-label">Evidências preservadas</div></div>
+</div>
+
+<div class="page-break"></div>
+<div class="hero" style="padding:12px 18px;"><div class="hero-left"><div class="kicker">RANKINGS EXECUTIVOS</div><div class="hero-title" style="font-size:22px;">Anunciantes identificados, portais e confiança</div></div><div class="hero-right">{% if logo_header_data_uri %}<img class="hero-logo" src="{{ logo_header_data_uri }}" />{% else %}<div class="logo-text">TV Fiscal</div>{% endif %}</div></div>
+
+<div class="section-title">Ranking de anunciantes identificados</div>
+<table class="data">
+<thead><tr><th>#</th><th>Anunciante</th><th>Banners</th><th>Share</th><th>Investimento</th><th>Confiança</th></tr></thead>
+<tbody>
+{% for a in top_advertisers %}<tr><td>{{ loop.index }}</td><td>{{ a.name }}</td><td>{{ a.banners }}</td><td>{{ "%.1f"|format(a.share or 0) }}%</td><td>{{ a.value_fmt }}</td><td>{{ a.confidence }}</td></tr>{% endfor %}
+</tbody></table>
+
+<div class="section-title">Ranking de portais</div>
+<table class="data">
+<thead><tr><th>#</th><th>Portal</th><th>Banners</th><th>Share</th><th>Investimento</th></tr></thead>
+<tbody>
+{% for p in top_publishers %}<tr><td>{{ loop.index }}</td><td>{{ p.name }}</td><td>{{ p.banners }}</td><td>{{ "%.1f"|format(p.share or 0) }}%</td><td>{{ p.value_fmt }}</td></tr>{% endfor %}
+</tbody></table>
+
+<div class="section-title">Confiança da identificação</div>
+<div class="kpis">
+  <div class="kpi"><div class="kpi-value">{{ confidence_high_banners }}</div><div class="kpi-label">Alta · {{ confidence_high_value }}</div></div>
+  <div class="kpi"><div class="kpi-value">{{ confidence_medium_banners }}</div><div class="kpi-label">Média · {{ confidence_medium_value }}</div></div>
+  <div class="kpi"><div class="kpi-value">{{ confidence_low_banners }}</div><div class="kpi-label">Baixa · {{ confidence_low_value }}</div></div>
+</div>
 </body>
 </html>

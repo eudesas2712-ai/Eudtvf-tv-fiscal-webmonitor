@@ -1,0 +1,69 @@
+import json
+from sqlalchemy import text
+
+
+def save_market_snapshot(db, project_id: str, data: dict):
+    db.execute(
+        text("""
+            INSERT INTO market_snapshots (project_id, snapshot_data)
+            VALUES (:project_id, CAST(:snapshot_data AS JSONB))
+        """),
+        {
+            "project_id": project_id,
+            "snapshot_data": json.dumps(data),
+        },
+    )
+    db.commit()
+
+
+def get_market_timeline(db, project_id: str, limit=20):
+    rows = db.execute(
+        text("""
+            SELECT snapshot_data, created_at
+            FROM market_snapshots
+            WHERE project_id = :project_id
+            ORDER BY created_at ASC
+            LIMIT :limit
+        """),
+        {
+            "project_id": project_id,
+            "limit": limit,
+        },
+    ).fetchall()
+
+    points = []
+
+    for row in rows:
+        data = row[0] or {}
+
+        share = data.get("share_of_voice", []) or []
+        portals = data.get("portal_ranking", []) or []
+
+        leader = share[0] if share else {}
+        portal = portals[0] if portals else {}
+
+        points.append({
+            "created_at": row[1].isoformat() if row[1] else None,
+            "total_banners": data.get("total_banners", 0),
+            "total_investment": data.get("total_investment", 0),
+            "top_advertiser": leader.get("advertiser", "N/D"),
+            "top_advertiser_share": leader.get("share_percent", 0),
+            "top_portal": portal.get("portal", "N/D"),
+            "top_portal_share": portal.get("share_percent", 0),
+            "market_type": (data.get("market_analysis") or {}).get("market_type", "N/D"),
+        })
+
+    return {
+        "project_id": project_id,
+        "points": points,
+    }
+
+def get_previous_market_snapshot(db, project_id: str):
+    timeline = get_market_timeline(db, project_id, limit=2)
+
+    points = timeline.get("points", [])
+
+    if len(points) >= 2:
+        return points[-2]
+
+    return None

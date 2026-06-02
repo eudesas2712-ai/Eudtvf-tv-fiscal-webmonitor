@@ -9,11 +9,16 @@ export type MonitoredItem = {
 };
 
 export type BannerItem = {
+  id?: string;
+  project_id?: string;
   page_url: string;
   image_url: string;
   alt_text?: string | null;
   width?: number | null;
   height?: number | null;
+  normalized_width?: number | null;
+  normalized_height?: number | null;
+  estimated_value?: number | null;
   pos_x?: number | null;
   pos_y?: number | null;
   source_name?: string | null;
@@ -23,4 +28,44 @@ export type BannerItem = {
   created_at?: string | null;
   ocr_text?: string | null;
   advertiser_name?: string | null;
+  classification?: string | null;
+  classification_score?: number | null;
+  classification_reason?: string | null;
+  detection_confidence?: string | null;
+  detection_evidence?: string | null;
+  content_type?: string | null;
+  checking_status?: string | null;
+  market_status?: string | null;
+  news_status?: string | null;
+  publicity_score?: number | null;
+  news_score?: number | null;
+  market_score?: number | null;
+  has_preserved_evidence?: boolean | null;
+  evidence_type?: string | null;
+  advertiser_registry_id?: string | null;
+  advertiser_registry_name?: string | null;
+  advertiser_type?: string | null;
+  advertiser_alias_matched?: string | null;
+  segment_id?: string | null;
+  segment_name?: string | null;
+  effective_advertiser_name?: string | null;
+};
+
+export type EditorialItem = {
+  id: string;
+  project_id?: string;
+  title: string;
+  url: string;
+  summary?: string | null;
+  content_text?: string | null;
+  source_name?: string | null;
+  source_url?: string | null;
+  matched_terms?: { terms?: string[] };
+  sentiment?: string | null;
+  sentiment_score?: number | null;
+  topic?: string | null;
+  editorial_score?: number | null;
+  evidence_html_url?: string | null;
+  created_at?: string | null;
+  published_at?: string | null;
 };

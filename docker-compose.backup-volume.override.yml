@@ -1,0 +1,14 @@
+# Use com: docker compose -f docker-compose.yml -f docker-compose.backup-volume.override.yml up -d --build --force-recreate backend frontend
+# Mantém os backups fora do container para não serem perdidos em rebuild/recreate.
+services:
+  backend:
+    environment:
+      BACKUP_DIR: /app/backups
+      AUTO_BACKUP_ENABLED: "true"
+      AUTO_BACKUP_INTERVAL_HOURS: "24"
+      AUTO_BACKUP_CHECK_EVERY_MINUTES: "60"
+      AUTO_BACKUP_INCLUDE_MINIO: "false"
+      BACKUP_WARNING_HOURS: "24"
+      BACKUP_ERROR_HOURS: "168"
+    volumes:
+      - ./data/backups:/app/backups

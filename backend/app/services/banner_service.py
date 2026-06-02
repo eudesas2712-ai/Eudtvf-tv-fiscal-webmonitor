@@ -6,8 +6,9 @@ from app.services.ocr_service import (
 )
 from app.services.evidence_service import save_html_evidence, save_binary_evidence
 from app.services.pricing_service import estimate_banner_value
+from app.services.content_classifier import classify_detected_item
 from playwright.sync_api import sync_playwright
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin, urlparse, unquote
 import uuid
 import re
 
@@ -26,9 +27,203 @@ COMMON_BANNER_SIZES = [
 ]
 
 
+def _contains_brand_term(text: str, pattern: str) -> bool:
+    return bool(re.search(pattern, text or "", flags=re.IGNORECASE))
+
+
+def _clean_context(value: str) -> str:
+    return unquote(value or "").lower()
+
+
 def detect_advertiser_from_url(url: str):
+    """
+    Detecção conservadora por URL.
+
+    Evita falsos positivos como:
+    - TIM dentro de ytim/ytimg;
+    - Vivo dentro de "ao vivo";
+    - Caixa dentro de "encaixar".
+    """
     if not url:
         return None
+
+    decoded_url = _clean_context(url)
+    host = urlparse(decoded_url).netloc.lower()
+
+    url_patterns = [
+        ("Magazine Luiza", r"(^|[^a-z0-9])(magazineluiza|magazine-luiza|magalu)([^a-z0-9]|$)"),
+        ("Casas Bahia", r"(^|[^a-z0-9])(casasbahia|casas-bahia|casas bahia)([^a-z0-9]|$)"),
+        ("Americanas", r"(^|[^a-z0-9])americanas([^a-z0-9]|$)"),
+        ("Mercado Livre", r"(^|[^a-z0-9])(mercadolivre|mercado-livre|mercado livre)([^a-z0-9]|$)"),
+        ("Claro", r"(^|[^a-z0-9])claro([^a-z0-9]|$)"),
+        ("Vivo", r"(^|[^a-z0-9])vivo([^a-z0-9]|$)"),
+        ("TIM", r"(^|[^a-z0-9])tim([^a-z0-9]|$)"),
+        ("OI", r"(^|[^a-z0-9])oi([^a-z0-9]|$)"),
+        ("Netshoes", r"(^|[^a-z0-9])netshoes([^a-z0-9]|$)"),
+        ("Natura", r"(^|[^a-z0-9])natura([^a-z0-9]|$)"),
+        ("O Boticário", r"(^|[^a-z0-9])(boticario|o-boticario|o boticario)([^a-z0-9]|$)"),
+        ("Shopee", r"(^|[^a-z0-9])shopee([^a-z0-9]|$)"),
+        ("Amazon", r"(^|[^a-z0-9])amazon([^a-z0-9]|$)"),
+        ("Renner", r"(^|[^a-z0-9])renner([^a-z0-9]|$)"),
+        ("Riachuelo", r"(^|[^a-z0-9])riachuelo([^a-z0-9]|$)"),
+        ("Unimed", r"(^|[^a-z0-9])unimed([^a-z0-9]|$)"),
+        ("Banco do Brasil", r"(^|[^a-z0-9])(bancodobrasil|banco-do-brasil|banco do brasil)([^a-z0-9]|$)"),
+        ("Caixa", r"(^|[^a-z0-9])caixa([^a-z0-9]|$)"),
+    ]
+
+    # Domínios próprios são sinais fortes.
+    host_patterns = [
+        ("TIM", r"(^|\.)tim\.com\.br$"),
+        ("Vivo", r"(^|\.)vivo\.com\.br$"),
+        ("Claro", r"(^|\.)claro\.com\.br$"),
+        ("Caixa", r"(^|\.)caixa\.gov\.br$"),
+        ("Banco do Brasil", r"(^|\.)bb\.com\.br$|(^|\.)bancodobrasil\.com\.br$"),
+    ]
+
+    for brand, pattern in host_patterns:
+        if re.search(pattern, host, flags=re.IGNORECASE):
+            return brand
+
+    for brand, pattern in url_patterns:
+        if _contains_brand_term(decoded_url, pattern):
+            return brand
+
+    return None
+
+
+def safe_detect_advertiser_from_text(text: str):
+    """
+    Detecção conservadora por texto/OCR/metadados.
+
+    Usa limites de palavra para evitar:
+    - "ao vivo" virar anunciante Vivo;
+    - "encaixar" virar Caixa;
+    - "ytimg" virar TIM.
+    """
+    if not text:
+        return None
+
+    raw = _clean_context(text)
+
+    if re.search(r"\bao\s+vivo\b", raw):
+        raw_without_ao_vivo = re.sub(r"\bao\s+vivo\b", " ", raw)
+    else:
+        raw_without_ao_vivo = raw
+
+    text_patterns = [
+        ("Magazine Luiza", r"\b(magazine luiza|magalu)\b"),
+        ("Casas Bahia", r"\bcasas bahia\b"),
+        ("Americanas", r"\bamericanas\b"),
+        ("Mercado Livre", r"\bmercado livre\b"),
+        ("Claro", r"\bclaro\b"),
+        ("Vivo", r"\bvivo\b"),
+        ("TIM", r"\btim\b"),
+        ("OI", r"\boi\b"),
+        ("Netshoes", r"\bnetshoes\b"),
+        ("Natura", r"\bnatura\b"),
+        ("O Boticário", r"\b(o boticario|boticario)\b"),
+        ("Shopee", r"\bshopee\b"),
+        ("Amazon", r"\bamazon\b"),
+        ("Renner", r"\brenner\b"),
+        ("Riachuelo", r"\briachuelo\b"),
+        ("Unimed", r"\bunimed\b"),
+        ("Banco do Brasil", r"\b(banco do brasil|bb)\b"),
+        ("Caixa", r"\bcaixa\b"),
+        ("Governo da Paraíba", r"\bgoverno da paraiba\b"),
+        ("Prefeitura de João Pessoa", r"\bprefeitura de joao pessoa\b"),
+    ]
+
+    for brand, pattern in text_patterns:
+        search_text = raw_without_ao_vivo if brand == "Vivo" else raw
+        if re.search(pattern, search_text, flags=re.IGNORECASE):
+            return brand
+
+    # Fallback para o detector existente, mas validando contexto por palavra.
+    detected = detect_advertiser_from_text(text)
+    if not detected:
+        return None
+
+    detected_l = detected.lower()
+
+    validation_patterns = {
+        "tim": r"\btim\b",
+        "vivo": r"\bvivo\b",
+        "caixa": r"\bcaixa\b",
+        "claro": r"\bclaro\b",
+        "unimed": r"\bunimed\b",
+        "magalu": r"\b(magalu|magazine luiza)\b",
+        "casas bahia": r"\bcasas bahia\b",
+        "banco do brasil": r"\b(banco do brasil|bb)\b",
+    }
+
+    for key, pattern in validation_patterns.items():
+        if key in detected_l:
+            search_text = raw_without_ao_vivo if key == "vivo" else raw
+            return detected if re.search(pattern, search_text, flags=re.IGNORECASE) else None
+
+    return detected
+
+
+def has_editorial_image_context(full_src: str, alt_text: str, ocr_text: str) -> bool:
+    decoded_src = _clean_context(full_src)
+    combined = _clean_context(f"{alt_text} {ocr_text}")
+
+    ad_url_signal = any(
+        token in decoded_src
+        for token in [
+            "/ads/",
+            "/ad/",
+            "/banner/",
+            "/banners/",
+            "doubleclick",
+            "googlesyndication",
+            "adservice",
+            "criteo",
+            "taboola",
+            "outbrain",
+            "smartadserver",
+            "publicidade",
+            "sponsor",
+            "patrocin",
+        ]
+    )
+
+    # Imagens de matéria em WordPress/Next costumam vir como wp-content/uploads
+    # com ALT longo e descritivo de notícia.
+    editorial_upload = "/wp-content/uploads/" in decoded_src and len((alt_text or "").strip()) >= 25
+
+    editorial_terms = [
+        "suspeito",
+        "matar",
+        "morre",
+        "preso",
+        "prisao",
+        "prisão",
+        "justica",
+        "justiça",
+        "prefeitura",
+        "deputado",
+        "governador",
+        "cantor",
+        "festival",
+        "acidente",
+        "policia",
+        "polícia",
+        "apreendida",
+        "servidor",
+        "inss",
+        "liminar",
+        "concurso",
+        "noticia",
+        "notícia",
+        "ao vivo",
+        "clicknews",
+    ]
+
+    has_editorial_terms = any(term in combined for term in editorial_terms)
+
+    return editorial_upload and has_editorial_terms and not ad_url_signal
+
 
     url = url.lower()
 
@@ -127,12 +322,17 @@ def classify_banner_candidate(
     reasons = []
     
     advertiser_from_url = detect_advertiser_from_url(full_src)
-    advertiser_from_text = detect_advertiser_from_text(ocr_text)
+    advertiser_from_text = safe_detect_advertiser_from_text(ocr_text)
     commercial_signal = has_commercial_signal(ocr_text)
     editorial_signal = has_editorial_signal(ocr_text)
 
     src_lower = (full_src or "").lower()
     combined = f"{full_src} {alt_text} {ocr_text} {page_url}".lower()
+    editorial_image_context = has_editorial_image_context(full_src, alt_text, ocr_text)
+
+    if editorial_image_context:
+        score -= 40
+        reasons.append("-editorial_image_context")
 
     if advertiser_from_url:
         score += 25
@@ -225,7 +425,9 @@ def classify_banner_candidate(
         ]
     )
 
-    if strong_positive_count >= 2 or score >= 28:
+    if editorial_image_context:
+        classification = "Editorial"
+    elif strong_positive_count >= 2 or score >= 28:
         classification = "Publicidade"
     elif editorial_signal and score <= -10:
         classification = "Editorial"
@@ -304,7 +506,7 @@ def scan_page_for_banners(project_id: str, url: str):
                 ocr_text = extract_text_from_image_bytes(banner_png)
               
                 combined_text = f"{alt or ''} {full_src or ''} {href or ''} {class_name or ''} {element_id or ''}"
-                ocr_or_meta_advertiser = detect_advertiser_from_text(f"{ocr_text} {combined_text}")
+                ocr_or_meta_advertiser = safe_detect_advertiser_from_text(f"{ocr_text} {combined_text}")
                 
                 classification, classification_score, classification_reason, advertiser_name = classify_banner_candidate(
                     full_src=full_src,
@@ -327,32 +529,35 @@ def scan_page_for_banners(project_id: str, url: str):
                     "image/png"
                 )
 
-                results.append(
-                    {
-                        "page_url": url,
-                        "image_url": full_src,
-                        "alt_text": alt or "",
-                        "width": width,
-                        "height": height,
-                        "normalized_width": normalized_width,
-                        "normalized_height": normalized_height,
-                        "estimated_value": estimated_value,
-                        "pos_x": pos_x,
-                        "pos_y": pos_y,
-                        "source_name": page_domain,
-                        "evidence_html_key": saved_key,
-                        "evidence_html_url": saved_url,
-                        "screenshot_page_key": saved_page_key,
-                        "screenshot_page_url": saved_page_url,
-                        "screenshot_banner_key": saved_banner_key,
-                        "screenshot_banner_url": saved_banner_url,
-                        "ocr_text": ocr_text,
-                        "advertiser_name": advertiser_name,
-                        "classification": classification,
-                        "classification_score": classification_score,
-                        "classification_reason": classification_reason,
-                    }
-                )
+                detected_item = {
+                    "page_url": url,
+                    "image_url": full_src,
+                    "alt_text": alt or "",
+                    "width": width,
+                    "height": height,
+                    "normalized_width": normalized_width,
+                    "normalized_height": normalized_height,
+                    "estimated_value": estimated_value,
+                    "pos_x": pos_x,
+                    "pos_y": pos_y,
+                    "source_name": page_domain,
+                    "evidence_html_key": saved_key,
+                    "evidence_html_url": saved_url,
+                    "screenshot_page_key": saved_page_key,
+                    "screenshot_page_url": saved_page_url,
+                    "screenshot_banner_key": saved_banner_key,
+                    "screenshot_banner_url": saved_banner_url,
+                    "ocr_text": ocr_text,
+                    "advertiser_name": advertiser_name,
+                    "classification": classification,
+                    "classification_score": classification_score,
+                    "classification_reason": classification_reason,
+                    "link_url": href or "",
+                    "class_name": class_name or "",
+                    "element_id": element_id or "",
+                }
+
+                results.append(classify_detected_item(detected_item))
 
             except Exception:
                 continue
@@ -396,7 +601,7 @@ def scan_page_for_banners(project_id: str, url: str):
                 ocr_text = extract_text_from_image_bytes(banner_png)
                 
                 combined_text = f"{full_src or ''} {href or ''} {class_name or ''} {element_id or ''}"
-                ocr_or_meta_advertiser = detect_advertiser_from_text(f"{ocr_text} {combined_text}")
+                ocr_or_meta_advertiser = safe_detect_advertiser_from_text(f"{ocr_text} {combined_text}")
 
                 classification, classification_score, classification_reason, advertiser_name = classify_banner_candidate(
                     full_src=full_src,
@@ -419,32 +624,35 @@ def scan_page_for_banners(project_id: str, url: str):
                     "image/png"
                 )
 
-                results.append(
-                    {
-                        "page_url": url,
-                        "image_url": full_src,
-                        "alt_text": "",
-                        "width": width,
-                        "height": height,
-                        "normalized_width": normalized_width,
-                        "normalized_height": normalized_height,
-                        "estimated_value": estimated_value,
-                        "pos_x": pos_x,
-                        "pos_y": pos_y,
-                        "source_name": page_domain,
-                        "evidence_html_key": saved_key,
-                        "evidence_html_url": saved_url,
-                        "screenshot_page_key": saved_page_key,
-                        "screenshot_page_url": saved_page_url,
-                        "screenshot_banner_key": saved_banner_key,
-                        "screenshot_banner_url": saved_banner_url,
-                        "ocr_text": ocr_text,
-                        "advertiser_name": advertiser_name,
-                        "classification": classification,
-                        "classification_score": classification_score,
-                        "classification_reason": classification_reason,
-                    }
-                )
+                detected_item = {
+                    "page_url": url,
+                    "image_url": full_src,
+                    "alt_text": "",
+                    "width": width,
+                    "height": height,
+                    "normalized_width": normalized_width,
+                    "normalized_height": normalized_height,
+                    "estimated_value": estimated_value,
+                    "pos_x": pos_x,
+                    "pos_y": pos_y,
+                    "source_name": page_domain,
+                    "evidence_html_key": saved_key,
+                    "evidence_html_url": saved_url,
+                    "screenshot_page_key": saved_page_key,
+                    "screenshot_page_url": saved_page_url,
+                    "screenshot_banner_key": saved_banner_key,
+                    "screenshot_banner_url": saved_banner_url,
+                    "ocr_text": ocr_text,
+                    "advertiser_name": advertiser_name,
+                    "classification": classification,
+                    "classification_score": classification_score,
+                    "classification_reason": classification_reason,
+                    "link_url": href or "",
+                    "class_name": class_name or "",
+                    "element_id": element_id or "",
+                }
+
+                results.append(classify_detected_item(detected_item))
 
             except Exception:
                 continue

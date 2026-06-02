@@ -1,0 +1,206 @@
+from pptx import Presentation
+from pptx.util import Inches, Pt
+from pptx.dml.color import RGBColor
+from pptx.enum.text import PP_ALIGN
+from pptx.chart.data import CategoryChartData
+from pptx.enum.chart import XL_CHART_TYPE
+
+PRIMARY = RGBColor(197, 38, 37)
+DARK = RGBColor(30, 30, 30)
+GRAY = RGBColor(120, 120, 120)
+
+
+# =========================
+# BASE VISUAL
+# =========================
+def add_header_bar(slide):
+    shape = slide.shapes.add_shape(
+        1,
+        0,
+        0,
+        Inches(13),
+        Inches(0.6),
+    )
+    shape.fill.solid()
+    shape.fill.fore_color.rgb = PRIMARY
+
+
+def add_title(slide, text):
+    box = slide.shapes.add_textbox(Inches(0.8), Inches(0.8), Inches(10), Inches(1))
+    tf = box.text_frame
+    tf.text = text
+
+    p = tf.paragraphs[0]
+    p.font.size = Pt(32)
+    p.font.bold = True
+    p.font.color.rgb = DARK
+
+
+def add_subtitle(slide, text):
+    box = slide.shapes.add_textbox(Inches(0.8), Inches(1.5), Inches(10), Inches(1))
+    tf = box.text_frame
+    tf.text = text
+
+    p = tf.paragraphs[0]
+    p.font.size = Pt(18)
+    p.font.color.rgb = GRAY
+
+
+def add_kpi_card(slide, title, value, l+-eft
+    box = slide.shapes.add_textbox(left, Inches(2.2), Inches(2.2), Inches(1.5))
+    tf = box.text_frame
+
+    tf.text = title
+    p = tf.paragraphs[0]
+    p.font.size = Pt(14)
+    p.font.color.rgb = GRAY
+
+    p2 = tf.add_paragraph()
+    p2.text = value
+    p2.font.size = Pt(28)
+    p2.font.bold = True
+    p2.font.color.rgb = DARK
+
+
+def add_bullet_block(slide, title, items):
+    add_title(slide, title)
+
+    for i, item in enumerate(items[:6]):
+        box = slide.shapes.add_textbox(Inches(1), Inches(2 + i * 0.7), Inches(9), Inches(0.5))
+        tf = box.text_frame
+        tf.text = f"• {item}"
+
+        p = tf.paragraphs[0]
+        p.font.size = Pt(18)
+
+def add_bar_chart(slide, title, categories, values, top):
+    chart_data = CategoryChartData()
+    chart_data.categories = categories
+    chart_data.add_series(title, values)
+
+    x, y, cx, cy = Inches(1), top, Inches(8), Inches(3)
+
+    slide.shapes.add_chart(
+        XL_CHART_TYPE.COLUMN_CLUSTERED,
+        x, y, cx, cy,
+        chart_data
+    )
+
+
+# =========================
+# GERADOR PRO
+# =========================
+def generate_ppt_report(summary: dict, filename: str):
+    prs = Presentation()
+
+    market = summary.get("market_analysis", {})
+
+    # =========================
+    # CAPA
+    # =========================
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    add_header_bar(slide)
+
+    add_title(slide, "TV Fiscal WebMonitor")
+    add_subtitle(slide, "Inteligência de Mercado Publicitário")
+
+    add_subtitle(slide, f"Projeto: {summary.get('project_id')}")
+
+    # =========================
+    # KPI EXECUTIVO
+    # =========================
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    add_header_bar(slide)
+
+    add_title(slide, "Resumo Executivo")
+
+    add_kpi_card(slide, "Investimento", f"R$ {int(summary.get('total_investment', 0))}", Inches(1))
+    add_kpi_card(slide, "Anúncios", str(summary.get("total_banners")), Inches(3.5))
+    add_kpi_card(slide, "Anunciantes", str(len(summary.get("share_of_voice", []))), Inches(6))
+    add_kpi_card(slide, "Portais", str(len(summary.get("portal_ranking", []))), Inches(8.5))
+
+    # =========================
+    # TOP ANUNCIANTES
+    # =========================
+slide = prs.slides.add_slide(prs.slide_layouts[6])
+add_header_bar(slide)
+add_title(slide, "Top Anunciantes")
+
+top_adv = summary.get("share_of_voice", [])[:5]
+
+categories = [a["advertiser"] for a in top_adv]
+values = [a["share_percent"] for a in top_adv]
+
+add_bar_chart(slide, "Share (%)", categories, values, Inches(2))
+
+    # =========================
+    # TOP PORTAIS
+    # =========================
+slide = prs.slides.add_slide(prs.slide_layouts[6])
+add_header_bar(slide)
+add_title(slide, "Distribuição por Portais")
+
+top_portals = summary.get("portal_ranking", [])[:5]
+
+categories = [p["portal"] for p in top_portals]
+values = [p["share_percent"] for p in top_portals]
+
+add_bar_chart(slide, "Share (%)", categories, values, Inches(2))
+
+    # =========================
+    # MAPA COMPETITIVO
+    # =========================
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    add_header_bar(slide)
+
+    comp = summary.get("competitive_map", [])[:5]
+
+    items = [
+        f"{c['advertiser_a']} vs {c['advertiser_b']} (score {round(c['competition_score'],1)})"
+        for c in comp
+    ]
+
+    add_bullet_block(slide, "Mapa Competitivo", items)
+
+    # =========================
+    # PRESSÃO
+    # =========================
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    add_header_bar(slide)
+
+    pressure = summary.get("portal_pressure_map", [])[:5]
+
+    items = [f"{p['portal']} — {p['pressure_label']}" for p in pressure]
+
+    add_bullet_block(slide, "Pressão por Portal", items)
+
+    # =========================
+    # INSIGHTS
+    # =========================
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    add_header_bar(slide)
+
+    add_bullet_block(slide, "Insights Estratégicos", market.get("insights", []))
+
+    # =========================
+    # RECOMENDAÇÕES
+    # =========================
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    add_header_bar(slide)
+
+    add_bullet_block(slide, "Recomendações", market.get("recommendations", []))
+
+    # =========================
+    # ENCERRAMENTO
+    # =========================
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    add_header_bar(slide)
+
+    add_title(slide, "TV Fiscal")
+
+    add_subtitle(
+        slide,
+        "38 anos evoluindo com transparência\nO monitor ideal da sua mídia",
+    )
+
+    prs.save(filename)

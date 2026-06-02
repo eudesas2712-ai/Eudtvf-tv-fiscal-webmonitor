@@ -15,3 +15,24 @@ a { color:#8ab4ff; text-decoration:none; }
 .small { font-size:12px; opacity:.85; }
 .h1 { font-size:22px; margin:0 0 8px 0; }
 .h2 { font-size:16px; margin:0 0 8px 0; opacity:.9; }
+
+/* TV Fiscal WebMonitor — garante contraste dos campos claros mesmo com color-scheme dark global. */
+select,
+select option,
+input[type="date"],
+input[type="text"],
+input[type="search"],
+input[type="number"] {
+  color: #111827;
+  -webkit-text-fill-color: #111827;
+  color-scheme: light;
+}
+
+select:focus,
+input[type="date"]:focus,
+input[type="text"]:focus,
+input[type="search"]:focus,
+input[type="number"]:focus {
+  outline: 2px solid rgba(176, 0, 32, 0.28);
+  outline-offset: 1px;
+}
