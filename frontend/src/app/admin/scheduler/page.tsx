@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import AppShell from "../../../components/AppShell";
+import { adminFetch, API_BASE, ADMIN_TOKEN_KEY } from "../../../lib/apiClient";
 
-const API = "http://localhost:8000";
-const TOKEN_STORAGE_KEY = "tvfiscal_admin_token";
+const API = API_BASE;
 const DEFAULT_PROJECT_ID = "9b972aa2-f8a4-483b-a7d1-e979d86482fb";
 
 function fmtDate(value: any) {
@@ -83,7 +84,7 @@ export default function SchedulerAdminPage() {
   }
 
   function logoutAdmin() {
-    localStorage.removeItem(TOKEN_STORAGE_KEY);
+    localStorage.removeItem(ADMIN_TOKEN_KEY);
     setAdminToken("");
     setTokenInput("");
     setAuthenticated(false);
@@ -102,7 +103,7 @@ export default function SchedulerAdminPage() {
         throw new Error("Informe o token administrativo.");
       }
 
-      const res = await fetch(`${API}/admin/scheduler/status`, {
+      const res = await adminFetch(`${API}/admin/scheduler/status`, {
         headers: getAuthHeaders(cleanedToken),
       });
 
@@ -112,7 +113,7 @@ export default function SchedulerAdminPage() {
 
       const json = await res.json();
 
-      localStorage.setItem(TOKEN_STORAGE_KEY, cleanedToken);
+      localStorage.setItem(ADMIN_TOKEN_KEY, cleanedToken);
 
       setAdminToken(cleanedToken);
       setTokenInput(cleanedToken);
@@ -133,7 +134,7 @@ export default function SchedulerAdminPage() {
     try {
       setError("");
 
-      const res = await fetch(`${API}/admin/scheduler/status`, {
+      const res = await adminFetch(`${API}/admin/scheduler/status`, {
         headers: getAuthHeaders(),
       });
 
@@ -167,7 +168,7 @@ export default function SchedulerAdminPage() {
       params.set("status", historyStatus);
     }
 
-    const res = await fetch(
+    const res = await adminFetch(
       `${API}/admin/scheduler/history?${params.toString()}`,
       {
         headers: getAuthHeaders(token),
@@ -228,7 +229,7 @@ export default function SchedulerAdminPage() {
         ? `${API}/admin/scheduler/history?${query}`
         : `${API}/admin/scheduler/history`;
 
-      const res = await fetch(url, {
+      const res = await adminFetch(url, {
         method: "DELETE",
         headers: getAuthHeaders(),
       });
@@ -276,7 +277,7 @@ export default function SchedulerAdminPage() {
       setError("");
       setRunning(true);
 
-      const res = await fetch(`${API}/admin/scheduler/run-now`, {
+      const res = await adminFetch(`${API}/admin/scheduler/run-now`, {
         method: "POST",
         headers: getAuthHeaders(),
       });
@@ -312,7 +313,7 @@ export default function SchedulerAdminPage() {
       setBootstrapPortalsRunning(true);
       const projectId = (status?.project_ids || [])[0] || DEFAULT_PROJECT_ID;
 
-      const res = await fetch(`${API}/registry/projects/${projectId}/bootstrap-portals`, {
+      const res = await adminFetch(`${API}/registry/projects/${projectId}/bootstrap-portals`, {
         method: "POST",
         headers: getAuthHeaders(),
       });
@@ -348,7 +349,7 @@ export default function SchedulerAdminPage() {
       setPortalScanRunning(true);
       setPortalScanResult(null);
 
-      const res = await fetch(`${API}/admin/scheduler/run-portal-scan-now?save_rejected=true`, {
+      const res = await adminFetch(`${API}/admin/scheduler/run-portal-scan-now?save_rejected=true`, {
         method: "POST",
         headers: getAuthHeaders(),
       });
@@ -384,7 +385,7 @@ export default function SchedulerAdminPage() {
 
       const endpoint = status?.running ? "disable" : "enable";
 
-      const res = await fetch(`${API}/admin/scheduler/${endpoint}`, {
+      const res = await adminFetch(`${API}/admin/scheduler/${endpoint}`, {
         method: "POST",
         headers: getAuthHeaders(),
       });
@@ -412,7 +413,7 @@ export default function SchedulerAdminPage() {
   }
 
   useEffect(() => {
-    const savedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
+    const savedToken = localStorage.getItem(ADMIN_TOKEN_KEY);
 
     if (savedToken) {
       setAdminToken(savedToken);
