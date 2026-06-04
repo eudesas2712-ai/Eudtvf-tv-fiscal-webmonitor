@@ -103,55 +103,6 @@ export default function UsersAdminPage() {
       admin: true,
       json: true,
     });
-  }) {
-    const headers = new Headers({
-      ...getAdminHeaders(),
-      ...(options.headers || {}),
-    });
-
-    // Esta tela administrativa usa o fallback X-Admin-Token.
-    // Se existir um JWT antigo no localStorage, o interceptor global pode injetar Authorization
-    // e o backend responde "Sessão expirada". Em 401, limpamos o JWT antigo e repetimos a chamada.
-    headers.delete("Authorization");
-
-    let response = await fetch(`${API}${path}`, {
-      ...options,
-      headers,
-      cache: "no-store",
-    });
-
-    if (response.status === 401) {
-      const detail = await response.clone().text().catch(() => "");
-      if (detail.includes("Sessão expirada") || detail.includes("Sessao expirada")) {
-        if (typeof window !== "undefined") {
-          localStorage.removeItem("tvfiscal_auth_token");
-        }
-
-        const retryHeaders = new Headers({
-          ...getAdminHeaders(),
-          ...(options.headers || {}),
-        });
-        retryHeaders.delete("Authorization");
-
-        response = await fetch(`${API}${path}`, {
-          ...options,
-          headers: retryHeaders,
-          cache: "no-store",
-        });
-      }
-    }
-
-    if (!response.ok) {
-      let detail = "";
-      try {
-        detail = JSON.stringify(await response.json());
-      } catch {
-        detail = await response.text();
-      }
-      throw new Error(`Erro HTTP ${response.status}: ${detail}`);
-    }
-
-    return response.json();
   }
 
   async function load() {
