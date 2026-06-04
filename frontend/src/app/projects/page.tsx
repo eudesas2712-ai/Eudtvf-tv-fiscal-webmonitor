@@ -3,13 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import AppShell from "../../components/AppShell";
+import { adminJson, API_BASE } from "../../lib/apiClient";
 
-const API =
-  (
-    process.env.NEXT_PUBLIC_API_URL ||
-    process.env.NEXT_PUBLIC_API_BASE ||
-    "http://localhost:8000"
-  ).replace(/\/$/, "");
+const API = API_BASE;
 const TOKEN_STORAGE_KEY = "tvfiscal_admin_token";
 const DEFAULT_ADMIN_TOKEN = "tvfiscal-admin-2026";
 const DEFAULT_PROJECT_ID = "9b972aa2-f8a4-483b-a7d1-e979d86482fb";
@@ -141,26 +137,21 @@ export default function ProjectsPage() {
   }
 
   async function getJson<T>(path: string): Promise<T> {
-    const res = await fetch(`${API}${path}`, {
-      cache: "no-store",
-      headers: headers(false),
+    return adminJson<T>(path, {
+      bearer: false,
+      admin: true,
+      json: true,
     });
-    if (!res.ok) throw new Error(`Erro HTTP ${res.status}`);
-    return res.json();
   }
 
   async function sendJson<T>(path: string, method: "POST" | "PUT", body: unknown): Promise<T> {
-    const res = await fetch(`${API}${path}`, {
+    return adminJson<T>(path, {
       method,
-      headers: headers(),
       body: JSON.stringify(body),
-      cache: "no-store",
+      bearer: false,
+      admin: true,
+      json: true,
     });
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(text || `Erro HTTP ${res.status}`);
-    }
-    return res.json();
   }
 
   async function loadAll(projectId = selectedProjectId) {
