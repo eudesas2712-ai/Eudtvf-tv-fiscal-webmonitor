@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import AppShell from "../../../components/AppShell";
 import { getAuthUser } from "../../../lib/auth";
+import { adminJson } from "../../../lib/apiClient";
 
 const API =
   (
@@ -95,7 +96,14 @@ export default function UsersAdminPage() {
 
   const selectedUser = useMemo(() => users.find((user) => user.id === selectedUserId) || null, [selectedUserId, users]);
 
-  async function api(path: string, options: RequestInit = {}) {
+  async function api<T = any>(path: string, options: RequestInit = {}): Promise<T> {
+    return adminJson<T>(path, {
+      ...options,
+      bearer: false,
+      admin: true,
+      json: true,
+    });
+  }) {
     const headers = new Headers({
       ...getAdminHeaders(),
       ...(options.headers || {}),
