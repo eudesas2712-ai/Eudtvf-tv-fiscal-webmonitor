@@ -2,11 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import AppShell from "../../../components/AppShell";
+import { adminJson, API_BASE, ADMIN_TOKEN_KEY, DEFAULT_ADMIN_TOKEN } from "../../../lib/apiClient";
 
-const API =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ||
-  "http://localhost:8000";
-const TOKEN_STORAGE_KEY = "tvfiscal_admin_token";
+const API = API_BASE;
 const DEFAULT_PROJECT_ID = "9b972aa2-f8a4-483b-a7d1-e979d86482fb";
 
 type Advertiser = {
@@ -126,27 +124,23 @@ export default function AdminIdentificacaoPage() {
 
   const authenticated = Boolean(token);
 
-  function headers() {
-    return { "Content-Type": "application/json", "X-Admin-Token": token };
-  }
 
   async function apiGet<T>(path: string): Promise<T> {
-    const res = await fetch(`${API}${path}`, { cache: "no-store" });
-    if (!res.ok) throw new Error(`Erro HTTP ${res.status}`);
-    return res.json();
+    return adminJson<T>(path, {
+      bearer: false,
+      admin: true,
+      json: true,
+    });
   }
 
   async function apiPost<T>(path: string, body: unknown): Promise<T> {
-    const res = await fetch(`${API}${path}`, {
+    return adminJson<T>(path, {
       method: "POST",
-      headers: headers(),
       body: JSON.stringify(body),
+      bearer: false,
+      admin: true,
+      json: true,
     });
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(text || `Erro HTTP ${res.status}`);
-    }
-    return res.json();
   }
 
   async function loadAll(customProjectId = projectId) {
@@ -180,7 +174,7 @@ export default function AdminIdentificacaoPage() {
   }
 
   useEffect(() => {
-    const saved = localStorage.getItem(TOKEN_STORAGE_KEY) || "";
+    const saved = localStorage.getItem(ADMIN_TOKEN_KEY) || "";
     setToken(saved);
     setTokenInput(saved);
     const params = new URLSearchParams(window.location.search);
@@ -196,7 +190,7 @@ export default function AdminIdentificacaoPage() {
       setError("Informe o token administrativo.");
       return;
     }
-    localStorage.setItem(TOKEN_STORAGE_KEY, cleaned);
+    localStorage.setItem(ADMIN_TOKEN_KEY, cleaned);
     setToken(cleaned);
     setMessage("Token administrativo carregado.");
   }
