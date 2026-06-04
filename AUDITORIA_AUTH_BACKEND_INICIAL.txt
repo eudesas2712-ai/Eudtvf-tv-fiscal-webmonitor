@@ -1,0 +1,286 @@
+backend/app/core/admin_auth.py:8:def get_admin_token():
+backend/app/core/admin_auth.py:13:    expected_token = get_admin_token()
+backend/app/core/admin_auth.py:15:    header_token = request.headers.get("X-Admin-Token")
+backend/app/core/admin_auth.py:16:    query_token = request.query_params.get("admin_token")
+backend/app/core/admin_auth.py:26:            if payload.get("role") == "admin":
+backend/app/core/config.py:10:    MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minio12345")
+backend/app/core/security.py:83:    header = request.headers.get("Authorization") or ""
+backend/app/db/migrations.py:89:            role VARCHAR(120),
+backend/app/db/migrations.py:284:            role VARCHAR(80) NOT NULL DEFAULT 'cliente',
+backend/app/db/migrations.py:306:        "CREATE INDEX IF NOT EXISTS ix_app_users_role_active ON app_users(role, active)",
+backend/app/db/models.py:206:    role: Mapped[str] = mapped_column(String(50), default="monitorado")
+backend/app/db/models.py:217:    role: Mapped[str] = mapped_column(String(120), nullable=True)
+backend/app/main.py:30:from app.services.permissions_service import validate_request_permission
+backend/app/main.py:69:async def auth_permission_middleware(request, call_next):
+backend/app/main.py:72:        validate_request_permission(db, request)
+backend/app/routers/alerts.py:6:from fastapi import APIRouter, Depends
+backend/app/routers/alerts.py:17:def alerts_summary(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/alerts.py:22:def alerts_export_csv(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:1:from fastapi import APIRouter, Depends, Request
+backend/app/routers/auth.py:10:    current_user,
+backend/app/routers/auth.py:16:    require_roles,
+backend/app/routers/auth.py:22:from app.services.permissions_service import permissions_matrix, modules_for_user
+backend/app/routers/auth.py:36:    role: str = "cliente"
+backend/app/routers/auth.py:45:    role: str | None = None
+backend/app/routers/auth.py:56:def login_route(payload: LoginRequest, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:61:def me_route(request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:62:    return current_user(db, request)
+backend/app/routers/auth.py:66:def bootstrap_admin_route(request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:73:@router.get("/roles")
+backend/app/routers/auth.py:74:def roles_route():
+backend/app/routers/auth.py:76:        "roles": [
+backend/app/routers/auth.py:77:            {"id": role, "label": label, "modules": ROLE_MODULES.get(role, [])}
+backend/app/routers/auth.py:78:            for role, label in ROLE_LABELS.items()
+backend/app/routers/auth.py:85:@router.get("/permissions-matrix")
+backend/app/routers/auth.py:86:def permissions_matrix_route(request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:87:    require_roles(db, request, {"admin"})
+backend/app/routers/auth.py:88:    return permissions_matrix()
+backend/app/routers/auth.py:92:def my_access_route(request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:93:    user = current_user(db, request)
+backend/app/routers/auth.py:102:def users_route(request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:103:    require_roles(db, request, {"admin"})
+backend/app/routers/auth.py:108:def create_user_route(payload: UserCreateRequest, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:109:    actor = require_roles(db, request, {"admin"})
+backend/app/routers/auth.py:115:        role=payload.role,
+backend/app/routers/auth.py:125:def update_user_route(user_id: str, payload: UserUpdateRequest, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:126:    actor = require_roles(db, request, {"admin"})
+backend/app/routers/auth.py:132:        role=payload.role,
+backend/app/routers/auth.py:142:def reset_password_route(user_id: str, payload: PasswordResetRequest, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:143:    actor = require_roles(db, request, {"admin"})
+backend/app/routers/auth.py:150:def deactivate_user_route(user_id: str, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:151:    actor = require_roles(db, request, {"admin"})
+backend/app/routers/auth.py:158:def delete_user_permanently_route(user_id: str, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:159:    actor = require_roles(db, request, {"admin"})
+backend/app/routers/auth.py:169:def projects_summary_route(request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:170:    require_roles(db, request, {"admin", "gestor"})
+backend/app/routers/auth.py:175:def audit_route(request: Request, limit: int = 100, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:176:    require_roles(db, request, {"admin"})
+backend/app/routers/banners.py:6:from fastapi import APIRouter, Depends, HTTPException, Query
+backend/app/routers/banners.py:581:    db: Session = Depends(get_db),
+backend/app/routers/banners.py:610:    db: Session = Depends(get_db),
+backend/app/routers/banners.py:625:    db: Session = Depends(get_db),
+backend/app/routers/banners.py:813:    db: Session = Depends(get_db),
+backend/app/routers/editorial.py:1:from fastapi import APIRouter, Depends, Query, Request
+backend/app/routers/editorial.py:73:def summary(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/editorial.py:88:    db: Session = Depends(get_db),
+backend/app/routers/editorial.py:110:    db: Session = Depends(get_db),
+backend/app/routers/editorial.py:132:    db: Session = Depends(get_db),
+backend/app/routers/editorial.py:146:    db: Session = Depends(get_db),
+backend/app/routers/editorial.py:240:    db: Session = Depends(get_db),
+backend/app/routers/editorial.py:289:    db: Session = Depends(get_db),
+backend/app/routers/editorial.py:312:    db: Session = Depends(get_db),
+backend/app/routers/editorial.py:325:def clear_editorial_items(project_id: str, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/executive_dashboard.py:3:from fastapi import APIRouter, Depends, Query
+backend/app/routers/executive_dashboard.py:16:    db: Session = Depends(get_db),
+backend/app/routers/identification.py:6:from fastapi import APIRouter, Depends, HTTPException, Query, Request
+backend/app/routers/identification.py:54:def pending_identification_groups(project_id: str, limit: int = Query(default=120, ge=1, le=500), db: Session = Depends(get_db)):
+backend/app/routers/identification.py:59:def export_pending_identification_groups(project_id: str, limit: int = Query(default=500, ge=1, le=2000), db: Session = Depends(get_db)):
+backend/app/routers/identification.py:94:def identification_quality(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/identification.py:99:def export_identification_actions(project_id: str, limit: int = Query(default=500, ge=1, le=2000), db: Session = Depends(get_db)):
+backend/app/routers/identification.py:126:def identification_actions(project_id: str, limit: int = Query(default=80, ge=1, le=300), db: Session = Depends(get_db)):
+backend/app/routers/identification.py:131:def qualify_identification_group(project_id: str, payload: QualifyPayload, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/identification.py:149:def ignore_identification_group(project_id: str, payload: IgnorePayload, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/identification.py:165:    db: Session = Depends(get_db),
+backend/app/routers/identification.py:176:    db: Session = Depends(get_db),
+backend/app/routers/ingest.py:2:from fastapi import APIRouter, Depends
+backend/app/routers/ingest.py:11:def run_ingest(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/intel.py:1:from fastapi import APIRouter, Depends
+backend/app/routers/intel.py:12:def intel_dashboard(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/intel_compare.py:7:from fastapi import APIRouter, Depends, HTTPException, Query
+backend/app/routers/intel_compare.py:342:    db: Session = Depends(get_db),
+backend/app/routers/intel_compare.py:526:    db: Session = Depends(get_db),
+backend/app/routers/intel_compare.py:552:    db: Session = Depends(get_db),
+backend/app/routers/items.py:1:from fastapi import APIRouter, Depends, Query
+backend/app/routers/items.py:111:    db: Session = Depends(get_db)
+backend/app/routers/items.py:151:    db: Session = Depends(get_db)
+backend/app/routers/items.py:162:    db: Session = Depends(get_db)
+backend/app/routers/items.py:177:def clear_items(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/maintenance.py:1:from fastapi import APIRouter, Depends, HTTPException, Request
+backend/app/routers/maintenance.py:59:def status(request: Request, db: Session = Depends(get_db)):
+backend/app/routers/maintenance.py:108:def cleanup(payload: CleanupRequest, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/maintenance.py:145:def archive_errors(payload: ArchiveErrorsRequest, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/maintenance.py:157:def archive_homologation_errors(payload: ArchiveHomologationErrorsRequest, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/maintenance.py:169:def security_export(request: Request, db: Session = Depends(get_db)):
+backend/app/routers/market_intelligence.py:4:from fastapi import APIRouter, Depends, Query
+backend/app/routers/market_intelligence.py:516:    db: Session = Depends(get_db),
+backend/app/routers/market_intelligence.py:861:    db: Session = Depends(get_db),
+backend/app/routers/market_intelligence.py:1019:    db: Session = Depends(get_db),
+backend/app/routers/market_intelligence.py:1041:def get_intel_timeline(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/market_intelligence.py:1054:def get_intel_trends(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:6:from fastapi import APIRouter, Depends, Query, Request
+backend/app/routers/notifications.py:71:def dashboard(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:76:def provider_settings(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:81:def save_email_smtp(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:87:def disable_email_smtp(project_id: str, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:93:def save_sms_provider(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:99:def disable_sms_provider(project_id: str, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:105:def save_whatsapp_provider(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:111:def disable_whatsapp_provider(project_id: str, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:117:def contacts(project_id: str, active_only: bool = Query(default=False), db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:122:def create_contact(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:128:def update_contact(project_id: str, contact_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:134:def delete_contact(contact_id: str, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:140:def rules(project_id: str, active_only: bool = Query(default=False), db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:145:def create_rule(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:151:def update_rule(project_id: str, rule_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:157:def delete_rule(rule_id: str, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:163:def bootstrap(project_id: str, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:169:def cleanup(project_id: str, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:175:def evaluate(project_id: str, request: Request, source: str = Query(default="manual"), event_limit: int = Query(default=80, ge=10, le=300), db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:181:def test(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:187:def test_real_email(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:193:def test_real_sms(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:199:def test_real_whatsapp(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:205:def test_automatic_email(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:211:def test_automatic_sms(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:217:def test_automatic_whatsapp(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:225:def automation_test(project_id: str, request: Request, source: str = Query(default="manual_automation_test"), event_limit: int = Query(default=120, ge=10, le=500), window_minutes: int = Query(default=180, ge=1, le=10080), db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:231:def automation_runs(project_id: str, limit: int = Query(default=30, ge=1, le=200), db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:238:def inbox(project_id: str, status: str | None = Query(default="aberto"), severity: str | None = Query(default=None), channel: str | None = Query(default=None), limit: int = Query(default=150, ge=1, le=1000), db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:243:def sla_dashboard(project_id: str, limit: int = Query(default=200, ge=1, le=1000), db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:248:def sla_evaluate(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:254:def assign_log(log_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:260:def ack_log(log_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:266:def resolve_log(log_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:272:def snooze_log(log_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:278:def reopen_log(log_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:284:def bulk_log_status(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:290:def alerts_management_report(project_id: str, start_date: str | None = Query(default=None), end_date: str | None = Query(default=None), db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:295:def alerts_management_report_csv(project_id: str, start_date: str | None = Query(default=None), end_date: str | None = Query(default=None), db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:306:def alerts_management_report_pdf(project_id: str, start_date: str | None = Query(default=None), end_date: str | None = Query(default=None), db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:317:def alerts_management_report_pptx(project_id: str, start_date: str | None = Query(default=None), end_date: str | None = Query(default=None), db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:328:def logs(project_id: str, limit: int = Query(default=100, ge=1, le=1000), status: str | None = Query(default=None), channel: str | None = Query(default=None), db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:333:def export_logs(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/projects.py:1:from fastapi import APIRouter, Depends
+backend/app/routers/projects.py:27:def get_intel_options(db: Session = Depends(get_db)):
+backend/app/routers/project_reports.py:7:from fastapi import APIRouter, Depends, HTTPException, Query
+backend/app/routers/project_reports.py:149:        .order_by(ProjectAdvertiser.role.asc(), Advertiser.name.asc())
+backend/app/routers/project_reports.py:162:                "role": link.role or "monitorado",
+backend/app/routers/project_reports.py:305:    roles_by_id = {item["id"]: item.get("role") for item in linked_advertisers}
+backend/app/routers/project_reports.py:310:        "role": "não vinculado",
+backend/app/routers/project_reports.py:324:        role = roles_by_id.get(str(adv_id), "não vinculado")
+backend/app/routers/project_reports.py:332:            stat["role"] = role
+backend/app/routers/project_reports.py:355:            "role": stat["role"],
+backend/app/routers/project_reports.py:468:    db: Session = Depends(get_db),
+backend/app/routers/project_reports.py:479:    db: Session = Depends(get_db),
+backend/app/routers/project_reports.py:491:    db: Session = Depends(get_db),
+backend/app/routers/registry.py:6:from fastapi import APIRouter, Depends, HTTPException, Request
+backend/app/routers/registry.py:62:    role: str = "monitorado"
+backend/app/routers/registry.py:227:def list_segments(active_only: bool = False, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:235:def create_segment(payload: SegmentIn, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:252:def list_advertisers(segment_id: str | None = None, active_only: bool = False, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:262:def create_advertiser(payload: AdvertiserIn, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:285:def add_advertiser_alias(advertiser_id: str, payload: AliasIn, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:306:def list_portals(active_only: bool = False, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:314:def create_portal(payload: PortalIn, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:344:def list_registry_projects(active_only: bool = False, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:353:def create_project(payload: ProjectIn, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:364:def update_project(project_id: str, payload: ProjectIn, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:377:def set_project_active(project_id: str, active: bool, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:391:def attach_project_portal(project_id: str, payload: ProjectPortalIn, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:407:def attach_project_advertiser(project_id: str, payload: ProjectAdvertiserIn, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:414:        row.role = payload.role
+backend/app/routers/registry.py:417:        row = ProjectAdvertiser(project_id=project_uuid, advertiser_id=advertiser_uuid, role=payload.role, active=payload.active)
+backend/app/routers/registry.py:424:def get_project_config(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:433:    advertiser_roles = {row.advertiser_id: row.role for row in project_advertisers}
+backend/app/routers/registry.py:453:            {**_advertiser_payload(row, db), "role": advertiser_roles.get(row.id, "monitorado")}
+backend/app/routers/registry.py:460:def bootstrap_defaults(request: Request, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:499:def bootstrap_project_portals(project_id: str, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/scheduler_admin.py:5:from fastapi import APIRouter, Depends, Query
+backend/app/routers/scheduler_admin.py:22:    dependencies=[Depends(require_admin_access)],
+backend/app/routers/sources.py:1:from fastapi import APIRouter, Depends
+backend/app/routers/sources.py:10:def bootstrap_sources(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/sources.py:49:def list_sources(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/system_health.py:3:from fastapi import APIRouter, Depends, HTTPException, Query, Request
+backend/app/routers/system_health.py:15:def advanced(request: Request, persist: bool = Query(default=False), db: Session = Depends(get_db)):
+backend/app/routers/system_health.py:21:def run_check(request: Request, db: Session = Depends(get_db)):
+backend/app/routers/system_health.py:32:    db: Session = Depends(get_db),
+backend/app/routers/system_health.py:39:def check_history_export(request: Request, limit: int = Query(default=1000), db: Session = Depends(get_db)):
+backend/app/routers/system_health.py:49:def report_pdf(request: Request, db: Session = Depends(get_db)):
+backend/app/routers/system_health.py:60:def uptime_endpoint(db: Session = Depends(get_db)):
+backend/app/routers/system_health.py:69:def ready_alias(db: Session = Depends(get_db)):
+backend/app/routers/system_health.py:91:def public_ready(db: Session = Depends(get_db)):
+backend/app/routers/terms.py:1:from fastapi import APIRouter, Depends
+backend/app/routers/terms.py:10:def bootstrap_terms(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/terms.py:39:def list_terms(project_id: str, db: Session = Depends(get_db)):
+backend/app/services/auth_service.py:45:def normalize_role(role: str | None) -> str:
+backend/app/services/auth_service.py:46:    value = (role or "cliente").strip().lower()
+backend/app/services/auth_service.py:48:        raise HTTPException(status_code=400, detail=f"Perfil inválido: {role}")
+backend/app/services/auth_service.py:69:        "role": data.get("role") or "cliente",
+backend/app/services/auth_service.py:70:        "role_label": ROLE_LABELS.get(data.get("role") or "cliente", data.get("role") or "cliente"),
+backend/app/services/auth_service.py:79:        result["allowed_modules"] = ROLE_MODULES.get(result["role"], [])
+backend/app/services/auth_service.py:129:            INSERT INTO app_users (id, name, email, password_hash, role, active, project_ids, allowed_modules, created_at, updated_at)
+backend/app/services/auth_service.py:155:    token = create_access_token({"sub": public_user["id"], "email": public_user["email"], "role": public_user["role"]})
+backend/app/services/auth_service.py:160:def current_user(db: Session, request: Request) -> dict[str, Any]:
+backend/app/services/auth_service.py:174:def require_roles(db: Session, request: Request, roles: set[str]) -> dict[str, Any]:
+backend/app/services/auth_service.py:175:    user = current_user(db, request)
+backend/app/services/auth_service.py:176:    if user["role"] not in roles:
+backend/app/services/auth_service.py:182:    rows = db.execute(text("SELECT * FROM app_users ORDER BY active DESC, role ASC, name ASC")).all()
+backend/app/services/auth_service.py:186:def create_user(db: Session, *, name: str, email: str, password: str, role: str, active: bool = True, project_ids: list[str] | None = None, allowed_modules: list[str] | None = None) -> dict[str, Any]:
+backend/app/services/auth_service.py:192:    normalized_role = normalize_role(role)
+backend/app/services/auth_service.py:194:    modules = allowed_modules if allowed_modules is not None else ROLE_MODULES.get(normalized_role, [])
+backend/app/services/auth_service.py:198:            INSERT INTO app_users (id, name, email, password_hash, role, active, project_ids, allowed_modules, created_at, updated_at)
+backend/app/services/auth_service.py:199:            VALUES (:id, :name, :email, :password_hash, :role, :active, CAST(:project_ids AS JSONB), CAST(:modules AS JSONB), NOW(), NOW())
+backend/app/services/auth_service.py:207:            "role": normalized_role,
+backend/app/services/auth_service.py:217:def update_user(db: Session, user_id: str, *, name: str | None = None, email: str | None = None, role: str | None = None, active: bool | None = None, project_ids: list[str] | None = None, allowed_modules: list[str] | None = None) -> dict[str, Any]:
+backend/app/services/auth_service.py:234:    if role is not None:
+backend/app/services/auth_service.py:235:        normalized_role = normalize_role(role)
+backend/app/services/auth_service.py:236:        updates.append("role = :role")
+backend/app/services/auth_service.py:237:        params["role"] = normalized_role
+backend/app/services/auth_service.py:239:            allowed_modules = ROLE_MODULES.get(normalized_role, [])
+backend/app/services/evidence_service.py:10:        aws_secret_access_key=settings.MINIO_SECRET_KEY,
+backend/app/services/maintenance_service.py:106:        aws_secret_access_key=settings.MINIO_SECRET_KEY,
+backend/app/services/market_analyzer.py:4:def classify_market_roles(advertisers: list[dict]) -> dict:
+backend/app/services/market_analyzer.py:5:    roles = {
+backend/app/services/market_analyzer.py:13:        return roles
+backend/app/services/market_analyzer.py:16:    roles["leader"] = sorted_adv[0].get("name")
+backend/app/services/market_analyzer.py:23:            roles["challengers"].append(name)
+backend/app/services/market_analyzer.py:25:            roles["followers"].append(name)
+backend/app/services/market_analyzer.py:27:            roles["niche"].append(name)
+backend/app/services/market_analyzer.py:29:    return roles
+backend/app/services/market_analyzer.py:146:            "market_roles": {
+backend/app/services/market_analyzer.py:242:    market_roles = classify_market_roles(advertisers_sorted)
+backend/app/services/market_analyzer.py:258:        "market_roles": market_roles,
+backend/app/services/notification_report_service.py:210:        lines.append("A operação apresenta controle adequado de SLA no recorte atual.")
+backend/app/services/notification_service.py:137:        "role": row.role,
+backend/app/services/notification_service.py:432:    row.role = payload.get("role")
+backend/app/services/notification_service.py:1575:        status, response = _post_json(url, payload, headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"})
+backend/app/services/notification_service.py:1585:    """V34: envia por perfil de projeto quando existir, mesmo com dry-run global ativo."""
+backend/app/services/permissions_service.py:10:from app.core.admin_auth import get_admin_token
+backend/app/services/permissions_service.py:24:    "/auth/roles",
+backend/app/services/permissions_service.py:47:# Regras de alto nível. A finalidade é bloquear no backend por perfil/módulo,
+backend/app/services/permissions_service.py:77:# Leitura costuma ser liberada pelo módulo; alterações pedem perfil operacional/admin.
+backend/app/services/permissions_service.py:116:def mutation_roles_for_path(path: str) -> set[str] | None:
+backend/app/services/permissions_service.py:117:    for prefix, roles in MUTATION_ROLE_RULES:
+backend/app/services/permissions_service.py:119:            return roles
+backend/app/services/permissions_service.py:145:def _admin_token_ok(request: Request) -> bool:
+backend/app/services/permissions_service.py:146:    expected = get_admin_token()
+backend/app/services/permissions_service.py:147:    received = request.headers.get("X-Admin-Token") or request.query_params.get("admin_token")
+backend/app/services/permissions_service.py:169:        modules = ROLE_MODULES.get(user.get("role") or "cliente", [])
+backend/app/services/permissions_service.py:176:    if user.get("role") == "admin":
+backend/app/services/permissions_service.py:185:    if user.get("role") == "admin":
+backend/app/services/permissions_service.py:194:def validate_request_permission(db: Session, request: Request) -> dict[str, Any] | None:
+backend/app/services/permissions_service.py:201:    if _admin_token_ok(request):
+backend/app/services/permissions_service.py:202:        return {"auth_mode": "admin_token", "role": "admin", "allowed": True}
+backend/app/services/permissions_service.py:217:        roles = mutation_roles_for_path(path)
+backend/app/services/permissions_service.py:218:        if roles and user.get("role") not in roles:
+backend/app/services/permissions_service.py:225:    return {"auth_mode": "bearer", "role": user.get("role"), "user_id": user.get("id"), "module": module, "project_id": project_id}
+backend/app/services/permissions_service.py:228:def permissions_matrix() -> dict[str, Any]:
+backend/app/services/permissions_service.py:231:        "roles": [
+backend/app/services/permissions_service.py:233:                "id": role,
+backend/app/services/permissions_service.py:234:                "label": ROLE_LABELS.get(role, role),
+backend/app/services/permissions_service.py:235:                "modules": ROLE_MODULES.get(role, []),
+backend/app/services/permissions_service.py:237:            for role in ROLE_LABELS.keys()
+backend/app/services/permissions_service.py:240:        "strict_hint": "AUTH_ENFORCEMENT_MODE=strict bloqueia chamadas sem sessão/autorização. Em compat, o token de usuário é fiscalizado quando enviado e X-Admin-Token segue compatível.",
+backend/app/services/ppt_generator.py:327:    roles = market.get("market_roles", {}) or {}
+backend/app/services/ppt_generator.py:330:        f"Líder: {roles.get('leader', '—')}",
+backend/app/services/ppt_generator.py:331:        f"Desafiantes: {', '.join(roles.get('challengers', [])[:3]) or '—'}",
+backend/app/services/ppt_generator.py:456:        f"Líder: {roles.get('leader', '—')}",
+backend/app/services/ppt_generator.py:457:        f"Desafiantes: {', '.join(roles.get('challengers', [])[:4]) or '—'}",
+backend/app/services/ppt_generator.py:458:        f"Seguidores: {', '.join(roles.get('followers', [])[:5]) or '—'}",
+backend/app/services/ppt_generator.py:459:        f"Nicho: {', '.join(roles.get('niche', [])[:4]) or '—'}",
+backend/app/services/project_report_generator.py:171:    adv_text = ", ".join([f"{a.get('name')} ({a.get('role') or 'monitorado'})" for a in competitors[:14]]) or "Nenhum anunciante vinculado"
+backend/app/services/project_report_generator.py:183:            item.get("role") or "—",
+backend/app/services/project_report_generator.py:422:        [[_short(a.get("name"), 28), a.get("role") or "monitorado", _short(a.get("segment_name"), 22)] for a in competitors[:8]],
+backend/app/services/segment_classifier.py:12:    ("Automotivo", ["fiat", "chevrolet", "volkswagen", "toyota", "hyundai", "carro"]),
+backend/app/services/system_health_service.py:125:        aws_secret_access_key=settings.MINIO_SECRET_KEY,

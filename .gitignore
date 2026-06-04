@@ -20,3 +20,5 @@ build/
 *.db
 *.sql
 dev_backups/
+data/backups/*.zip
+data/backups/

@@ -1,0 +1,24 @@
+12:from app.services.auth_service import ROLE_MODULES, ROLE_LABELS, user_to_dict
+28:MODULE_LABELS = {
+49:PATH_MODULE_RULES: list[tuple[str, str]] = [
+78:MUTATION_ROLE_RULES: list[tuple[str, set[str]]] = [
+100:    return (os.getenv("AUTH_ENFORCEMENT_MODE") or "compat").strip().lower()
+109:def module_for_path(path: str) -> str | None:
+110:    for prefix, module in PATH_MODULE_RULES:
+116:def mutation_roles_for_path(path: str) -> set[str] | None:
+117:    for prefix, roles in MUTATION_ROLE_RULES:
+167:        modules = ROLE_MODULES.get(user.get("role") or "cliente", [])
+171:def user_has_module(user: dict[str, Any], module: str | None) -> bool:
+180:def user_can_access_project(user: dict[str, Any], project_id: str | None) -> bool:
+192:def validate_request_permission(db: Session, request: Request) -> dict[str, Any] | None:
+206:        if mode == "strict":
+210:    module = module_for_path(path)
+211:    if not user_has_module(user, module):
+212:        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Sem permissão para o módulo: {MODULE_LABELS.get(module or '', module or 'desconhecido')}.")
+215:        roles = mutation_roles_for_path(path)
+220:    if not user_can_access_project(user, project_id):
+228:        "modules": [{"id": key, "label": label} for key, label in MODULE_LABELS.items()],
+232:                "label": ROLE_LABELS.get(role, role),
+233:                "modules": ROLE_MODULES.get(role, []),
+235:            for role in ROLE_LABELS.keys()
+238:        "strict_hint": "AUTH_ENFORCEMENT_MODE=strict bloqueia chamadas sem sessão/autorização. Em compat, o token de usuário é fiscalizado quando enviado e X-Admin-Token segue compatível.",
