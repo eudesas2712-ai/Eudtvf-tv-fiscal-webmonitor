@@ -39,30 +39,6 @@ export default function AdminCadastrosPage() {
 
   const authenticated = Boolean(token);
 
-  function headers(includeContentType = true): Record<string, string> {
-    const savedAdminToken =
-      token ||
-      (typeof window !== "undefined"
-        ? localStorage.getItem(ADMIN_TOKEN_KEY) || ""
-        : "");
-
-    const sessionToken =
-      typeof window !== "undefined"
-        ? localStorage.getItem("tvfiscal_auth_token")
-        : null;
-
-    const h: Record<string, string> = {
-      ...(includeContentType ? { "Content-Type": "application/json" } : {}),
-      "X-Admin-Token": savedAdminToken || DEFAULT_ADMIN_TOKEN,
-    };
-
-    if (sessionToken) {
-      h.Authorization = `Bearer ${sessionToken}`;
-    }
-
-    return h;
-  }
-
   async function apiGet<T>(path: string): Promise<T> {
     return adminJson<T>(path, {
       bearer: false,
