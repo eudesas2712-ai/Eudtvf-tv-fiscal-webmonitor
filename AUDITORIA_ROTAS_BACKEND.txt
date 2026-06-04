@@ -1,0 +1,309 @@
+backend/app/main.py:68:@app.middleware("http")
+backend/app/main.py:105:@app.get("/health")
+backend/app/routers/alerts.py:6:from fastapi import APIRouter, Depends
+backend/app/routers/alerts.py:16:@router.get("/summary/{project_id}")
+backend/app/routers/alerts.py:17:def alerts_summary(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/alerts.py:21:@router.get("/summary/{project_id}/export.csv")
+backend/app/routers/alerts.py:22:def alerts_export_csv(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:1:from fastapi import APIRouter, Depends, Request
+backend/app/routers/auth.py:55:@router.post("/login")
+backend/app/routers/auth.py:56:def login_route(payload: LoginRequest, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:60:@router.get("/me")
+backend/app/routers/auth.py:61:def me_route(request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:65:@router.post("/bootstrap-admin")
+backend/app/routers/auth.py:66:def bootstrap_admin_route(request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:73:@router.get("/roles")
+backend/app/routers/auth.py:85:@router.get("/permissions-matrix")
+backend/app/routers/auth.py:86:def permissions_matrix_route(request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:91:@router.get("/my-access")
+backend/app/routers/auth.py:92:def my_access_route(request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:101:@router.get("/users")
+backend/app/routers/auth.py:102:def users_route(request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:107:@router.post("/users")
+backend/app/routers/auth.py:108:def create_user_route(payload: UserCreateRequest, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:124:@router.put("/users/{user_id}")
+backend/app/routers/auth.py:125:def update_user_route(user_id: str, payload: UserUpdateRequest, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:141:@router.post("/users/{user_id}/reset-password")
+backend/app/routers/auth.py:142:def reset_password_route(user_id: str, payload: PasswordResetRequest, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:149:@router.delete("/users/{user_id}")
+backend/app/routers/auth.py:150:def deactivate_user_route(user_id: str, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:157:@router.delete("/users/{user_id}/purge")
+backend/app/routers/auth.py:158:def delete_user_permanently_route(user_id: str, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:168:@router.get("/projects-summary")
+backend/app/routers/auth.py:169:def projects_summary_route(request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:174:@router.get("/audit")
+backend/app/routers/auth.py:175:def audit_route(request: Request, limit: int = 100, db: Session = Depends(get_db)):
+backend/app/routers/banners.py:6:from fastapi import APIRouter, Depends, HTTPException, Query
+backend/app/routers/banners.py:205:@router.post("/scan/{project_id}")
+backend/app/routers/banners.py:560:@router.get("/{project_id}")
+backend/app/routers/banners.py:581:    db: Session = Depends(get_db),
+backend/app/routers/banners.py:607:@router.get("/item/{banner_id}")
+backend/app/routers/banners.py:610:    db: Session = Depends(get_db),
+backend/app/routers/banners.py:618:@router.get("/report/{project_id}", response_class=HTMLResponse)
+backend/app/routers/banners.py:625:    db: Session = Depends(get_db),
+backend/app/routers/banners.py:806:@router.get("/report-pdf/{project_id}")
+backend/app/routers/banners.py:813:    db: Session = Depends(get_db),
+backend/app/routers/editorial.py:1:from fastapi import APIRouter, Depends, Query, Request
+backend/app/routers/editorial.py:72:@router.get("/summary/{project_id}")
+backend/app/routers/editorial.py:73:def summary(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/editorial.py:77:@router.get("/items/{project_id}")
+backend/app/routers/editorial.py:88:    db: Session = Depends(get_db),
+backend/app/routers/editorial.py:104:@router.post("/run/{project_id}")
+backend/app/routers/editorial.py:110:    db: Session = Depends(get_db),
+backend/app/routers/editorial.py:127:@router.post("/reclassify/{project_id}")
+backend/app/routers/editorial.py:132:    db: Session = Depends(get_db),
+backend/app/routers/editorial.py:138:@router.get("/report/{project_id}", response_class=HTMLResponse)
+backend/app/routers/editorial.py:146:    db: Session = Depends(get_db),
+backend/app/routers/editorial.py:232:@router.get("/report-pdf/{project_id}")
+backend/app/routers/editorial.py:240:    db: Session = Depends(get_db),
+backend/app/routers/editorial.py:278:@router.get("/report-synthetic-pdf/{project_id}")
+backend/app/routers/editorial.py:279:@router.get("/report-sintetico-pdf/{project_id}")
+backend/app/routers/editorial.py:289:    db: Session = Depends(get_db),
+backend/app/routers/editorial.py:301:@router.get("/report-analytical-pdf/{project_id}")
+backend/app/routers/editorial.py:302:@router.get("/report-analitico-pdf/{project_id}")
+backend/app/routers/editorial.py:312:    db: Session = Depends(get_db),
+backend/app/routers/editorial.py:324:@router.delete("/clear/{project_id}")
+backend/app/routers/editorial.py:325:def clear_editorial_items(project_id: str, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/executive_dashboard.py:3:from fastapi import APIRouter, Depends, Query
+backend/app/routers/executive_dashboard.py:12:@router.get("/dashboard")
+backend/app/routers/executive_dashboard.py:16:    db: Session = Depends(get_db),
+backend/app/routers/identification.py:6:from fastapi import APIRouter, Depends, HTTPException, Query, Request
+backend/app/routers/identification.py:53:@router.get("/pending/{project_id}")
+backend/app/routers/identification.py:54:def pending_identification_groups(project_id: str, limit: int = Query(default=120, ge=1, le=500), db: Session = Depends(get_db)):
+backend/app/routers/identification.py:58:@router.get("/pending/{project_id}/export.csv")
+backend/app/routers/identification.py:59:def export_pending_identification_groups(project_id: str, limit: int = Query(default=500, ge=1, le=2000), db: Session = Depends(get_db)):
+backend/app/routers/identification.py:93:@router.get("/quality/{project_id}")
+backend/app/routers/identification.py:94:def identification_quality(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/identification.py:98:@router.get("/actions/{project_id}/export.csv")
+backend/app/routers/identification.py:99:def export_identification_actions(project_id: str, limit: int = Query(default=500, ge=1, le=2000), db: Session = Depends(get_db)):
+backend/app/routers/identification.py:125:@router.get("/actions/{project_id}")
+backend/app/routers/identification.py:126:def identification_actions(project_id: str, limit: int = Query(default=80, ge=1, le=300), db: Session = Depends(get_db)):
+backend/app/routers/identification.py:130:@router.post("/qualify/{project_id}")
+backend/app/routers/identification.py:131:def qualify_identification_group(project_id: str, payload: QualifyPayload, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/identification.py:148:@router.post("/ignore/{project_id}")
+backend/app/routers/identification.py:149:def ignore_identification_group(project_id: str, payload: IgnorePayload, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/identification.py:160:@router.post("/reprocess-aliases/{project_id}")
+backend/app/routers/identification.py:165:    db: Session = Depends(get_db),
+backend/app/routers/identification.py:171:@router.post("/auto-run/{project_id}")
+backend/app/routers/identification.py:176:    db: Session = Depends(get_db),
+backend/app/routers/ingest.py:2:from fastapi import APIRouter, Depends
+backend/app/routers/ingest.py:10:@router.post("/run/{project_id}")
+backend/app/routers/ingest.py:11:def run_ingest(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/intel.py:1:from fastapi import APIRouter, Depends
+backend/app/routers/intel.py:11:@router.get("/{project_id}")
+backend/app/routers/intel.py:12:def intel_dashboard(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/intel_compare.py:7:from fastapi import APIRouter, Depends, HTTPException, Query
+backend/app/routers/intel_compare.py:332:@router.get("/{project_id}")
+backend/app/routers/intel_compare.py:342:    db: Session = Depends(get_db),
+backend/app/routers/intel_compare.py:516:@router.get("/report/pdf/{project_id}")
+backend/app/routers/intel_compare.py:526:    db: Session = Depends(get_db),
+backend/app/routers/intel_compare.py:542:@router.get("/report/pptx/{project_id}")
+backend/app/routers/intel_compare.py:552:    db: Session = Depends(get_db),
+backend/app/routers/items.py:1:from fastapi import APIRouter, Depends, Query
+backend/app/routers/items.py:106:@router.get("/{project_id}")
+backend/app/routers/items.py:111:    db: Session = Depends(get_db)
+backend/app/routers/items.py:146:@router.get("/report/{project_id}", response_class=HTMLResponse)
+backend/app/routers/items.py:151:    db: Session = Depends(get_db)
+backend/app/routers/items.py:157:@router.get("/report-pdf/{project_id}")
+backend/app/routers/items.py:162:    db: Session = Depends(get_db)
+backend/app/routers/items.py:176:@router.delete("/clear/{project_id}")
+backend/app/routers/items.py:177:def clear_items(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/maintenance.py:1:from fastapi import APIRouter, Depends, HTTPException, Request
+backend/app/routers/maintenance.py:58:@router.get("/status")
+backend/app/routers/maintenance.py:59:def status(request: Request, db: Session = Depends(get_db)):
+backend/app/routers/maintenance.py:64:@router.post("/backup")
+backend/app/routers/maintenance.py:77:@router.get("/backups")
+backend/app/routers/maintenance.py:83:@router.get("/backups/{filename}")
+backend/app/routers/maintenance.py:95:@router.delete("/backups/{filename}")
+backend/app/routers/maintenance.py:107:@router.post("/cleanup")
+backend/app/routers/maintenance.py:108:def cleanup(payload: CleanupRequest, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/maintenance.py:126:@router.get("/backup-freshness")
+backend/app/routers/maintenance.py:132:@router.get("/auto-backup/status")
+backend/app/routers/maintenance.py:138:@router.post("/auto-backup/run")
+backend/app/routers/maintenance.py:144:@router.post("/archive-notification-errors")
+backend/app/routers/maintenance.py:145:def archive_errors(payload: ArchiveErrorsRequest, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/maintenance.py:156:@router.post("/archive-homologation-errors")
+backend/app/routers/maintenance.py:157:def archive_homologation_errors(payload: ArchiveHomologationErrorsRequest, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/maintenance.py:168:@router.get("/security-export.csv")
+backend/app/routers/maintenance.py:169:def security_export(request: Request, db: Session = Depends(get_db)):
+backend/app/routers/market_intelligence.py:4:from fastapi import APIRouter, Depends, Query
+backend/app/routers/market_intelligence.py:513:@router.get("/summary/{project_id}")
+backend/app/routers/market_intelligence.py:516:    db: Session = Depends(get_db),
+backend/app/routers/market_intelligence.py:858:@router.get("/report/pdf/{project_id}")
+backend/app/routers/market_intelligence.py:861:    db: Session = Depends(get_db),
+backend/app/routers/market_intelligence.py:1016:@router.get("/report/pptx/{project_id}")
+backend/app/routers/market_intelligence.py:1019:    db: Session = Depends(get_db),
+backend/app/routers/market_intelligence.py:1040:@router.get("/timeline/{project_id}")
+backend/app/routers/market_intelligence.py:1041:def get_intel_timeline(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/market_intelligence.py:1053:@router.get("/trends/{project_id}")
+backend/app/routers/market_intelligence.py:1054:def get_intel_trends(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:6:from fastapi import APIRouter, Depends, Query, Request
+backend/app/routers/notifications.py:60:@router.get("/config")
+backend/app/routers/notifications.py:65:@router.get("/provider-status")
+backend/app/routers/notifications.py:70:@router.get("/dashboard/{project_id}")
+backend/app/routers/notifications.py:71:def dashboard(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:75:@router.get("/provider-settings/{project_id}")
+backend/app/routers/notifications.py:76:def provider_settings(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:80:@router.post("/provider-settings/{project_id}/email-smtp")
+backend/app/routers/notifications.py:81:def save_email_smtp(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:86:@router.delete("/provider-settings/{project_id}/email-smtp")
+backend/app/routers/notifications.py:87:def disable_email_smtp(project_id: str, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:92:@router.post("/provider-settings/{project_id}/sms")
+backend/app/routers/notifications.py:93:def save_sms_provider(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:98:@router.delete("/provider-settings/{project_id}/sms")
+backend/app/routers/notifications.py:99:def disable_sms_provider(project_id: str, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:104:@router.post("/provider-settings/{project_id}/whatsapp")
+backend/app/routers/notifications.py:105:def save_whatsapp_provider(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:110:@router.delete("/provider-settings/{project_id}/whatsapp")
+backend/app/routers/notifications.py:111:def disable_whatsapp_provider(project_id: str, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:116:@router.get("/contacts/{project_id}")
+backend/app/routers/notifications.py:117:def contacts(project_id: str, active_only: bool = Query(default=False), db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:121:@router.post("/contacts/{project_id}")
+backend/app/routers/notifications.py:122:def create_contact(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:127:@router.put("/contacts/{project_id}/{contact_id}")
+backend/app/routers/notifications.py:128:def update_contact(project_id: str, contact_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:133:@router.delete("/contacts/{contact_id}")
+backend/app/routers/notifications.py:134:def delete_contact(contact_id: str, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:139:@router.get("/rules/{project_id}")
+backend/app/routers/notifications.py:140:def rules(project_id: str, active_only: bool = Query(default=False), db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:144:@router.post("/rules/{project_id}")
+backend/app/routers/notifications.py:145:def create_rule(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:150:@router.put("/rules/{project_id}/{rule_id}")
+backend/app/routers/notifications.py:151:def update_rule(project_id: str, rule_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:156:@router.delete("/rules/{rule_id}")
+backend/app/routers/notifications.py:157:def delete_rule(rule_id: str, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:162:@router.post("/bootstrap/{project_id}")
+backend/app/routers/notifications.py:163:def bootstrap(project_id: str, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:168:@router.post("/cleanup/{project_id}")
+backend/app/routers/notifications.py:169:def cleanup(project_id: str, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:174:@router.post("/evaluate/{project_id}")
+backend/app/routers/notifications.py:175:def evaluate(project_id: str, request: Request, source: str = Query(default="manual"), event_limit: int = Query(default=80, ge=10, le=300), db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:180:@router.post("/test/{project_id}")
+backend/app/routers/notifications.py:181:def test(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:186:@router.post("/test-real-email/{project_id}")
+backend/app/routers/notifications.py:187:def test_real_email(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:192:@router.post("/test-real-sms/{project_id}")
+backend/app/routers/notifications.py:193:def test_real_sms(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:198:@router.post("/test-real-whatsapp/{project_id}")
+backend/app/routers/notifications.py:199:def test_real_whatsapp(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:204:@router.post("/test-automatic-email/{project_id}")
+backend/app/routers/notifications.py:205:def test_automatic_email(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:210:@router.post("/test-automatic-sms/{project_id}")
+backend/app/routers/notifications.py:211:def test_automatic_sms(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:216:@router.post("/test-automatic-whatsapp/{project_id}")
+backend/app/routers/notifications.py:217:def test_automatic_whatsapp(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:224:@router.post("/automation-test/{project_id}")
+backend/app/routers/notifications.py:225:def automation_test(project_id: str, request: Request, source: str = Query(default="manual_automation_test"), event_limit: int = Query(default=120, ge=10, le=500), window_minutes: int = Query(default=180, ge=1, le=10080), db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:230:@router.get("/automation-runs/{project_id}")
+backend/app/routers/notifications.py:231:def automation_runs(project_id: str, limit: int = Query(default=30, ge=1, le=200), db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:237:@router.get("/inbox/{project_id}")
+backend/app/routers/notifications.py:238:def inbox(project_id: str, status: str | None = Query(default="aberto"), severity: str | None = Query(default=None), channel: str | None = Query(default=None), limit: int = Query(default=150, ge=1, le=1000), db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:242:@router.get("/sla/{project_id}")
+backend/app/routers/notifications.py:243:def sla_dashboard(project_id: str, limit: int = Query(default=200, ge=1, le=1000), db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:247:@router.post("/sla/evaluate/{project_id}")
+backend/app/routers/notifications.py:248:def sla_evaluate(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:253:@router.post("/logs/{log_id}/assign")
+backend/app/routers/notifications.py:254:def assign_log(log_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:259:@router.post("/logs/{log_id}/ack")
+backend/app/routers/notifications.py:260:def ack_log(log_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:265:@router.post("/logs/{log_id}/resolve")
+backend/app/routers/notifications.py:266:def resolve_log(log_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:271:@router.post("/logs/{log_id}/snooze")
+backend/app/routers/notifications.py:272:def snooze_log(log_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:277:@router.post("/logs/{log_id}/reopen")
+backend/app/routers/notifications.py:278:def reopen_log(log_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:283:@router.post("/logs/{project_id}/bulk-status")
+backend/app/routers/notifications.py:284:def bulk_log_status(project_id: str, payload: dict, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:289:@router.get("/reports/alerts/{project_id}")
+backend/app/routers/notifications.py:290:def alerts_management_report(project_id: str, start_date: str | None = Query(default=None), end_date: str | None = Query(default=None), db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:294:@router.get("/reports/alerts/{project_id}/export.csv")
+backend/app/routers/notifications.py:295:def alerts_management_report_csv(project_id: str, start_date: str | None = Query(default=None), end_date: str | None = Query(default=None), db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:305:@router.get("/reports/alerts/{project_id}/pdf")
+backend/app/routers/notifications.py:306:def alerts_management_report_pdf(project_id: str, start_date: str | None = Query(default=None), end_date: str | None = Query(default=None), db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:316:@router.get("/reports/alerts/{project_id}/pptx")
+backend/app/routers/notifications.py:317:def alerts_management_report_pptx(project_id: str, start_date: str | None = Query(default=None), end_date: str | None = Query(default=None), db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:327:@router.get("/logs/{project_id}")
+backend/app/routers/notifications.py:328:def logs(project_id: str, limit: int = Query(default=100, ge=1, le=1000), status: str | None = Query(default=None), channel: str | None = Query(default=None), db: Session = Depends(get_db)):
+backend/app/routers/notifications.py:332:@router.get("/logs/{project_id}/export.csv")
+backend/app/routers/notifications.py:333:def export_logs(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/projects.py:1:from fastapi import APIRouter, Depends
+backend/app/routers/projects.py:26:@router.get("/intel-options/")
+backend/app/routers/projects.py:27:def get_intel_options(db: Session = Depends(get_db)):
+backend/app/routers/project_reports.py:7:from fastapi import APIRouter, Depends, HTTPException, Query
+backend/app/routers/project_reports.py:462:@router.get("/summary/{project_id}")
+backend/app/routers/project_reports.py:468:    db: Session = Depends(get_db),
+backend/app/routers/project_reports.py:473:@router.get("/pdf/{project_id}")
+backend/app/routers/project_reports.py:479:    db: Session = Depends(get_db),
+backend/app/routers/project_reports.py:485:@router.get("/pptx/{project_id}")
+backend/app/routers/project_reports.py:491:    db: Session = Depends(get_db),
+backend/app/routers/registry.py:6:from fastapi import APIRouter, Depends, HTTPException, Request
+backend/app/routers/registry.py:226:@router.get("/segments")
+backend/app/routers/registry.py:227:def list_segments(active_only: bool = False, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:234:@router.post("/segments")
+backend/app/routers/registry.py:235:def create_segment(payload: SegmentIn, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:251:@router.get("/advertisers")
+backend/app/routers/registry.py:252:def list_advertisers(segment_id: str | None = None, active_only: bool = False, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:261:@router.post("/advertisers")
+backend/app/routers/registry.py:262:def create_advertiser(payload: AdvertiserIn, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:284:@router.post("/advertisers/{advertiser_id}/aliases")
+backend/app/routers/registry.py:285:def add_advertiser_alias(advertiser_id: str, payload: AliasIn, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:305:@router.get("/portals")
+backend/app/routers/registry.py:306:def list_portals(active_only: bool = False, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:313:@router.post("/portals")
+backend/app/routers/registry.py:314:def create_portal(payload: PortalIn, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:343:@router.get("/projects")
+backend/app/routers/registry.py:344:def list_registry_projects(active_only: bool = False, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:352:@router.post("/projects")
+backend/app/routers/registry.py:353:def create_project(payload: ProjectIn, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:363:@router.put("/projects/{project_id}")
+backend/app/routers/registry.py:364:def update_project(project_id: str, payload: ProjectIn, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:376:@router.post("/projects/{project_id}/active")
+backend/app/routers/registry.py:377:def set_project_active(project_id: str, active: bool, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:390:@router.post("/projects/{project_id}/portals")
+backend/app/routers/registry.py:391:def attach_project_portal(project_id: str, payload: ProjectPortalIn, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:406:@router.post("/projects/{project_id}/advertisers")
+backend/app/routers/registry.py:407:def attach_project_advertiser(project_id: str, payload: ProjectAdvertiserIn, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:423:@router.get("/projects/{project_id}/config")
+backend/app/routers/registry.py:424:def get_project_config(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:459:@router.post("/bootstrap-defaults")
+backend/app/routers/registry.py:460:def bootstrap_defaults(request: Request, db: Session = Depends(get_db)):
+backend/app/routers/registry.py:498:@router.post("/projects/{project_id}/bootstrap-portals")
+backend/app/routers/registry.py:499:def bootstrap_project_portals(project_id: str, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/scheduler_admin.py:5:from fastapi import APIRouter, Depends, Query
+backend/app/routers/scheduler_admin.py:22:    dependencies=[Depends(require_admin_access)],
+backend/app/routers/scheduler_admin.py:26:@router.get("/status")
+backend/app/routers/scheduler_admin.py:31:@router.post("/run-now")
+backend/app/routers/scheduler_admin.py:36:@router.post("/enable")
+backend/app/routers/scheduler_admin.py:41:@router.post("/run-portal-scan-now")
+backend/app/routers/scheduler_admin.py:49:@router.post("/disable")
+backend/app/routers/scheduler_admin.py:54:@router.get("/history")
+backend/app/routers/scheduler_admin.py:69:@router.delete("/history")
+backend/app/routers/scheduler_admin.py:79:@router.get("/history/export.csv")
+backend/app/routers/search.py:7:@router.get("", response_model=SearchResult)
+backend/app/routers/sources.py:1:from fastapi import APIRouter, Depends
+backend/app/routers/sources.py:9:@router.post("/bootstrap/{project_id}")
+backend/app/routers/sources.py:10:def bootstrap_sources(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/sources.py:48:@router.get("/{project_id}", response_model=list[SourceOut])
+backend/app/routers/sources.py:49:def list_sources(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/system_health.py:3:from fastapi import APIRouter, Depends, HTTPException, Query, Request
+backend/app/routers/system_health.py:14:@router.get("/advanced")
+backend/app/routers/system_health.py:15:def advanced(request: Request, persist: bool = Query(default=False), db: Session = Depends(get_db)):
+backend/app/routers/system_health.py:20:@router.post("/check")
+backend/app/routers/system_health.py:21:def run_check(request: Request, db: Session = Depends(get_db)):
+backend/app/routers/system_health.py:26:@router.get("/history")
+backend/app/routers/system_health.py:32:    db: Session = Depends(get_db),
+backend/app/routers/system_health.py:38:@router.get("/history/export.csv")
+backend/app/routers/system_health.py:39:def check_history_export(request: Request, limit: int = Query(default=1000), db: Session = Depends(get_db)):
+backend/app/routers/system_health.py:48:@router.get("/report.pdf")
+backend/app/routers/system_health.py:49:def report_pdf(request: Request, db: Session = Depends(get_db)):
+backend/app/routers/system_health.py:59:@router.get("/uptime")
+backend/app/routers/system_health.py:60:def uptime_endpoint(db: Session = Depends(get_db)):
+backend/app/routers/system_health.py:68:@router.get("/ready")
+backend/app/routers/system_health.py:69:def ready_alias(db: Session = Depends(get_db)):
+backend/app/routers/system_health.py:76:@router.get("/live")
+backend/app/routers/system_health.py:91:def public_ready(db: Session = Depends(get_db)):
+backend/app/routers/terms.py:1:from fastapi import APIRouter, Depends
+backend/app/routers/terms.py:9:@router.post("/bootstrap/{project_id}")
+backend/app/routers/terms.py:10:def bootstrap_terms(project_id: str, db: Session = Depends(get_db)):
+backend/app/routers/terms.py:38:@router.get("/{project_id}")
+backend/app/routers/terms.py:39:def list_terms(project_id: str, db: Session = Depends(get_db)):
