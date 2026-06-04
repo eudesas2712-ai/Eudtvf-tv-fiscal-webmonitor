@@ -1,0 +1,82 @@
+frontend/src/app/admin/brand-qualification/page.tsx:48:      ? localStorage.getItem("tvfiscal_admin_token") || "tvfiscal-admin-2026"
+frontend/src/app/admin/brand-qualification/page.tsx:49:      : "tvfiscal-admin-2026";
+frontend/src/app/admin/brand-qualification/page.tsx:52:    "X-Admin-Token": adminToken,
+frontend/src/app/admin/brand-qualification/page.tsx:53:    ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+frontend/src/app/admin/cadastros/page.tsx:12:const TOKEN_STORAGE_KEY = "tvfiscal_admin_token";
+frontend/src/app/admin/cadastros/page.tsx:13:const DEFAULT_ADMIN_TOKEN = "tvfiscal-admin-2026";
+frontend/src/app/admin/cadastros/page.tsx:62:      "X-Admin-Token": savedAdminToken || DEFAULT_ADMIN_TOKEN,
+frontend/src/app/admin/cadastros/page.tsx:66:      h.Authorization = `Bearer ${sessionToken}`;
+frontend/src/app/admin/identificacao/page.tsx:9:const TOKEN_STORAGE_KEY = "tvfiscal_admin_token";
+frontend/src/app/admin/identificacao/page.tsx:130:    return { "Content-Type": "application/json", "X-Admin-Token": token };
+frontend/src/app/admin/maintenance/page.tsx:7:const DEFAULT_TOKEN = "tvfiscal-admin-2026";
+frontend/src/app/admin/maintenance/page.tsx:84:    const headers: Record<string, string> = { "Content-Type": "application/json", "X-Admin-Token": token };
+frontend/src/app/admin/maintenance/page.tsx:227:        headers: { "X-Admin-Token": token },
+frontend/src/app/admin/notifications/page.tsx:8:const DEFAULT_TOKEN = "tvfiscal-admin-2026";
+frontend/src/app/admin/notifications/page.tsx:166:    const headers: Record<string, string> = { "Content-Type": "application/json", "X-Admin-Token": token };
+frontend/src/app/admin/scheduler/page.tsx:6:const TOKEN_STORAGE_KEY = "tvfiscal_admin_token";
+frontend/src/app/admin/scheduler/page.tsx:81:      "X-Admin-Token": token,
+frontend/src/app/admin/system-health/page.tsx:7:const DEFAULT_TOKEN = "tvfiscal-admin-2026";
+frontend/src/app/admin/system-health/page.tsx:78:    const headers: Record<string, string> = { "Content-Type": "application/json", "X-Admin-Token": token };
+frontend/src/app/admin/users/auth_interceptor_patch.txt:2:// Dentro de installAuthFetchInterceptor(), troque o bloco que adiciona Authorization por este:
+frontend/src/app/admin/users/auth_interceptor_patch.txt:4:// if (!headers.has("Authorization") && !headers.has("X-Admin-Token")) {
+frontend/src/app/admin/users/auth_interceptor_patch.txt:7://     headers.set("Authorization", `Bearer ${token}`);
+frontend/src/app/admin/users/auth_interceptor_patch.txt:11:// Motivo: telas administrativas que já enviam X-Admin-Token não devem receber um JWT expirado
+frontend/src/app/admin/users/page.tsx:14:const ADMIN_TOKEN_KEY = "tvfiscal_admin_token";
+frontend/src/app/admin/users/page.tsx:15:const DEFAULT_ADMIN_TOKEN = "tvfiscal-admin-2026";
+frontend/src/app/admin/users/page.tsx:25:    "X-Admin-Token": adminToken,
+frontend/src/app/admin/users/page.tsx:104:    // Esta tela administrativa usa o fallback X-Admin-Token.
+frontend/src/app/admin/users/page.tsx:105:    // Se existir um JWT antigo no localStorage, o interceptor global pode injetar Authorization
+frontend/src/app/admin/users/page.tsx:107:    headers.delete("Authorization");
+frontend/src/app/admin/users/page.tsx:126:        retryHeaders.delete("Authorization");
+frontend/src/app/alerts/inbox/page.tsx:8:const DEFAULT_TOKEN = "tvfiscal-admin-2026";
+frontend/src/app/alerts/inbox/page.tsx:86:    const headers: Record<string, string> = { "Content-Type": "application/json", "X-Admin-Token": token };
+frontend/src/app/alerts/page.tsx:19:    "X-Admin-Token": "tvfiscal-admin-2026",
+frontend/src/app/alerts/page.tsx:20:    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+frontend/src/app/alerts/reports/page.tsx:8:const DEFAULT_TOKEN = "tvfiscal-admin-2026";
+frontend/src/app/alerts/reports/page.tsx:53:        headers: { "X-Admin-Token": token },
+frontend/src/app/alerts/sla/page.tsx:8:const DEFAULT_TOKEN = "tvfiscal-admin-2026";
+frontend/src/app/alerts/sla/page.tsx:75:    const headers: Record<string, string> = { "Content-Type": "application/json", "X-Admin-Token": token };
+frontend/src/app/intel/comparativo/page.tsx:14:    "X-Admin-Token": "tvfiscal-admin-2026",
+frontend/src/app/intel/comparativo/page.tsx:25:      headers.Authorization = `Bearer ${token}`;
+frontend/src/app/intel/page.tsx:5:import { authHeaders, getAuthToken, installAuthFetchInterceptor } from "../../lib/auth";
+frontend/src/app/intel/page.tsx:24:const ADMIN_TOKEN_FALLBACK = "tvfiscal-admin-2026";
+frontend/src/app/intel/page.tsx:30:    window.localStorage.getItem("tvfiscal_admin_token") ||
+frontend/src/app/intel/page.tsx:40:    for (const [key, value] of Object.entries(authHeaders())) {
+frontend/src/app/intel/page.tsx:48:  if (token && !headers.has("Authorization")) {
+frontend/src/app/intel/page.tsx:49:    headers.set("Authorization", `Bearer ${token}`);
+frontend/src/app/intel/page.tsx:52:  if (!headers.has("X-Admin-Token")) {
+frontend/src/app/intel/page.tsx:53:    headers.set("X-Admin-Token", getStoredAdminToken());
+frontend/src/app/login/page.tsx:10:  const [password, setPassword] = useState("tvfiscal-admin-2026");
+frontend/src/app/login/page.tsx:62:          Primeiro acesso padrão: <strong>admin@tvfiscal.local</strong> / <strong>tvfiscal-admin-2026</strong>. Altere a senha após criar os usuários reais.
+frontend/src/app/page.tsx:167:          "X-Admin-Token": "tvfiscal-admin-2026",
+frontend/src/app/page.tsx:171:          headers.Authorization = `Bearer ${token}`;
+frontend/src/app/page.tsx:222:          Erro ao carregar o dashboard executivo geral. O backend respondeu corretamente nos testes diretos, então esta tela foi ajustada para usar localhost:8000, X-Admin-Token e sessão Bearer.
+frontend/src/app/projects/page.tsx:13:const TOKEN_STORAGE_KEY = "tvfiscal_admin_token";
+frontend/src/app/projects/page.tsx:14:const DEFAULT_ADMIN_TOKEN = "tvfiscal-admin-2026";
+frontend/src/app/projects/page.tsx:133:      "X-Admin-Token": savedAdminToken || DEFAULT_ADMIN_TOKEN,
+frontend/src/app/projects/page.tsx:137:      h.Authorization = `Bearer ${sessionToken}`;
+frontend/src/components/EditorialConsole.tsx:12:  const adminToken = localStorage.getItem("tvfiscal_admin_token") || localStorage.getItem("admin_token") || "";
+frontend/src/components/EditorialConsole.tsx:14:    ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}),
+frontend/src/components/EditorialConsole.tsx:15:    ...(adminToken ? { "X-Admin-Token": adminToken } : {}),
+frontend/src/components/EditorialConsole.tsx:118:    const saved = localStorage.getItem("tvfiscal_admin_token") || localStorage.getItem("admin_token") || "";
+frontend/src/components/EditorialConsole.tsx:161:      localStorage.setItem("tvfiscal_admin_token", token.trim());
+frontend/src/components/EditorialConsole.tsx:164:        headers: { "X-Admin-Token": token.trim() },
+frontend/src/components/EditorialConsole.tsx:183:      localStorage.setItem("tvfiscal_admin_token", token.trim());
+frontend/src/components/EditorialConsole.tsx:186:        headers: { "X-Admin-Token": token.trim() },
+frontend/src/components/EvidenceConsole.tsx:19:    "X-Admin-Token": "tvfiscal-admin-2026",
+frontend/src/components/EvidenceConsole.tsx:20:    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+frontend/src/lib/api.ts:3:function authHeaders(): Record<string, string> {
+frontend/src/lib/api.ts:6:  return token ? { Authorization: `Bearer ${token}` } : {};
+frontend/src/lib/api.ts:12:    headers: authHeaders(),
+frontend/src/lib/auth.ts:40:export function authHeaders(): Record<string, string> {
+frontend/src/lib/auth.ts:42:  return token ? { Authorization: `Bearer ${token}` } : {};
+frontend/src/lib/auth.ts:71:    if (!headers.has("Authorization")) {
+frontend/src/lib/auth.ts:73:      if (token) headers.set("Authorization", `Bearer ${token}`);
+backend/app/core/admin_auth.py:9:    return os.getenv("ADMIN_PANEL_TOKEN", "tvfiscal-admin-2026")
+backend/app/core/admin_auth.py:15:    header_token = request.headers.get("X-Admin-Token")
+backend/app/core/security.py:14:    value = os.getenv("APP_AUTH_SECRET") or os.getenv("ADMIN_PANEL_TOKEN") or "tvfiscal-admin-2026"
+backend/app/core/security.py:83:    header = request.headers.get("Authorization") or ""
+backend/app/services/auth_service.py:119:    password = os.getenv("DEFAULT_ADMIN_PASSWORD") or os.getenv("APP_ADMIN_PASSWORD") or os.getenv("ADMIN_PANEL_TOKEN") or "tvfiscal-admin-2026"
+backend/app/services/notification_service.py:1575:        status, response = _post_json(url, payload, headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"})
+backend/app/services/permissions_service.py:147:    received = request.headers.get("X-Admin-Token") or request.query_params.get("admin_token")
+backend/app/services/permissions_service.py:240:        "strict_hint": "AUTH_ENFORCEMENT_MODE=strict bloqueia chamadas sem sessão/autorização. Em compat, o token de usuário é fiscalizado quando enviado e X-Admin-Token segue compatível.",

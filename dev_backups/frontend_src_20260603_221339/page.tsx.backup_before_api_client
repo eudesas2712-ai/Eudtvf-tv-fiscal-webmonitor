@@ -2,9 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react";
 import AppShell from "../../../components/AppShell";
-import { adminJson, API_BASE, ADMIN_TOKEN_KEY, DEFAULT_ADMIN_TOKEN } from "../../../lib/apiClient";
 
-const API = API_BASE;
+const API =
+  (
+    process.env.NEXT_PUBLIC_API_URL ||
+    process.env.NEXT_PUBLIC_API_BASE ||
+    "http://localhost:8000"
+  ).replace(/\/$/, "");
+const TOKEN_STORAGE_KEY = "tvfiscal_admin_token";
+const DEFAULT_ADMIN_TOKEN = "tvfiscal-admin-2026";
 const DEFAULT_PROJECT_ID = "9b972aa2-f8a4-483b-a7d1-e979d86482fb";
 
 type Segment = { id: string; name: string; description?: string; active?: boolean };
@@ -39,22 +45,51 @@ export default function AdminCadastrosPage() {
 
   const authenticated = Boolean(token);
 
+  function headers(includeContentType = true): Record<string, string> {
+    const savedAdminToken =
+      token ||
+      (typeof window !== "undefined"
+        ? localStorage.getItem(TOKEN_STORAGE_KEY) || ""
+        : "");
+
+    const sessionToken =
+      typeof window !== "undefined"
+        ? localStorage.getItem("tvfiscal_auth_token")
+        : null;
+
+    const h: Record<string, string> = {
+      ...(includeContentType ? { "Content-Type": "application/json" } : {}),
+      "X-Admin-Token": savedAdminToken || DEFAULT_ADMIN_TOKEN,
+    };
+
+    if (sessionToken) {
+      h.Authorization = `Bearer ${sessionToken}`;
+    }
+
+    return h;
+  }
+
   async function apiGet<T>(path: string): Promise<T> {
-    return adminJson<T>(path, {
-      bearer: false,
-      admin: true,
-      json: true,
+    const res = await fetch(`${API}${path}`, {
+      cache: "no-store",
+      headers: headers(false),
     });
+    if (!res.ok) throw new Error(`Erro HTTP ${res.status}`);
+    return res.json();
   }
 
   async function apiPost<T>(path: string, body: unknown): Promise<T> {
-    return adminJson<T>(path, {
+    const res = await fetch(`${API}${path}`, {
       method: "POST",
+      headers: headers(),
       body: JSON.stringify(body),
-      bearer: false,
-      admin: true,
-      json: true,
+      cache: "no-store",
     });
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text || `Erro HTTP ${res.status}`);
+    }
+    return res.json();
   }
 
   async function loadAll() {
@@ -76,7 +111,7 @@ export default function AdminCadastrosPage() {
   }
 
   useEffect(() => {
-    const saved = localStorage.getItem(ADMIN_TOKEN_KEY) || "";
+    const saved = localStorage.getItem(TOKEN_STORAGE_KEY) || "";
     setToken(saved);
     setTokenInput(saved);
     loadAll();
@@ -88,13 +123,13 @@ export default function AdminCadastrosPage() {
       setError("Informe o token administrativo.");
       return;
     }
-    localStorage.setItem(ADMIN_TOKEN_KEY, cleaned);
+    localStorage.setItem(TOKEN_STORAGE_KEY, cleaned);
     setToken(cleaned);
     setMessage("Token administrativo carregado.");
   }
 
   function logout() {
-    localStorage.removeItem(ADMIN_TOKEN_KEY);
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
     setToken("");
     setTokenInput("");
   }

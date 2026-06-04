@@ -3,11 +3,9 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
+import { adminFetch, API_BASE } from "../../../lib/apiClient";
 
 type AnyObj = Record<string, any>;
-
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:8000";
 
 function toText(value: unknown) {
   if (typeof value === "string") return value.trim();
@@ -93,7 +91,7 @@ export default function BannerDetailPage() {
         setLoading(true);
         setError(null);
 
-        const response = await fetch(DETAIL_URL, {
+        const response = await adminFetch(DETAIL_URL, {
           method: "GET",
           cache: "no-store",
           headers: {

@@ -3,34 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import type { BannerItem } from "../lib/types";
-
-const API_BASE =
-  (process.env.NEXT_PUBLIC_API_BASE ||
-    process.env.NEXT_PUBLIC_API_URL ||
-    "http://localhost:8000").replace(/\/$/, "");
-
-function getLocalAuthHeaders() {
-  const token =
-    typeof window !== "undefined"
-      ? localStorage.getItem("tvfiscal_auth_token")
-      : null;
-
-  return {
-    "X-Admin-Token": "tvfiscal-admin-2026",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
-
-async function authorizedFetch(url: string, init: RequestInit = {}) {
-  return fetch(url, {
-    ...init,
-    cache: "no-store",
-    headers: {
-      ...getLocalAuthHeaders(),
-      ...(init.headers || {}),
-    },
-  });
-}
+import { adminFetch, API_BASE } from "../lib/apiClient";
 
 const DEFAULT_PROJECT_ID = "9b972aa2-f8a4-483b-a7d1-e979d86482fb";
 
@@ -39,6 +12,16 @@ function getProjectIdFromUrl() {
   const value = new URLSearchParams(window.location.search).get("project_id");
   return value || DEFAULT_PROJECT_ID;
 }
+
+async function authorizedFetch(url: string, init: RequestInit = {}) {
+  return adminFetch(url, {
+    ...init,
+    bearer: false,
+    admin: true,
+    json: false,
+  });
+}
+
 
 type EvidenceItem = BannerItem & {
   id?: string;

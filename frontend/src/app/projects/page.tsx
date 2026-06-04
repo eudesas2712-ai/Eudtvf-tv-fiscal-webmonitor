@@ -3,15 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import AppShell from "../../components/AppShell";
+import { adminJson, API_BASE, ADMIN_TOKEN_KEY, DEFAULT_ADMIN_TOKEN } from "../../lib/apiClient";
 
-const API =
-  (
-    process.env.NEXT_PUBLIC_API_URL ||
-    process.env.NEXT_PUBLIC_API_BASE ||
-    "http://localhost:8000"
-  ).replace(/\/$/, "");
-const TOKEN_STORAGE_KEY = "tvfiscal_admin_token";
-const DEFAULT_ADMIN_TOKEN = "tvfiscal-admin-2026";
+const API = API_BASE;
 const DEFAULT_PROJECT_ID = "9b972aa2-f8a4-483b-a7d1-e979d86482fb";
 
 type Segment = { id: string; name: string; active?: boolean };
@@ -116,51 +110,22 @@ export default function ProjectsPage() {
   const authenticated = Boolean(token);
   const activeProject = useMemo(() => projects.find((p) => p.id === selectedProjectId) || config?.project || null, [projects, selectedProjectId, config]);
 
-  function headers(includeContentType = true): Record<string, string> {
-    const savedAdminToken =
-      token ||
-      (typeof window !== "undefined"
-        ? localStorage.getItem(TOKEN_STORAGE_KEY) || ""
-        : "");
-
-    const sessionToken =
-      typeof window !== "undefined"
-        ? localStorage.getItem("tvfiscal_auth_token")
-        : null;
-
-    const h: Record<string, string> = {
-      ...(includeContentType ? { "Content-Type": "application/json" } : {}),
-      "X-Admin-Token": savedAdminToken || DEFAULT_ADMIN_TOKEN,
-    };
-
-    if (sessionToken) {
-      h.Authorization = `Bearer ${sessionToken}`;
-    }
-
-    return h;
-  }
-
   async function getJson<T>(path: string): Promise<T> {
-    const res = await fetch(`${API}${path}`, {
-      cache: "no-store",
-      headers: headers(false),
+    return adminJson<T>(path, {
+      bearer: false,
+      admin: true,
+      json: true,
     });
-    if (!res.ok) throw new Error(`Erro HTTP ${res.status}`);
-    return res.json();
   }
 
   async function sendJson<T>(path: string, method: "POST" | "PUT", body: unknown): Promise<T> {
-    const res = await fetch(`${API}${path}`, {
+    return adminJson<T>(path, {
       method,
-      headers: headers(),
       body: JSON.stringify(body),
-      cache: "no-store",
+      bearer: false,
+      admin: true,
+      json: true,
     });
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(text || `Erro HTTP ${res.status}`);
-    }
-    return res.json();
   }
 
   async function loadAll(projectId = selectedProjectId) {
@@ -196,7 +161,7 @@ export default function ProjectsPage() {
   }
 
   useEffect(() => {
-    const saved = localStorage.getItem(TOKEN_STORAGE_KEY) || "";
+    const saved = localStorage.getItem(ADMIN_TOKEN_KEY) || "";
     setToken(saved);
     setTokenInput(saved);
     loadAll();
@@ -214,13 +179,13 @@ export default function ProjectsPage() {
       setError("Informe o token administrativo.");
       return;
     }
-    localStorage.setItem(TOKEN_STORAGE_KEY, cleaned);
+    localStorage.setItem(ADMIN_TOKEN_KEY, cleaned);
     setToken(cleaned);
     setMessage("Token administrativo carregado.");
   }
 
   function logout() {
-    localStorage.removeItem(TOKEN_STORAGE_KEY);
+    localStorage.removeItem(ADMIN_TOKEN_KEY);
     setToken("");
     setTokenInput("");
   }

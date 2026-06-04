@@ -19,3 +19,4 @@ build/
 *.sqlite3
 *.db
 *.sql
+dev_backups/

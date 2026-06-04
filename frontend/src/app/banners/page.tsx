@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:8000";
+import { adminFetch, API_BASE } from "../../lib/apiClient";
 
 export default function BannersPage() {
   const [data, setData] = useState<any[]>([]);
@@ -16,7 +14,7 @@ export default function BannersPage() {
   const projectId = "9b972aa2-f8a4-483b-a7d1-e979d86482fb";
 
   useEffect(() => {
-    fetch(`${API_BASE}/banners/${projectId}`)
+    adminFetch(`${API_BASE}/banners/${projectId}`)
       .then((r) => r.json())
       .then(setData)
       .finally(() => setLoading(false));
@@ -26,7 +24,7 @@ export default function BannersPage() {
     const item = data[index];
 
     if (!detailCache[item.id]) {
-      const res = await fetch(`${API_BASE}/banners/item/${item.id}`);
+      const res = await adminFetch(`${API_BASE}/banners/item/${item.id}`);
       const json = await res.json();
 
       setDetailCache((prev) => ({
