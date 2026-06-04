@@ -2,13 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import AppShell from "../../../components/AppShell";
+import { adminJson, API_BASE } from "../../../lib/apiClient";
 
-const API =
-  (
-    process.env.NEXT_PUBLIC_API_URL ||
-    process.env.NEXT_PUBLIC_API_BASE ||
-    "http://localhost:8000"
-  ).replace(/\/$/, "");
+const API = API_BASE;
 
 const DEFAULT_PROJECT_ID = "9b972aa2-f8a4-483b-a7d1-e979d86482fb";
 
@@ -37,34 +33,6 @@ type AlertsPayload = {
   };
 };
 
-function getLocalAuthHeaders(): Record<string, string> {
-  const authToken =
-    typeof window !== "undefined"
-      ? localStorage.getItem("tvfiscal_auth_token")
-      : null;
-
-  const adminToken =
-    typeof window !== "undefined"
-      ? localStorage.getItem("tvfiscal_admin_token") || "tvfiscal-admin-2026"
-      : "tvfiscal-admin-2026";
-
-  return {
-    "X-Admin-Token": adminToken,
-    ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
-  };
-}
-
-async function authorizedFetch(url: string, init: RequestInit = {}) {
-  return fetch(url, {
-    ...init,
-    cache: "no-store",
-    headers: {
-      ...getLocalAuthHeaders(),
-      ...(init.headers || {}),
-    },
-  });
-}
-
 function brl(value?: number) {
   return `R$ ${Number(value || 0).toLocaleString("pt-BR")}`;
 }
@@ -80,14 +48,12 @@ export default function BrandQualificationPage() {
     setError("");
 
     try {
-      const res = await authorizedFetch(`${API}/alerts/summary/${customProjectId}`);
+      const payload = await adminJson<AlertsPayload>(`/alerts/summary/${customProjectId}`, {
+        bearer: false,
+        admin: true,
+        json: true,
+      });
 
-      if (!res.ok) {
-        const text = await res.text().catch(() => "");
-        throw new Error(`Erro HTTP ${res.status}: ${text || res.statusText}`);
-      }
-
-      const payload = (await res.json()) as AlertsPayload;
       setData(payload);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao carregar qualificação de marcas.");
