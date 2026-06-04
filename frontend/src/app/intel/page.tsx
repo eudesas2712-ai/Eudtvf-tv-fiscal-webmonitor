@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AppShell from "../../components/AppShell";
-import { authHeaders, getAuthToken, installAuthFetchInterceptor } from "../../lib/auth";
+import { adminFetch, API_BASE } from "../../lib/apiClient";
 import {
   LineChart,
   Line,
@@ -14,59 +14,31 @@ import {
   Legend,
 } from "recharts";
 
-const API = (
-  process.env.NEXT_PUBLIC_API_BASE ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:8000"
-).replace(/\/$/, "");
+const API = API_BASE;
 
 const DEFAULT_PROJECT_ID = "9b972aa2-f8a4-483b-a7d1-e979d86482fb";
-const ADMIN_TOKEN_FALLBACK = "tvfiscal-admin-2026";
 
-function getStoredAdminToken() {
-  if (typeof window === "undefined") return ADMIN_TOKEN_FALLBACK;
-
-  return (
-    window.localStorage.getItem("tvfiscal_admin_token") ||
-    window.localStorage.getItem("adminToken") ||
-    ADMIN_TOKEN_FALLBACK
-  );
-}
 
 function authorizedFetch(input: RequestInfo | URL, init: RequestInit = {}, timeoutMs = 20000) {
-  const headers = new Headers(init.headers || undefined);
-
-  try {
-    for (const [key, value] of Object.entries(authHeaders())) {
-      if (value) headers.set(key, value);
-    }
-  } catch {
-    // Mantém o fallback administrativo mesmo se a sessão local estiver inconsistente.
-  }
-
-  const token = getAuthToken();
-  if (token && !headers.has("Authorization")) {
-    headers.set("Authorization", `Bearer ${token}`);
-  }
-
-  if (!headers.has("X-Admin-Token")) {
-    headers.set("X-Admin-Token", getStoredAdminToken());
-  }
-
-  if (!headers.has("Accept")) {
-    headers.set("Accept", "application/json");
-  }
-
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
 
-  return fetch(input, {
+  const url =
+    typeof input === "string"
+      ? input
+      : input instanceof URL
+        ? input.toString()
+        : input.url;
+
+  return adminFetch(url, {
     ...init,
-    headers,
-    cache: init.cache || "no-store",
     signal: init.signal || controller.signal,
+    bearer: false,
+    admin: true,
+    json: false,
   }).finally(() => window.clearTimeout(timeout));
 }
+
 
 async function fetchJsonSafely(url: string, timeoutMs = 20000) {
   const res = await authorizedFetch(url, {}, timeoutMs);
@@ -259,18 +231,12 @@ export default function IntelPage() {
   const [projectId, setProjectId] = useState(DEFAULT_PROJECT_ID);
 
   useEffect(() => {
-    installAuthFetchInterceptor();
-    if (!getAuthToken()) {
-      window.location.href = "/login";
-      return;
-    }
-    setProjectId(getProjectIdFromUrl());
+        setProjectId(getProjectIdFromUrl());
   }, []);
 
   useEffect(() => {
 
     async function loadData() {
-      if (!getAuthToken()) return;
       setError(null);
       setAuxWarning(null);
 
