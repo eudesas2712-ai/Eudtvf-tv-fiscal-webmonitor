@@ -1,0 +1,5 @@
+services:
+  backend:
+    environment:
+      AUTH_ENFORCEMENT_MODE: strict
+      ALLOW_ADMIN_TOKEN_QUERY: "false"
