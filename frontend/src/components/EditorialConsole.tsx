@@ -2,69 +2,38 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
+import { adminFetch, adminJson, API_BASE, ADMIN_TOKEN_KEY } from "../lib/apiClient";
 
-const API_BASE = (process.env.NEXT_PUBLIC_API_BASE || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
 const DEFAULT_PROJECT_ID = "9b972aa2-f8a4-483b-a7d1-e979d86482fb";
 
 function getAuthHeaders(extra?: Record<string, string>): Record<string, string> {
   if (typeof window === "undefined") return extra || {};
   const bearer = localStorage.getItem("tvfiscal_auth_token") || "";
-  const adminToken = localStorage.getItem("tvfiscal_admin_token") || localStorage.getItem("admin_token") || "";
+  const adminToken = localStorage.getItem(ADMIN_TOKEN_KEY) || "";
   return {
     ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}),
-    ...(adminToken ? { "X-Admin-Token": adminToken } : {}),
     ...(extra || {}),
   };
 }
 
-async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(url, {
-    cache: "no-store",
-    ...init,
-    headers: getAuthHeaders((init?.headers as Record<string, string>) || {}),
-  });
-  if (!response.ok) {
-    const body = await response.text().catch(() => "");
-    throw new Error(`Falha na API editorial: ${response.status}${body ? ` - ${body.slice(0, 220)}` : ""}`);
-  }
-  return response.json();
-}
-
-async function fetchWithAuth(url: string, init?: RequestInit): Promise<Response> {
-  return fetch(url, {
-    cache: "no-store",
-    ...init,
-    headers: getAuthHeaders((init?.headers as Record<string, string>) || {}),
+async function fetchJson<T>(url: string): Promise<T> {
+  return adminJson<T>(url, {
+    bearer: false,
+    admin: true,
+    json: true,
   });
 }
 
-type EditorialItem = {
-  id: string;
-  title: string;
-  url: string;
-  summary?: string | null;
-  content_text?: string | null;
-  source_name?: string | null;
-  source_url?: string | null;
-  matched_terms?: { terms?: string[] } | null;
-  sentiment?: string | null;
-  sentiment_score?: number | null;
-  topic?: string | null;
-  editorial_score?: number | null;
-  created_at?: string | null;
-  published_at?: string | null;
-};
 
-type Summary = {
-  total_items: number;
-  total_terms: number;
-  sources_count: number;
-  topics_count: number;
-  sentiment: Record<string, number>;
-  top_sources: { name: string; count: number }[];
-  top_terms: { term: string; count: number }[];
-  top_topics: { topic: string; count: number }[];
-};
+async function fetchWithAuth(url: string, init: RequestInit = {}) {
+  return adminFetch(url, {
+    ...init,
+    bearer: false,
+    admin: true,
+    json: false,
+  });
+}
+
 
 function getProjectIdFromUrl() {
   if (typeof window === "undefined") return DEFAULT_PROJECT_ID;
@@ -115,7 +84,7 @@ export default function EditorialConsole() {
   useEffect(() => {
     const id = getProjectIdFromUrl();
     setProjectId(id);
-    const saved = localStorage.getItem("tvfiscal_admin_token") || localStorage.getItem("admin_token") || "";
+    const saved = localStorage.getItem(ADMIN_TOKEN_KEY) || "";
     setToken(saved);
   }, []);
 
@@ -158,10 +127,9 @@ export default function EditorialConsole() {
     setRunning(true);
     setError(null);
     try {
-      localStorage.setItem("tvfiscal_admin_token", token.trim());
+      localStorage.setItem(ADMIN_TOKEN_KEY, token.trim());
       const response = await fetchWithAuth(`${API_BASE}/editorial/run/${projectId}?collect_all=true&limit_per_source=25`, {
         method: "POST",
-        headers: { "X-Admin-Token": token.trim() },
       });
       if (!response.ok) throw new Error(`Falha ao executar coleta editorial: ${response.status}`);
       await load();
@@ -180,10 +148,9 @@ export default function EditorialConsole() {
     setReclassifying(true);
     setError(null);
     try {
-      localStorage.setItem("tvfiscal_admin_token", token.trim());
+      localStorage.setItem(ADMIN_TOKEN_KEY, token.trim());
       const response = await fetchWithAuth(`${API_BASE}/editorial/reclassify/${projectId}?delete_listing_pages=true`, {
         method: "POST",
-        headers: { "X-Admin-Token": token.trim() },
       });
       if (!response.ok) throw new Error(`Falha ao reprocessar qualidade editorial: ${response.status}`);
       await load();
