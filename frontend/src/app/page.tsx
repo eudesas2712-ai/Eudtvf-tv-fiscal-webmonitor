@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import AppShell from "../components/AppShell";
+import { adminFetch, API_BASE } from "../lib/apiClient";
 
 const DEFAULT_PROJECT_ID = "9b972aa2-f8a4-483b-a7d1-e979d86482fb";
 
@@ -152,11 +153,7 @@ export default function ExecutiveDashboardPage() {
         setLoading(true);
         setLoadError(null);
 
-        const API = (
-          process.env.NEXT_PUBLIC_API_BASE ||
-          process.env.NEXT_PUBLIC_API_URL ||
-          "http://localhost:8000"
-        ).replace(/\/$/, "");
+        const API = API_BASE;
 
         const token =
           typeof window !== "undefined"
@@ -164,14 +161,13 @@ export default function ExecutiveDashboardPage() {
             : null;
 
         const headers: Record<string, string> = {
-          "X-Admin-Token": "tvfiscal-admin-2026",
         };
 
         if (token) {
           headers.Authorization = `Bearer ${token}`;
         }
 
-        const response = await fetch(
+        const response = await adminFetch(
           `${API}/executive/dashboard?project_id=${encodeURIComponent(DEFAULT_PROJECT_ID)}&days=30`,
           {
             cache: "no-store",
@@ -219,7 +215,7 @@ export default function ExecutiveDashboardPage() {
     return (
       <AppShell title="Dashboard Executivo Geral" subtitle="Visão consolidada da TV Fiscal WebMonitor">
         <div style={errorBoxStyle}>
-          Erro ao carregar o dashboard executivo geral. O backend respondeu corretamente nos testes diretos, então esta tela foi ajustada para usar localhost:8000, X-Admin-Token e sessão Bearer.
+          Erro ao carregar o dashboard executivo geral. O backend respondeu corretamente nos testes diretos. Esta tela usa o cliente centralizado de API.
           {loadError ? <div style={{ marginTop: 8 }}>Detalhe técnico: {loadError}</div> : null}
         </div>
       </AppShell>
