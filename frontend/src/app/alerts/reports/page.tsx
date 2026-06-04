@@ -2,10 +2,10 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import AppShell from "../../../components/AppShell";
+import { adminFetch, API_BASE, ADMIN_TOKEN_KEY, DEFAULT_ADMIN_TOKEN } from "../../../lib/apiClient";
 
-const API = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:8000";
+const API = API_BASE;
 const DEFAULT_PROJECT_ID = "9b972aa2-f8a4-483b-a7d1-e979d86482fb";
-const DEFAULT_TOKEN = "tvfiscal-admin-2026";
 
 type Report = {
   project_id: string;
@@ -38,7 +38,7 @@ function reportUrl(projectId: string, path: string, startDate?: string, endDate?
 
 export default function AlertsReportsPage() {
   const [projectId, setProjectId] = useState(DEFAULT_PROJECT_ID);
-  const [token, setToken] = useState(DEFAULT_TOKEN);
+  const [token, setToken] = useState(DEFAULT_ADMIN_TOKEN);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [report, setReport] = useState<Report | null>(null);
@@ -49,8 +49,7 @@ export default function AlertsReportsPage() {
     setLoading(true);
     setMessage("");
     try {
-      const res = await fetch(reportUrl(customProjectId, "", startDate, endDate), {
-        headers: { "X-Admin-Token": token },
+      const res = await adminFetch(reportUrl(customProjectId, "", startDate, endDate), {
         cache: "no-store",
       });
       if (!res.ok) throw new Error(`Erro HTTP ${res.status}`);
