@@ -1,6 +1,6 @@
 export const ADMIN_TOKEN_KEY = "tvfiscal_admin_token";
 const SESSION_TOKEN_KEY = "tvfiscal_auth_token";
-export const DEFAULT_ADMIN_TOKEN = "tvfiscal-admin-2026";
+export const DEFAULT_ADMIN_TOKEN = process.env.NEXT_PUBLIC_ADMIN_TOKEN || "";
 
 export const API_BASE =
   (
@@ -45,7 +45,10 @@ export function buildApiHeaders(options: ApiHeaderOptions = {}) {
   }
 
   if (admin) {
-    headers["X-Admin-Token"] = getAdminToken();
+    const adminToken = getAdminToken();
+    if (adminToken) {
+      headers["X-Admin-Token"] = adminToken;
+    }
   }
 
   /*

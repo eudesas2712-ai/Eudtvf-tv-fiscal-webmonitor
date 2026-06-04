@@ -59,7 +59,7 @@ export default function LoginPage() {
         {message && <div style={{ marginTop: 16, padding: 12, borderRadius: 12, background: "#FEF3F2", color: "#B42318", fontSize: 13 }}>{message}</div>}
 
         <div style={{ marginTop: 22, fontSize: 12, color: "#667085", lineHeight: 1.6, background: "#F9FAFB", padding: 12, borderRadius: 12 }}>
-          Primeiro acesso padrão: <strong>admin@tvfiscal.local</strong> / <strong>tvfiscal-admin-2026</strong>. Altere a senha após criar os usuários reais.
+          Primeiro acesso: use as credenciais administrativas configuradas no ambiente. Altere a senha após criar os usuários reais.
         </div>
       </section>
     </main>
