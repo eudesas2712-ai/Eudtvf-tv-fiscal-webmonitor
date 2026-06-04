@@ -1,21 +1,50 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://backend:8000";
+import { adminJson, adminFetch, API_BASE } from "./apiClient";
 
-function authHeaders(): Record<string, string> {
-  if (typeof window === "undefined") return {};
-  const token = localStorage.getItem("tvfiscal_auth_token");
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
+export { API_BASE };
 
 export async function apiGet<T>(path: string): Promise<T> {
-  const response = await fetch(`${API_BASE}${path}`, {
-    cache: "no-store",
-    headers: authHeaders(),
+  return adminJson<T>(path, {
+    method: "GET",
+    bearer: false,
+    admin: true,
+    json: true,
   });
+}
 
-  if (!response.ok) {
-    const body = await response.text().catch(() => "");
-    throw new Error(`Erro ao acessar API: ${response.status}${body ? ` - ${body}` : ""}`);
-  }
+export async function apiPost<T>(path: string, body: unknown): Promise<T> {
+  return adminJson<T>(path, {
+    method: "POST",
+    body: JSON.stringify(body),
+    bearer: false,
+    admin: true,
+    json: true,
+  });
+}
 
-  return response.json();
+export async function apiPut<T>(path: string, body: unknown): Promise<T> {
+  return adminJson<T>(path, {
+    method: "PUT",
+    body: JSON.stringify(body),
+    bearer: false,
+    admin: true,
+    json: true,
+  });
+}
+
+export async function apiDelete<T>(path: string): Promise<T> {
+  return adminJson<T>(path, {
+    method: "DELETE",
+    bearer: false,
+    admin: true,
+    json: true,
+  });
+}
+
+export async function apiRaw(path: string, options: RequestInit = {}) {
+  return adminFetch(path, {
+    ...options,
+    bearer: false,
+    admin: true,
+    json: false,
+  });
 }

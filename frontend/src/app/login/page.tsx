@@ -7,7 +7,7 @@ const API = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://local
 
 export default function LoginPage() {
   const [email, setEmail] = useState("admin@tvfiscal.local");
-  const [password, setPassword] = useState("tvfiscal-admin-2026");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 

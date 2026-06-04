@@ -6,9 +6,10 @@ import DataTable from "../../components/DataTable";
 import { apiGet } from "../../lib/api";
 import type { SearchResult } from "../../lib/types";
 import { useEffect, useState } from "react";
+import { adminFetch, API_BASE } from "../../lib/apiClient";
 
 async function getProjectId(): Promise<string | null> {
-  const r = await fetch("http://localhost:8000/projects/", { cache: "no-store" });
+  const r = await adminFetch(`${API_BASE}/projects/`, { cache: "no-store" });
   if (!r.ok) return null;
   const projects = await r.json();
   return projects?.[0]?.id || null;
