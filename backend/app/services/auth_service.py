@@ -116,7 +116,9 @@ def get_user_by_id(db: Session, user_id: str):
 
 def ensure_default_admin(db: Session) -> dict[str, Any] | None:
     email = normalize_email(os.getenv("DEFAULT_ADMIN_EMAIL") or os.getenv("APP_ADMIN_EMAIL") or "admin@tvfiscal.local")
-    password = os.getenv("DEFAULT_ADMIN_PASSWORD") or os.getenv("APP_ADMIN_PASSWORD") or os.getenv("ADMIN_PANEL_TOKEN") or "tvfiscal-admin-2026"
+    password = (os.getenv("DEFAULT_ADMIN_PASSWORD") or os.getenv("APP_ADMIN_PASSWORD") or os.getenv("ADMIN_TOKEN") or "").strip()
+    if not password:
+        raise HTTPException(status_code=500, detail="DEFAULT_ADMIN_PASSWORD, APP_ADMIN_PASSWORD ou ADMIN_TOKEN precisa estar configurado para bootstrap do administrador.")
     name = os.getenv("DEFAULT_ADMIN_NAME") or "Administrador TV Fiscal"
     existing = get_user_by_email(db, email)
     if existing:

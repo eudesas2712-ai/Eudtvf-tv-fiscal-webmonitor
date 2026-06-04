@@ -11,7 +11,7 @@ from fastapi import HTTPException, Request, status
 
 
 def _secret() -> bytes:
-    value = os.getenv("APP_AUTH_SECRET") or os.getenv("ADMIN_PANEL_TOKEN") or "tvfiscal-admin-2026"
+    value = (os.getenv("SECRET_KEY") or os.getenv("APP_AUTH_SECRET") or "").strip()
     return value.encode("utf-8")
 
 

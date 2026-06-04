@@ -47,6 +47,9 @@ services:
       dockerfile: Dockerfile
     environment:
       DATABASE_URL: postgresql+psycopg://webmonitor:webmonitor@postgres:5432/webmonitor
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-troque-este-token-admin}
+      AUTH_ENFORCEMENT_MODE: ${AUTH_ENFORCEMENT_MODE:-compat}
+      SECRET_KEY: ${SECRET_KEY:-troque-esta-chave-secreta-longa}
       REDIS_URL: redis://redis:6379/0
       OPENSEARCH_URL: http://opensearch:9200
       OPENSEARCH_INDEX: webmonitor-items

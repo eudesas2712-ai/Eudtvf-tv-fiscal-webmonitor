@@ -7,7 +7,7 @@ from fastapi import HTTPException, Request, status
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app.core.admin_auth import get_admin_token
+from app.core.admin_auth import admin_token_ok
 from app.core.security import decode_access_token, get_bearer_token
 from app.services.auth_service import ROLE_MODULES, ROLE_LABELS, user_to_dict
 
@@ -143,9 +143,7 @@ def extract_project_id(request: Request) -> str | None:
 
 
 def _admin_token_ok(request: Request) -> bool:
-    expected = get_admin_token()
-    received = request.headers.get("X-Admin-Token") or request.query_params.get("admin_token")
-    return bool(received and received == expected)
+    return admin_token_ok(request)
 
 
 def user_from_request(db: Session, request: Request) -> dict[str, Any] | None:
