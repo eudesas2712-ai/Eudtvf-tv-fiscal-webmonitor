@@ -2,58 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import AppShell from "../../components/AppShell";
+import { adminJson, adminDownload, API_BASE } from "../../lib/apiClient";
 
-const API =
-  (process.env.NEXT_PUBLIC_API_BASE ||
-    process.env.NEXT_PUBLIC_API_URL ||
-    "http://localhost:8000").replace(/\/$/, "");
+const API = API_BASE;
 const DEFAULT_PROJECT_ID = "9b972aa2-f8a4-483b-a7d1-e979d86482fb";
-
-function getLocalAuthHeaders(): Record<string, string> {
-  const token =
-    typeof window !== "undefined"
-      ? localStorage.getItem("tvfiscal_auth_token")
-      : null;
-
-  return {
-    "X-Admin-Token": "tvfiscal-admin-2026",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
-
-async function authorizedFetch(url: string, init: RequestInit = {}) {
-  return fetch(url, {
-    ...init,
-    cache: "no-store",
-    headers: {
-      ...getLocalAuthHeaders(),
-      ...(init.headers || {}),
-    },
-  });
-}
-
-async function downloadWithAuth(url: string, filenameFallback: string) {
-  const res = await authorizedFetch(url);
-
-  if (!res.ok) {
-    const msg = await res.text().catch(() => "");
-    throw new Error(`Erro ao exportar arquivo: ${res.status} ${msg || res.statusText}`);
-  }
-
-  const blob = await res.blob();
-  const cd = res.headers.get("content-disposition") || "";
-  const match = cd.match(/filename\*=UTF-8''([^;]+)|filename=\"?([^\";]+)\"?/i);
-  const filename = decodeURIComponent(match?.[1] || match?.[2] || filenameFallback);
-
-  const objectUrl = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = objectUrl;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(objectUrl);
-}
 
 type AlertItem = {
   id: string;
@@ -153,9 +105,11 @@ export default function AlertsPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await authorizedFetch(`${API}/alerts/summary/${customProjectId}`);
-      if (!res.ok) throw new Error(`Erro HTTP ${res.status}`);
-      const payload = (await res.json()) as AlertsPayload;
+      const payload = await adminJson<AlertsPayload>(`/alerts/summary/${customProjectId}`, {
+        bearer: false,
+        admin: true,
+        json: true,
+      });
       setData(payload);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao carregar alertas.");
@@ -180,8 +134,8 @@ export default function AlertsPage() {
   }, [data, category, severity]);
 
   function exportCsv() {
-    downloadWithAuth(
-      `${API}/alerts/summary/${projectId}/export.csv`,
+    adminDownload(
+      `/alerts/summary/${projectId}/export.csv`,
       `alertas_${projectId}.csv`
     ).catch((err) =>
       setError(err instanceof Error ? err.message : "Erro ao exportar CSV.")
