@@ -1,0 +1,12 @@
+// AJUSTE RECOMENDADO EM frontend/src/lib/auth.ts
+// Dentro de installAuthFetchInterceptor(), troque o bloco que adiciona Authorization por este:
+//
+// if (!headers.has("Authorization") && !headers.has("X-Admin-Token")) {
+//   const token = getAuthToken();
+//   if (token) {
+//     headers.set("Authorization", `Bearer ${token}`);
+//   }
+// }
+//
+// Motivo: telas administrativas que já enviam X-Admin-Token não devem receber um JWT expirado
+// injetado automaticamente pelo interceptor global.

@@ -1,6 +1,6 @@
-const ADMIN_TOKEN_KEY = "tvfiscal_admin_token";
+export const ADMIN_TOKEN_KEY = "tvfiscal_admin_token";
 const SESSION_TOKEN_KEY = "tvfiscal_auth_token";
-const DEFAULT_ADMIN_TOKEN = "tvfiscal-admin-2026";
+export const DEFAULT_ADMIN_TOKEN = "tvfiscal-admin-2026";
 
 export const API_BASE =
   (

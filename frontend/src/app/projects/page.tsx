@@ -3,11 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import AppShell from "../../components/AppShell";
-import { adminJson, API_BASE } from "../../lib/apiClient";
+import { adminJson, API_BASE, ADMIN_TOKEN_KEY, DEFAULT_ADMIN_TOKEN } from "../../lib/apiClient";
 
 const API = API_BASE;
-const TOKEN_STORAGE_KEY = "tvfiscal_admin_token";
-const DEFAULT_ADMIN_TOKEN = "tvfiscal-admin-2026";
 const DEFAULT_PROJECT_ID = "9b972aa2-f8a4-483b-a7d1-e979d86482fb";
 
 type Segment = { id: string; name: string; active?: boolean };
@@ -116,7 +114,7 @@ export default function ProjectsPage() {
     const savedAdminToken =
       token ||
       (typeof window !== "undefined"
-        ? localStorage.getItem(TOKEN_STORAGE_KEY) || ""
+        ? localStorage.getItem(ADMIN_TOKEN_KEY) || ""
         : "");
 
     const sessionToken =
@@ -187,7 +185,7 @@ export default function ProjectsPage() {
   }
 
   useEffect(() => {
-    const saved = localStorage.getItem(TOKEN_STORAGE_KEY) || "";
+    const saved = localStorage.getItem(ADMIN_TOKEN_KEY) || "";
     setToken(saved);
     setTokenInput(saved);
     loadAll();
@@ -205,13 +203,13 @@ export default function ProjectsPage() {
       setError("Informe o token administrativo.");
       return;
     }
-    localStorage.setItem(TOKEN_STORAGE_KEY, cleaned);
+    localStorage.setItem(ADMIN_TOKEN_KEY, cleaned);
     setToken(cleaned);
     setMessage("Token administrativo carregado.");
   }
 
   function logout() {
-    localStorage.removeItem(TOKEN_STORAGE_KEY);
+    localStorage.removeItem(ADMIN_TOKEN_KEY);
     setToken("");
     setTokenInput("");
   }
