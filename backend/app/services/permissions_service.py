@@ -75,23 +75,53 @@ PATH_MODULE_RULES: list[tuple[str, str]] = [
 
 # Permissões mínimas por método para endpoints sensíveis.
 # Leitura costuma ser liberada pelo módulo; alterações pedem perfil operacional/admin.
+# Regra de segurança: toda mutação sem regra explícita cai em DEFAULT_MUTATION_ROLES.
+READ_ONLY_METHODS = {"GET", "HEAD", "OPTIONS"}
+DEFAULT_MUTATION_ROLES = {"admin"}
+
 MUTATION_ROLE_RULES: list[tuple[str, set[str]]] = [
+    # Administração de usuários e permissões
     ("/auth/users", {"admin"}),
+    ("/auth/audit", {"admin"}),
+    ("/auth/permissions-matrix", {"admin"}),
+
+    # Manutenção, backup e saúde operacional
     ("/maintenance", {"admin"}),
     ("/system/health", {"admin"}),
+
+    # Scheduler/coletas administrativas
+    ("/admin/scheduler", {"admin", "operador"}),
+
+    # Motor de notificações e SLA
     ("/notifications/provider-settings", {"admin"}),
     ("/notifications/contacts", {"admin", "gestor"}),
     ("/notifications/rules", {"admin", "gestor"}),
+    ("/notifications/bootstrap", {"admin"}),
+    ("/notifications/cleanup", {"admin"}),
+    ("/notifications/evaluate", {"admin", "gestor", "operador"}),
     ("/notifications/test", {"admin", "gestor"}),
+    ("/notifications/sla/evaluate", {"admin", "gestor"}),
+    ("/notifications/logs", {"admin", "gestor"}),
+    ("/notifications", {"admin", "gestor"}),
+
+    # Qualificação e inteligência operacional
     ("/identification", {"admin", "operador"}),
-    ("/admin/scheduler", {"admin", "operador"}),
+    ("/intel/compare", {"admin", "gestor", "operador"}),
+    ("/intel", {"admin", "gestor", "operador"}),
+
+    # Cadastros e projetos
     ("/registry", {"admin", "operador"}),
     ("/projects", {"admin", "gestor"}),
     ("/sources", {"admin", "operador"}),
     ("/terms", {"admin", "operador"}),
+
+    # Editorial/checking
     ("/editorial/run", {"admin", "operador"}),
     ("/editorial/reclassify", {"admin", "operador"}),
     ("/editorial/clear", {"admin"}),
+    ("/items/clear", {"admin"}),
+
+    # Banners/evidências
     ("/banners/scan", {"admin", "operador"}),
 ]
 
@@ -211,9 +241,9 @@ def validate_request_permission(db: Session, request: Request) -> dict[str, Any]
     if not user_has_module(user, module):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Sem permissão para o módulo: {MODULE_LABELS.get(module or '', module or 'desconhecido')}.")
 
-    if method not in {"GET", "HEAD", "OPTIONS"}:
-        roles = mutation_roles_for_path(path)
-        if roles and user.get("role") not in roles:
+    if method not in READ_ONLY_METHODS:
+        roles = mutation_roles_for_path(path) or DEFAULT_MUTATION_ROLES
+        if user.get("role") not in roles:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Perfil sem permissão para alterar este recurso.")
 
     project_id = extract_project_id(request)

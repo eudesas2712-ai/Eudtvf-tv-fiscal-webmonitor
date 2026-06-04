@@ -1,0 +1,10 @@
+78:# Regra de segurança: toda mutação sem regra explícita cai em DEFAULT_MUTATION_ROLES.
+79:READ_ONLY_METHODS = {"GET", "HEAD", "OPTIONS"}
+80:DEFAULT_MUTATION_ROLES = {"admin"}
+82:MUTATION_ROLE_RULES: list[tuple[str, set[str]]] = [
+146:def mutation_roles_for_path(path: str) -> set[str] | None:
+147:    for prefix, roles in MUTATION_ROLE_RULES:
+222:def validate_request_permission(db: Session, request: Request) -> dict[str, Any] | None:
+244:    if method not in READ_ONLY_METHODS:
+245:        roles = mutation_roles_for_path(path) or DEFAULT_MUTATION_ROLES
+247:            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Perfil sem permissão para alterar este recurso.")
