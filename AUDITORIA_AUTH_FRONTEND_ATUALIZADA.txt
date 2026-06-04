@@ -1,0 +1,48 @@
+frontend/src/app/admin/identificacao/page.tsx:9:const TOKEN_STORAGE_KEY = "tvfiscal_admin_token";
+frontend/src/app/admin/identificacao/page.tsx:130:    return { "Content-Type": "application/json", "X-Admin-Token": token };
+frontend/src/app/admin/identificacao/page.tsx:134:    const res = await fetch(`${API}${path}`, { cache: "no-store" });
+frontend/src/app/admin/identificacao/page.tsx:140:    const res = await fetch(`${API}${path}`, {
+frontend/src/app/admin/scheduler/page.tsx:82:      "X-Admin-Token": token,
+frontend/src/app/banners/page.tsx:19:    fetch(`${API_BASE}/banners/${projectId}`)
+frontend/src/app/banners/page.tsx:29:      const res = await fetch(`${API_BASE}/banners/item/${item.id}`);
+frontend/src/app/banners/[id]/page.tsx:96:        const response = await fetch(DETAIL_URL, {
+frontend/src/app/intel/comparativo/page.tsx:10:async function authorizedFetch(input: RequestInfo | URL, init: RequestInit = {}) {
+frontend/src/app/intel/comparativo/page.tsx:28:  const res = await authorizedFetch(url);
+frontend/src/app/intel/comparativo/page.tsx:220:      const compareRes = await authorizedFetch(`${API}/intel/compare/${projectId}?${params.toString()}`);
+frontend/src/app/intel/comparativo/page.tsx:233:        authorizedFetch(`${API}/registry/segments`),
+frontend/src/app/intel/comparativo/page.tsx:234:        authorizedFetch(`${API}/registry/advertisers`),
+frontend/src/app/intel/page.tsx:22:function authorizedFetch(input: RequestInfo | URL, init: RequestInit = {}, timeoutMs = 20000) {
+frontend/src/app/intel/page.tsx:44:  const res = await authorizedFetch(url, {}, timeoutMs);
+frontend/src/app/intel/page.tsx:53:  const res = await authorizedFetch(url);
+frontend/src/app/login/page.tsx:10:  const [password, setPassword] = useState("tvfiscal-admin-2026");
+frontend/src/app/login/page.tsx:19:      const response = await fetch(`${API}/auth/login`, {
+frontend/src/app/login/page.tsx:62:          Primeiro acesso padrão: <strong>admin@tvfiscal.local</strong> / <strong>tvfiscal-admin-2026</strong>. Altere a senha após criar os usuários reais.
+frontend/src/app/page.tsx:167:          "X-Admin-Token": "tvfiscal-admin-2026",
+frontend/src/app/page.tsx:174:        const response = await fetch(
+frontend/src/app/page.tsx:222:          Erro ao carregar o dashboard executivo geral. O backend respondeu corretamente nos testes diretos, então esta tela foi ajustada para usar localhost:8000, X-Admin-Token e sessão Bearer.
+frontend/src/app/search/page.tsx:11:  const r = await fetch("http://localhost:8000/projects/", { cache: "no-store" });
+frontend/src/components/EditorialConsole.tsx:12:  const adminToken = localStorage.getItem("tvfiscal_admin_token") || localStorage.getItem("admin_token") || "";
+frontend/src/components/EditorialConsole.tsx:15:    ...(adminToken ? { "X-Admin-Token": adminToken } : {}),
+frontend/src/components/EditorialConsole.tsx:21:  const response = await fetch(url, {
+frontend/src/components/EditorialConsole.tsx:34:  return fetch(url, {
+frontend/src/components/EditorialConsole.tsx:118:    const saved = localStorage.getItem("tvfiscal_admin_token") || localStorage.getItem("admin_token") || "";
+frontend/src/components/EditorialConsole.tsx:161:      localStorage.setItem("tvfiscal_admin_token", token.trim());
+frontend/src/components/EditorialConsole.tsx:164:        headers: { "X-Admin-Token": token.trim() },
+frontend/src/components/EditorialConsole.tsx:183:      localStorage.setItem("tvfiscal_admin_token", token.trim());
+frontend/src/components/EditorialConsole.tsx:186:        headers: { "X-Admin-Token": token.trim() },
+frontend/src/components/EvidenceConsole.tsx:12:function getLocalAuthHeaders() {
+frontend/src/components/EvidenceConsole.tsx:19:    "X-Admin-Token": "tvfiscal-admin-2026",
+frontend/src/components/EvidenceConsole.tsx:24:async function authorizedFetch(url: string, init: RequestInit = {}) {
+frontend/src/components/EvidenceConsole.tsx:25:  return fetch(url, {
+frontend/src/components/EvidenceConsole.tsx:29:      ...getLocalAuthHeaders(),
+frontend/src/components/EvidenceConsole.tsx:289:          authorizedFetch(`${API_BASE}/banners/${projectId}?limit=1000`),
+frontend/src/components/EvidenceConsole.tsx:290:          authorizedFetch(`${API_BASE}/registry/segments`),
+frontend/src/components/EvidenceConsole.tsx:291:          authorizedFetch(`${API_BASE}/registry/advertisers`),
+frontend/src/lib/api.ts:3:function authHeaders(): Record<string, string> {
+frontend/src/lib/api.ts:10:  const response = await fetch(`${API_BASE}${path}`, {
+frontend/src/lib/api.ts:12:    headers: authHeaders(),
+frontend/src/lib/apiClient.ts:1:export const ADMIN_TOKEN_KEY = "tvfiscal_admin_token";
+frontend/src/lib/apiClient.ts:3:export const DEFAULT_ADMIN_TOKEN = "tvfiscal-admin-2026";
+frontend/src/lib/apiClient.ts:48:    headers["X-Admin-Token"] = getAdminToken();
+frontend/src/lib/apiClient.ts:80:  return fetch(apiUrl(pathOrUrl), {
+frontend/src/lib/auth.ts:40:export function authHeaders(): Record<string, string> {
