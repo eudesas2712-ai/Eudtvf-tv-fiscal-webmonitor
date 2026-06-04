@@ -79,7 +79,6 @@ export default function SchedulerAdminPage() {
 
   function getAuthHeaders(token = adminToken) {
     return {
-      "X-Admin-Token": token,
     };
   }
 

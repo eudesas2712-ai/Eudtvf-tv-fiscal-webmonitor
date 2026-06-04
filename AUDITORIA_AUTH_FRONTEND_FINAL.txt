@@ -1,0 +1,7 @@
+frontend/src/app/login/page.tsx:19:      const response = await fetch(`${API}/auth/login`, {
+frontend/src/app/login/page.tsx:62:          Primeiro acesso padrão: <strong>admin@tvfiscal.local</strong> / <strong>tvfiscal-admin-2026</strong>. Altere a senha após criar os usuários reais.
+frontend/src/lib/apiClient.ts:1:export const ADMIN_TOKEN_KEY = "tvfiscal_admin_token";
+frontend/src/lib/apiClient.ts:3:export const DEFAULT_ADMIN_TOKEN = "tvfiscal-admin-2026";
+frontend/src/lib/apiClient.ts:48:    headers["X-Admin-Token"] = getAdminToken();
+frontend/src/lib/apiClient.ts:80:  return fetch(apiUrl(pathOrUrl), {
+frontend/src/lib/auth.ts:40:export function authHeaders(): Record<string, string> {
