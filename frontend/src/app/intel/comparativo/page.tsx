@@ -2,46 +2,27 @@
 
 import { useEffect, useMemo, useState } from "react";
 import AppShell from "../../../components/AppShell";
+import { adminFetch, API_BASE } from "../../../lib/apiClient";
 
-const API =
-  (process.env.NEXT_PUBLIC_API_BASE ||
-    process.env.NEXT_PUBLIC_API_URL ||
-    "http://localhost:8000").replace(/\/$/, "");
+const API = API_BASE;
 const DEFAULT_PROJECT_ID = "9b972aa2-f8a4-483b-a7d1-e979d86482fb";
 
-function getLocalAuthHeaders(): Record<string, string> {
-  const headers: Record<string, string> = {
-    "X-Admin-Token": "tvfiscal-admin-2026",
-  };
-
-  if (typeof window !== "undefined") {
-    const token =
-      localStorage.getItem("tvfiscal_auth_token") ||
-      localStorage.getItem("auth_token") ||
-      localStorage.getItem("access_token") ||
-      localStorage.getItem("token");
-
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
-  }
-
-  return headers;
-}
-
 async function authorizedFetch(input: RequestInfo | URL, init: RequestInit = {}) {
-  const headers = new Headers(init.headers || undefined);
+  const url =
+    typeof input === "string"
+      ? input
+      : input instanceof URL
+        ? input.toString()
+        : input.url;
 
-  for (const [key, value] of Object.entries(getLocalAuthHeaders())) {
-    headers.set(key, value);
-  }
-
-  return fetch(input, {
+  return adminFetch(url, {
     ...init,
-    headers,
-    cache: init.cache || "no-store",
+    bearer: false,
+    admin: true,
+    json: false,
   });
 }
+
 
 async function downloadWithAuth(url: string, filenameFallback: string) {
   const res = await authorizedFetch(url);
