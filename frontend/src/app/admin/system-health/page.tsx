@@ -2,9 +2,9 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import AppShell from "../../../components/AppShell";
+import { adminJson, adminFetch, API_BASE, ADMIN_TOKEN_KEY, DEFAULT_ADMIN_TOKEN } from "../../../lib/apiClient";
 
-const API = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:8000";
-const DEFAULT_TOKEN = "tvfiscal-admin-2026";
+const API = API_BASE;
 
 type Check = {
   service: string;
@@ -66,7 +66,7 @@ function formatBytes(value?: number) {
 }
 
 export default function SystemHealthPage() {
-  const [token, setToken] = useState(DEFAULT_TOKEN);
+  const [token, setToken] = useState(DEFAULT_ADMIN_TOKEN);
   const [data, setData] = useState<HealthData | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [message, setMessage] = useState("");
@@ -74,15 +74,13 @@ export default function SystemHealthPage() {
   const [serviceFilter, setServiceFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
 
-  async function api(path: string, options: RequestInit = {}) {
-    const headers: Record<string, string> = { "Content-Type": "application/json", "X-Admin-Token": token };
-    const res = await fetch(`${API}${path}`, { ...options, headers: { ...headers, ...(options.headers || {}) }, cache: "no-store" });
-    if (!res.ok) {
-      let detail = "";
-      try { detail = JSON.stringify(await res.json()); } catch { detail = await res.text(); }
-      throw new Error(`Erro HTTP ${res.status}: ${detail}`);
-    }
-    return res.json();
+  async function api<T = any>(path: string, options: RequestInit = {}): Promise<T> {
+    return adminJson<T>(path, {
+      ...options,
+      bearer: false,
+      admin: true,
+      json: true,
+    });
   }
 
   async function load() {
