@@ -1,0 +1,19 @@
+docker-compose.prod.yml:44:    ports:
+docker-compose.prod.yml:45:      - "127.0.0.1:9000:9000"
+docker-compose.prod.yml:63:      - ./data/exports:/app/exports
+docker-compose.prod.yml:65:    ports:
+docker-compose.prod.yml:66:      - "127.0.0.1:8000:8000"
+docker-compose.prod.yml:82:    ports:
+docker-compose.prod.yml:83:      - "127.0.0.1:3000:3000"
+docker-compose.yml:9:    ports:
+docker-compose.yml:10:      - "5432:5432"
+docker-compose.yml:17:    ports:
+docker-compose.yml:18:      - "6379:6379"
+docker-compose.yml:26:    ports:
+docker-compose.yml:27:      - "9200:9200"
+docker-compose.yml:38:    ports:
+docker-compose.yml:39:      - "9000:9000"
+docker-compose.yml:67:    ports:
+docker-compose.yml:68:      - "8000:8000"
+docker-compose.yml:79:    ports:
+docker-compose.yml:80:      - "3000:3000"

@@ -1,0 +1,51 @@
+docker-compose.backup-volume.override.yml:10:      AUTO_BACKUP_INCLUDE_MINIO: "false"
+docker-compose.local-frontend.override.yml:4:      NEXT_PUBLIC_API_BASE: http://localhost:8000
+docker-compose.local-frontend.override.yml:5:      NEXT_PUBLIC_API_URL: http://localhost:8000
+docker-compose.prod.yml:8:      POSTGRES_DB: ${POSTGRES_DB}
+docker-compose.prod.yml:9:      POSTGRES_USER: ${POSTGRES_USER}
+docker-compose.prod.yml:10:      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+docker-compose.prod.yml:15:      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+docker-compose.prod.yml:38:      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+docker-compose.prod.yml:39:      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+docker-compose.strict-auth.override.yml:4:      AUTH_ENFORCEMENT_MODE: strict
+docker-compose.strict-auth.override.yml:5:      ALLOW_ADMIN_TOKEN_QUERY: "false"
+docker-compose.yml:5:      POSTGRES_USER: webmonitor
+docker-compose.yml:6:      POSTGRES_PASSWORD: webmonitor
+docker-compose.yml:7:      POSTGRES_DB: webmonitor
+docker-compose.yml:8:      POSTGRES_HOST_AUTH_METHOD: trust
+docker-compose.yml:25:      OPENSEARCH_JAVA_OPTS: -Xms512m -Xmx512m
+docker-compose.yml:36:      MINIO_ROOT_USER: minio
+docker-compose.yml:37:      MINIO_ROOT_PASSWORD: minio12345
+docker-compose.yml:50:      ADMIN_TOKEN: ${ADMIN_TOKEN:-troque-este-token-admin}
+docker-compose.yml:51:      AUTH_ENFORCEMENT_MODE: ${AUTH_ENFORCEMENT_MODE:-compat}
+docker-compose.yml:52:      SECRET_KEY: ${SECRET_KEY:-troque-esta-chave-secreta-longa}
+docker-compose.yml:53:      REDIS_URL: redis://redis:6379/0
+docker-compose.yml:54:      OPENSEARCH_URL: http://opensearch:9200
+docker-compose.yml:55:      OPENSEARCH_INDEX: webmonitor-items
+docker-compose.yml:56:      MINIO_ENDPOINT: minio:9000
+docker-compose.yml:57:      MINIO_ACCESS_KEY: minio
+docker-compose.yml:58:      MINIO_SECRET_KEY: minio12345
+docker-compose.yml:59:      MINIO_BUCKET: evidence
+docker-compose.yml:60:      CORS_ORIGINS: http://localhost:3000
+docker-compose.yml:76:      NEXT_PUBLIC_API_BASE: http://backend:8000
+.env.production.example:8:NEXT_PUBLIC_API_BASE_URL=https://painelon.tvfiscal-pb.com.br/api
+.env.production.example:11:ADMIN_TOKEN=troque-este-token-admin
+.env.production.example:12:SECRET_KEY=troque-esta-chave-secreta-longa
+.env.production.example:13:AUTH_ENFORCEMENT_MODE=compat
+.env.production.example:15:# AUTH_ENFORCEMENT_MODE=strict
+.env.production.example:18:POSTGRES_DB=tvfiscal
+.env.production.example:19:POSTGRES_USER=tvfiscal
+.env.production.example:20:POSTGRES_PASSWORD=troque-senha-postgres
+.env.production.example:24:REDIS_URL=redis://redis:6379/0
+.env.production.example:27:MINIO_ENDPOINT=minio:9000
+.env.production.example:28:MINIO_PUBLIC_ENDPOINT=https://painelon.tvfiscal-pb.com.br/minio
+.env.production.example:29:MINIO_ROOT_USER=tvfiscal_minio
+.env.production.example:30:MINIO_ROOT_PASSWORD=troque-senha-minio
+.env.production.example:31:MINIO_BUCKET=evidence
+.env.production.example:32:MINIO_SECURE=false
+.env.production.example:39:AUTO_BACKUP_INCLUDE_MINIO=false
+.env.production.example:47:SMTP_PORT=587
+.env.production.example:50:SMTP_PASSWORD=senha-ou-senha-app
+.env.production.example:64:NEXT_PUBLIC_API_BASE=http://localhost:8000
+.env.production.example:65:CORS_ORIGINS=http://localhost:3000
+.env.production.example:66:NEXT_PUBLIC_ADMIN_TOKEN=troque-este-token-admin

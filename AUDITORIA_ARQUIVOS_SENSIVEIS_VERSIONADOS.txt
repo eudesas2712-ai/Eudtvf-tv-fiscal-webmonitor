@@ -1,0 +1,16 @@
+.env.example
+AUDITORIA_AUTH_ENV_TOKEN.txt
+AUDITORIA_AUTH_TOKENS.txt
+AUDITORIA_BACKEND_ADMIN_TOKEN_POS_PATCH.txt
+README_BACKUP_MANUTENCAO_PRODUCAO_V38.md
+README_PERSISTENCIA_BACKUP_SANEAMENTO_V40.md
+backend/app/services/backup_scheduler.py
+backup_recuperado.sql
+data/backups/tvfiscal_backup_20260530_001842_auto.zip
+data/backups/tvfiscal_backup_20260530_002025_manual_auto.zip
+data/backups/tvfiscal_backup_20260601_162124_auto.zip
+data/backups/tvfiscal_backup_20260602_163820_auto.zip
+data/backups/tvfiscal_backup_20260603_233701_auto.zip
+data/redis/dump.rdb
+docker-compose.backup-volume.override.yml
+scripts/backup_prod.sh
