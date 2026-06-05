@@ -7,7 +7,7 @@ class Settings:
     OPENSEARCH_INDEX = os.getenv("OPENSEARCH_INDEX", "webmonitor-items")
     MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT", "minio:9000")
     MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minio")
-    MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minio12345")
+    MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "")
     MINIO_BUCKET = os.getenv("MINIO_BUCKET", "evidence")
     CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000")
     LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
