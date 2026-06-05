@@ -22,3 +22,5 @@ build/
 dev_backups/
 data/backups/*.zip
 data/backups/
+backup_recuperado.sql
+data/redis/dump.rdb
