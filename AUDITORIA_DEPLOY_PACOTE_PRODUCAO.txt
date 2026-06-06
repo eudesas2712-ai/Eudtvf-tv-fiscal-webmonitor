@@ -1,0 +1,24 @@
+deploy/nginx/painelon.tvfiscal-pb.com.br.conf:3:    server_name painelon.tvfiscal-pb.com.br;
+deploy/nginx/painelon.tvfiscal-pb.com.br.conf:8:        proxy_pass http://127.0.0.1:3000;
+deploy/nginx/painelon.tvfiscal-pb.com.br.conf:26:        proxy_pass http://127.0.0.1:8000;
+deploy/nginx/painelon.tvfiscal-pb.com.br.conf:40:        proxy_pass http://127.0.0.1:8000/health;
+CHECKLIST_DEPLOY_PRODUCAO_VPS.md:10:  - painelon.tvfiscal-pb.com.br
+CHECKLIST_DEPLOY_PRODUCAO_VPS.md:22:- deploy/nginx/painelon.tvfiscal-pb.com.br.conf
+CHECKLIST_DEPLOY_PRODUCAO_VPS.md:52:AUTH_ENFORCEMENT_MODE=strict
+CHECKLIST_DEPLOY_PRODUCAO_VPS.md:53:ALLOW_ADMIN_TOKEN_QUERY=false
+CHECKLIST_DEPLOY_PRODUCAO_VPS.md:54:CORS_ORIGINS=https://painelon.tvfiscal-pb.com.br
+CHECKLIST_DEPLOY_PRODUCAO_VPS.md:72:sudo cp deploy/nginx/painelon.tvfiscal-pb.com.br.conf /etc/nginx/sites-available/painelon.tvfiscal-pb.com.br.conf
+CHECKLIST_DEPLOY_PRODUCAO_VPS.md:73:sudo ln -s /etc/nginx/sites-available/painelon.tvfiscal-pb.com.br.conf /etc/nginx/sites-enabled/painelon.tvfiscal-pb.com.br.conf
+CHECKLIST_DEPLOY_PRODUCAO_VPS.md:80:sudo certbot --nginx -d painelon.tvfiscal-pb.com.br
+CHECKLIST_DEPLOY_PRODUCAO_VPS.md:90:curl -i https://painelon.tvfiscal-pb.com.br/health
+CHECKLIST_DEPLOY_PRODUCAO_VPS.md:94:https://painelon.tvfiscal-pb.com.br
+CHECKLIST_DEPLOY_PRODUCAO_VPS.md:98:BASE_URL=https://painelon.tvfiscal-pb.com.br ADMIN_TOKEN=<TOKEN_REAL> ./scripts/smoke_test_strict_auth.sh
+CHECKLIST_DEPLOY_PRODUCAO_VPS.md:119:- Usar AUTH_ENFORCEMENT_MODE=strict em producao.
+CHECKLIST_DEPLOY_PRODUCAO_VPS.md:120:- Usar ALLOW_ADMIN_TOKEN_QUERY=false em producao.
+.env.production.example:7:AUTH_ENFORCEMENT_MODE=strict
+.env.production.example:8:ALLOW_ADMIN_TOKEN_QUERY=false
+.env.production.example:12:NEXT_PUBLIC_API_URL=https://painelon.tvfiscal-pb.com.br
+.env.production.example:13:NEXT_PUBLIC_API_BASE=https://painelon.tvfiscal-pb.com.br
+.env.production.example:17:CORS_ORIGINS=https://painelon.tvfiscal-pb.com.br
+docker-compose.prod.yml:66:      - "127.0.0.1:8000:8000"
+docker-compose.prod.yml:83:      - "127.0.0.1:3000:3000"
