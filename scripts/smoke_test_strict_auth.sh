@@ -9,8 +9,20 @@ echo "== TV Fiscal WebMonitor · Smoke Test Strict Auth =="
 
 echo
 echo "1) Healthcheck público"
-curl -fsS "$BASE_URL/health" >/dev/null
-echo "OK /health"
+for i in {1..30}; do
+  if curl -fsS "$BASE_URL/health" >/dev/null; then
+    echo "OK /health"
+    break
+  fi
+
+  if [ "$i" = "30" ]; then
+    echo "ERRO: /health não respondeu após 30 tentativas."
+    curl -i "$BASE_URL/health" || true
+    exit 1
+  fi
+
+  sleep 2
+done
 
 echo
 echo "2) Scheduler com X-Admin-Token"
