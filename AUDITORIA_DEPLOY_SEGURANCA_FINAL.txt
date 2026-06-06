@@ -1,0 +1,337 @@
+backend/app/core/admin_auth.py:6:from app.core.security import decode_access_token, get_bearer_token
+backend/app/core/admin_auth.py:13:def allow_admin_token_query() -> bool:
+backend/app/core/admin_auth.py:22:def get_admin_token() -> str:
+backend/app/core/admin_auth.py:23:    # ADMIN_TOKEN é o nome oficial do token administrativo.
+backend/app/core/admin_auth.py:27:def admin_token_configured() -> bool:
+backend/app/core/admin_auth.py:28:    return bool(get_admin_token())
+backend/app/core/admin_auth.py:37:def admin_token_from_request(request: Request) -> str | None:
+backend/app/core/admin_auth.py:38:    header_token = request.headers.get("X-Admin-Token")
+backend/app/core/admin_auth.py:39:    if header_token:
+backend/app/core/admin_auth.py:40:        return header_token.strip()
+backend/app/core/admin_auth.py:42:    if allow_admin_token_query():
+backend/app/core/admin_auth.py:43:        query_token = request.query_params.get("admin_token")
+backend/app/core/admin_auth.py:44:        if query_token:
+backend/app/core/admin_auth.py:45:            return query_token.strip()
+backend/app/core/admin_auth.py:50:def admin_token_ok(request: Request) -> bool:
+backend/app/core/admin_auth.py:51:    expected_token = get_admin_token()
+backend/app/core/admin_auth.py:52:    received_token = admin_token_from_request(request)
+backend/app/core/admin_auth.py:53:    return _constant_time_equals(received_token or "", expected_token)
+backend/app/core/admin_auth.py:57:    if admin_token_ok(request):
+backend/app/core/admin_auth.py:60:    bearer = get_bearer_token(request)
+backend/app/core/admin_auth.py:63:            payload = decode_access_token(bearer)
+backend/app/core/config.py:10:    MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minio12345")
+backend/app/core/security.py:6:import secrets
+backend/app/core/security.py:13:def _secret() -> bytes:
+backend/app/core/security.py:27:def hash_password(password: str) -> str:
+backend/app/core/security.py:28:    if not password or len(password) < 6:
+backend/app/core/security.py:29:        raise ValueError("A senha deve ter pelo menos 6 caracteres.")
+backend/app/core/security.py:31:    salt = secrets.token_hex(16)
+backend/app/core/security.py:32:    digest = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt.encode("utf-8"), iterations)
+backend/app/core/security.py:36:def verify_password(password: str, stored_hash: str | None) -> bool:
+backend/app/core/security.py:37:    if not password or not stored_hash:
+backend/app/core/security.py:44:        digest = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt.encode("utf-8"), iterations).hex()
+backend/app/core/security.py:50:def create_access_token(payload: dict[str, Any], expires_in_seconds: int | None = None) -> str:
+backend/app/core/security.py:53:    token_payload = {
+backend/app/core/security.py:57:        "jti": secrets.token_hex(12),
+backend/app/core/security.py:59:    raw_payload = _b64url(json.dumps(token_payload, separators=(",", ":"), default=str).encode("utf-8"))
+backend/app/core/security.py:60:    signature = hmac.new(_secret(), raw_payload.encode("ascii"), hashlib.sha256).digest()
+backend/app/core/security.py:64:def decode_access_token(token: str) -> dict[str, Any]:
+backend/app/core/security.py:65:    if not token or not token.startswith("tvf."):
+backend/app/core/security.py:68:        _, raw_payload, raw_signature = token.split(".", 2)
+backend/app/core/security.py:69:        expected = _b64url(hmac.new(_secret(), raw_payload.encode("ascii"), hashlib.sha256).digest())
+backend/app/core/security.py:82:def get_bearer_token(request: Request) -> str | None:
+backend/app/core/security.py:86:    cookie_token = request.cookies.get("tvfiscal_auth_token")
+backend/app/core/security.py:87:    return cookie_token or None
+backend/app/db/migrations.py:283:            password_hash TEXT NOT NULL,
+backend/app/routers/auth.py:17:    reset_password,
+backend/app/routers/auth.py:29:    password: str = Field(min_length=6)
+backend/app/routers/auth.py:35:    password: str = Field(min_length=6, max_length=255)
+backend/app/routers/auth.py:52:    password: str = Field(min_length=6, max_length=255)
+backend/app/routers/auth.py:57:    return login(db, email=payload.email, password=payload.password, request=request)
+backend/app/routers/auth.py:114:        password=payload.password,
+backend/app/routers/auth.py:141:@router.post("/users/{user_id}/reset-password")
+backend/app/routers/auth.py:142:def reset_password_route(user_id: str, payload: PasswordResetRequest, request: Request, db: Session = Depends(get_db)):
+backend/app/routers/auth.py:144:    user = reset_password(db, user_id, payload.password)
+backend/app/routers/auth.py:145:    audit_log(db, user_id=actor["id"], action="reset_password", status_value="success", request=request, detail=f"Redefiniu senha de {user['email']}")
+backend/app/routers/banners.py:101:    technical_ad_tokens = [
+backend/app/routers/banners.py:120:    if any(token in text for token in technical_ad_tokens):
+backend/app/routers/banners.py:123:    commercial_tokens = [
+backend/app/routers/banners.py:138:    return any(token in text for token in commercial_tokens) and not _has_editorial_or_video_context(row)
+backend/app/services/auth_service.py:11:from app.core.security import create_access_token, decode_access_token, get_bearer_token, hash_password, verify_password
+backend/app/services/auth_service.py:81:        result["password_hash"] = data.get("password_hash")
+backend/app/services/auth_service.py:119:    password = (os.getenv("DEFAULT_ADMIN_PASSWORD") or os.getenv("APP_ADMIN_PASSWORD") or os.getenv("ADMIN_TOKEN") or "").strip()
+backend/app/services/auth_service.py:120:    if not password:
+backend/app/services/auth_service.py:131:            INSERT INTO app_users (id, name, email, password_hash, role, active, project_ids, allowed_modules, created_at, updated_at)
+backend/app/services/auth_service.py:132:            VALUES (:id, :name, :email, :password_hash, 'admin', TRUE, '[]'::jsonb, CAST(:modules AS JSONB), NOW(), NOW())
+backend/app/services/auth_service.py:135:        {"id": user_id, "name": name, "email": email, "password_hash": hash_password(password), "modules": modules},
+backend/app/services/auth_service.py:141:def login(db: Session, *, email: str, password: str, request: Request | None = None) -> dict[str, Any]:
+backend/app/services/auth_service.py:145:        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="E-mail ou senha inválidos.")
+backend/app/services/auth_service.py:150:    if not verify_password(password, user.get("password_hash")):
+backend/app/services/auth_service.py:152:        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="E-mail ou senha inválidos.")
+backend/app/services/auth_service.py:157:    token = create_access_token({"sub": public_user["id"], "email": public_user["email"], "role": public_user["role"]})
+backend/app/services/auth_service.py:159:    return {"access_token": token, "token_type": "bearer", "user": public_user}
+backend/app/services/auth_service.py:163:    token = get_bearer_token(request)
+backend/app/services/auth_service.py:164:    if not token:
+backend/app/services/auth_service.py:166:    payload = decode_access_token(token)
+backend/app/services/auth_service.py:188:def create_user(db: Session, *, name: str, email: str, password: str, role: str, active: bool = True, project_ids: list[str] | None = None, allowed_modules: list[str] | None = None) -> dict[str, Any]:
+backend/app/services/auth_service.py:200:            INSERT INTO app_users (id, name, email, password_hash, role, active, project_ids, allowed_modules, created_at, updated_at)
+backend/app/services/auth_service.py:201:            VALUES (:id, :name, :email, :password_hash, :role, :active, CAST(:project_ids AS JSONB), CAST(:modules AS JSONB), NOW(), NOW())
+backend/app/services/auth_service.py:208:            "password_hash": hash_password(password),
+backend/app/services/auth_service.py:259:def reset_password(db: Session, user_id: str, new_password: str) -> dict[str, Any]:
+backend/app/services/auth_service.py:263:        text("UPDATE app_users SET password_hash = :password_hash, updated_at = NOW() WHERE id = :id"),
+backend/app/services/auth_service.py:264:        {"id": user_id, "password_hash": hash_password(new_password)},
+backend/app/services/banner_service.py:172:        token in decoded_src
+backend/app/services/banner_service.py:173:        for token in [
+backend/app/services/content_classifier.py:211:    "secretaria",
+backend/app/services/content_classifier.py:332:    if any(token in text for token in TECHNICAL_AD_TOKENS):
+backend/app/services/content_classifier.py:339:    if any(token in reason for token in ["+adserver", "+banner_url", "+commercial_text"]):
+backend/app/services/content_classifier.py:347:    return any(token in text for token in STRONG_COMMERCIAL_TOKENS)
+backend/app/services/content_classifier.py:352:    return any(token in text for token in AMBIGUOUS_PRICE_TOKENS)
+backend/app/services/content_classifier.py:357:    return any(token in text for token in EDITORIAL_PRICE_CONTEXT_TOKENS)
+backend/app/services/content_classifier.py:385:    return any(token in text for token in EDITORIAL_TOKENS + VIDEO_TOKENS)
+backend/app/services/content_classifier.py:428:    if any(token in _text_for_item(item) for token in INSTITUTIONAL_TOKENS):
+backend/app/services/content_classifier.py:449:    if any(token in text for token in EDITORIAL_TOKENS):
+backend/app/services/content_classifier.py:455:    if any(token in text for token in VIDEO_TOKENS):
+backend/app/services/content_classifier.py:513:        if any(token in normalized for token in DERIVED_REASON_TOKENS):
+backend/app/services/content_classifier.py:565:    elif any(token in _text_for_item(item) for token in INSTITUTIONAL_TOKENS):
+backend/app/services/editorial_report_generator.py:105:    if any(token in text for token in ["instagram", "reels", "youtube", "youtu.be", "facebook", "podcast", "vídeo", "video"]):
+backend/app/services/editorial_service.py:106:    listing_url_tokens = ["/tag/", "/tags/", "/category/", "/categoria/", "/page/", "/editoria/", "/assunto/"]
+backend/app/services/editorial_service.py:107:    if any(token in url_lower for token in listing_url_tokens):
+backend/app/services/evidence_service.py:10:        aws_secret_access_key=settings.MINIO_SECRET_KEY,
+backend/app/services/maintenance_service.py:61:        "password": parsed.password or "",
+backend/app/services/maintenance_service.py:72:    if db["password"]:
+backend/app/services/maintenance_service.py:73:        env["PGPASSWORD"] = db["password"]
+backend/app/services/maintenance_service.py:106:        aws_secret_access_key=settings.MINIO_SECRET_KEY,
+backend/app/services/maintenance_service.py:427:            OR lower(coalesce(provider_response,'')) LIKE '%token%'
+backend/app/services/match_services.py:11:    # very simple NEAR: token distance
+backend/app/services/match_services.py:13:    a_tokens = re.findall(r"\w+", _norm(a))
+backend/app/services/match_services.py:14:    b_tokens = re.findall(r"\w+", _norm(b))
+backend/app/services/match_services.py:15:    if not a_tokens or not b_tokens:
+backend/app/services/match_services.py:17:    a0, b0 = a_tokens[0], b_tokens[0]
+backend/app/services/notification_report_service.py:135:        for token in re.findall(r"[a-zA-ZÀ-ÿ0-9]{4,}", text):
+backend/app/services/notification_report_service.py:136:            if token not in stop:
+backend/app/services/notification_report_service.py:137:                recurrent_terms[token] += 1
+backend/app/services/notification_service.py:58:def _mask_secret(value: str | None) -> str | None:
+backend/app/services/notification_service.py:310:            "twilio_sid": _mask_secret(os.getenv("TWILIO_ACCOUNT_SID")),
+backend/app/services/notification_service.py:311:            "zenvia_token": _mask_secret(os.getenv("ZENVIA_API_TOKEN")),
+backend/app/services/notification_service.py:314:            "webhook_url": _mask_secret(os.getenv("NOTIFICATION_WEBHOOK_URL")),
+backend/app/services/notification_service.py:319:def _provider_setting_to_dict(row: NotificationProviderSetting | None, include_secret: bool = False) -> dict | None:
+backend/app/services/notification_service.py:324:    if not include_secret and "smtp_password" in safe_cfg:
+backend/app/services/notification_service.py:325:        safe_cfg["smtp_password"] = "***" if safe_cfg.get("smtp_password") else ""
+backend/app/services/notification_service.py:372:    password = str(payload.get("smtp_password") or "")
+backend/app/services/notification_service.py:397:    # Se a senha vier em branco ou mascarada, preserva a senha anterior.
+backend/app/services/notification_service.py:398:    if password and password != "***":
+backend/app/services/notification_service.py:399:        cfg["smtp_password"] = password
+backend/app/services/notification_service.py:711:        token = os.getenv("TWILIO_AUTH_TOKEN")
+backend/app/services/notification_service.py:713:        if not (sid and token and from_number):
+backend/app/services/notification_service.py:717:        resp = requests.post(url, data={"From": from_number, "To": to, "Body": message}, auth=(sid, token), timeout=25)
+backend/app/services/notification_service.py:721:        token = os.getenv("ZENVIA_API_TOKEN")
+backend/app/services/notification_service.py:723:        if not token:
+backend/app/services/notification_service.py:726:        status, response = _post_json("https://api.zenvia.com/v2/channels/sms/messages", payload, headers={"X-API-TOKEN": token, "Content-Type": "application/json"})
+backend/app/services/notification_service.py:730:        token = os.getenv("TOTALVOICE_ACCESS_TOKEN")
+backend/app/services/notification_service.py:731:        if not token:
+backend/app/services/notification_service.py:734:        status, response = _post_json("https://api.totalvoice.com.br/sms", payload, headers={"Access-Token": token, "Content-Type": "application/json"})
+backend/app/services/notification_service.py:751:        token = os.getenv("ZENVIA_API_TOKEN")
+backend/app/services/notification_service.py:753:        if not (token and sender):
+backend/app/services/notification_service.py:756:        status, response = _post_json("https://api.zenvia.com/v2/channels/whatsapp/messages", payload, headers={"X-API-TOKEN": token, "Content-Type": "application/json"})
+backend/app/services/notification_service.py:772:    password = cfg.get("smtp_password")
+backend/app/services/notification_service.py:798:        if user and password:
+backend/app/services/notification_service.py:799:            smtp.login(user, password)
+backend/app/services/notification_service.py:827:                "smtp_password": os.getenv("SMTP_PASSWORD"),
+backend/app/services/notification_service.py:1170:    Esta rota não persiste senha e ignora NOTIFICATION_DRY_RUN. Serve apenas
+backend/app/services/notification_service.py:1176:    password = str(payload.get("smtp_password") or "") or None
+backend/app/services/notification_service.py:1212:              <p style='color:#667085;font-size:12px'>Este envio ignorou o dry-run apenas para homologação avulsa. A senha informada não foi armazenada.</p>
+backend/app/services/notification_service.py:1220:            if user and password:
+backend/app/services/notification_service.py:1221:                smtp.login(user, password)
+backend/app/services/notification_service.py:1358:    secret_keys = [
+backend/app/services/notification_service.py:1359:        "auth_token", "token", "api_token", "access_token", "webhook_url",
+backend/app/services/notification_service.py:1360:        "twilio_auth_token", "zenvia_api_token", "totalvoice_access_token",
+backend/app/services/notification_service.py:1361:        "meta_access_token", "smtp_password",
+backend/app/services/notification_service.py:1363:    for key in secret_keys:
+backend/app/services/notification_service.py:1369:def _provider_setting_to_dict(row: NotificationProviderSetting | None, include_secret: bool = False) -> dict | None:  # type: ignore[no-redef]
+backend/app/services/notification_service.py:1373:    safe_cfg = cfg if include_secret else _public_provider_config(cfg, row.provider_type)
+backend/app/services/notification_service.py:1409:        ok = bool(cfg.get("account_sid") and cfg.get("auth_token") and cfg.get("from_number"))
+backend/app/services/notification_service.py:1412:        ok = bool(cfg.get("api_token") and cfg.get("from_name"))
+backend/app/services/notification_service.py:1413:        return (ok, "Informe API token e remetente Zenvia." if not ok else "")
+backend/app/services/notification_service.py:1415:        ok = bool(cfg.get("access_token"))
+backend/app/services/notification_service.py:1425:        ok = bool(cfg.get("api_token") and cfg.get("from_number"))
+backend/app/services/notification_service.py:1426:        return (ok, "Informe API token e remetente Zenvia WhatsApp." if not ok else "")
+backend/app/services/notification_service.py:1428:        ok = bool(cfg.get("access_token") and cfg.get("phone_number_id"))
+backend/app/services/notification_service.py:1439:        "auth_token": str(payload.get("auth_token") or ""),
+backend/app/services/notification_service.py:1441:        "api_token": str(payload.get("api_token") or ""),
+backend/app/services/notification_service.py:1443:        "access_token": str(payload.get("access_token") or ""),
+backend/app/services/notification_service.py:1449:    for key in ["auth_token", "api_token", "access_token", "webhook_url"]:
+backend/app/services/notification_service.py:1481:        "api_token": str(payload.get("api_token") or ""),
+backend/app/services/notification_service.py:1483:        "access_token": str(payload.get("access_token") or ""),
+backend/app/services/notification_service.py:1489:    for key in ["api_token", "access_token", "webhook_url"]:
+backend/app/services/notification_service.py:1524:        token = cfg.get("auth_token")
+backend/app/services/notification_service.py:1526:        if not (sid and token and from_number):
+backend/app/services/notification_service.py:1530:        resp = requests.post(url, data={"From": from_number, "To": to, "Body": message}, auth=(sid, token), timeout=25)
+backend/app/services/notification_service.py:1533:        token = cfg.get("api_token")
+backend/app/services/notification_service.py:1535:        if not token:
+backend/app/services/notification_service.py:1536:            return "error", "zenvia_sms_projeto", "API token Zenvia ausente."
+backend/app/services/notification_service.py:1538:        status, response = _post_json("https://api.zenvia.com/v2/channels/sms/messages", payload, headers={"X-API-TOKEN": token, "Content-Type": "application/json"})
+backend/app/services/notification_service.py:1541:        token = cfg.get("access_token")
+backend/app/services/notification_service.py:1542:        if not token:
+backend/app/services/notification_service.py:1543:            return "error", "totalvoice_projeto", "Access token TotalVoice ausente."
+backend/app/services/notification_service.py:1545:        status, response = _post_json("https://api.totalvoice.com.br/sms", payload, headers={"Access-Token": token, "Content-Type": "application/json"})
+backend/app/services/notification_service.py:1561:        token = cfg.get("api_token")
+backend/app/services/notification_service.py:1563:        if not (token and sender):
+backend/app/services/notification_service.py:1564:            return "error", "zenvia_whatsapp_projeto", "API token ou remetente Zenvia WhatsApp ausente."
+backend/app/services/notification_service.py:1566:        status, response = _post_json("https://api.zenvia.com/v2/channels/whatsapp/messages", payload, headers={"X-API-TOKEN": token, "Content-Type": "application/json"})
+backend/app/services/notification_service.py:1569:        token = cfg.get("access_token")
+backend/app/services/notification_service.py:1571:        if not (token and phone_number_id):
+backend/app/services/notification_service.py:1572:            return "error", "meta_whatsapp_projeto", "Access token ou Phone Number ID ausente."
+backend/app/services/notification_service.py:1575:        status, response = _post_json(url, payload, headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"})
+backend/app/services/notification_service.py:1606:                "smtp_password": os.getenv("SMTP_PASSWORD"),
+backend/app/services/permissions_service.py:10:from app.core.admin_auth import admin_token_ok
+backend/app/services/permissions_service.py:11:from app.core.security import decode_access_token, get_bearer_token
+backend/app/services/permissions_service.py:175:def _admin_token_ok(request: Request) -> bool:
+backend/app/services/permissions_service.py:176:    return admin_token_ok(request)
+backend/app/services/permissions_service.py:180:    token = get_bearer_token(request)
+backend/app/services/permissions_service.py:181:    if not token:
+backend/app/services/permissions_service.py:183:    payload = decode_access_token(token)
+backend/app/services/permissions_service.py:228:    # Compatibilidade com rotinas/admin token legado.
+backend/app/services/permissions_service.py:229:    if _admin_token_ok(request):
+backend/app/services/permissions_service.py:230:        return {"auth_mode": "admin_token", "role": "admin", "allowed": True}
+backend/app/services/permissions_service.py:268:        "strict_hint": "AUTH_ENFORCEMENT_MODE=strict bloqueia chamadas sem sessão/autorização. Em compat, o token de usuário é fiscalizado quando enviado e X-Admin-Token segue compatível.",
+backend/app/services/segment_classifier.py:9:    ("Governo", ["prefeitura", "governo", "secretaria", "ministério", "ministerio"]),
+backend/app/services/system_health_service.py:125:        aws_secret_access_key=settings.MINIO_SECRET_KEY,
+backend/README_TECNICO_SCHEDULER_INTEL.md:657:O painel /admin/scheduler está protegido por token administrativo.
+backend/README_TECNICO_SCHEDULER_INTEL.md:658:O backend exige X-Admin-Token ou admin_token via query string para download CSV.
+backend/README_TECNICO_SCHEDULER_INTEL.md:659:O frontend exibe tela de acesso administrativo e salva o token temporariamente no localStorage.
+frontend/src/app/admin/cadastros/page.tsx:25:  const [token, setToken] = useState("");
+frontend/src/app/admin/cadastros/page.tsx:26:  const [tokenInput, setTokenInput] = useState("");
+frontend/src/app/admin/cadastros/page.tsx:40:  const authenticated = Boolean(token);
+frontend/src/app/admin/cadastros/page.tsx:86:    const cleaned = tokenInput.trim();
+frontend/src/app/admin/cadastros/page.tsx:88:      setError("Informe o token administrativo.");
+frontend/src/app/admin/cadastros/page.tsx:226:          <input value={tokenInput} onChange={(e) => setTokenInput(e.target.value)} placeholder="Token administrativo" style={inputStyle} />
+frontend/src/app/admin/cadastros/page.tsx:228:            <button onClick={login} style={primaryButtonStyle}>Usar token</button>
+frontend/src/app/admin/identificacao/page.tsx:108:  const [token, setToken] = useState("");
+frontend/src/app/admin/identificacao/page.tsx:109:  const [tokenInput, setTokenInput] = useState("");
+frontend/src/app/admin/identificacao/page.tsx:125:  const authenticated = Boolean(token);
+frontend/src/app/admin/identificacao/page.tsx:188:    const cleaned = tokenInput.trim();
+frontend/src/app/admin/identificacao/page.tsx:190:      setError("Informe o token administrativo.");
+frontend/src/app/admin/identificacao/page.tsx:335:            value={tokenInput}
+frontend/src/app/admin/identificacao/page.tsx:348:              Usar token
+frontend/src/app/admin/maintenance/page.tsx:63:  const [token, setToken] = useState(DEFAULT_ADMIN_TOKEN);
+frontend/src/app/admin/maintenance/page.tsx:236:    return `${API}/maintenance/backups/${encodeURIComponent(filename)}?admin_token=${encodeURIComponent(token)}`;
+frontend/src/app/admin/maintenance/page.tsx:240:    return `${API}/maintenance/security-export.csv?admin_token=${encodeURIComponent(token)}`;
+frontend/src/app/admin/maintenance/page.tsx:264:          <input value={token} onChange={(e) => setToken(e.target.value)} type="password" style={inputStyle} />
+frontend/src/app/admin/maintenance/page.tsx:350:          <strong>O que será considerado:</strong> registros com status erro, recentes, ainda não arquivados, contendo indicação de teste/homologação, SMTP, timeout, credencial/token, dry-run ou conexão fechada.
+frontend/src/app/admin/notifications/page.tsx:111:  const [token, setToken] = useState(DEFAULT_ADMIN_TOKEN);
+frontend/src/app/admin/notifications/page.tsx:132:    smtp_password: "",
+frontend/src/app/admin/notifications/page.tsx:143:    auth_token: "",
+frontend/src/app/admin/notifications/page.tsx:145:    api_token: "",
+frontend/src/app/admin/notifications/page.tsx:147:    access_token: "",
+frontend/src/app/admin/notifications/page.tsx:156:    api_token: "",
+frontend/src/app/admin/notifications/page.tsx:158:    access_token: "",
+frontend/src/app/admin/notifications/page.tsx:397:          <input value={token} onChange={(e) => setToken(e.target.value)} style={inputStyle} type="password" />
+frontend/src/app/admin/notifications/page.tsx:548:              Use esta área para fazer um envio real sem alterar o .env. O teste ignora o dry-run apenas nesta chamada e não salva a senha informada.
+frontend/src/app/admin/notifications/page.tsx:557:          <input placeholder="Senha SMTP / senha de app" type="password" value={realEmailForm.smtp_password} onChange={(e) => setRealEmailForm({ ...realEmailForm, smtp_password: e.target.value })} style={inputStyle} />
+frontend/src/app/admin/notifications/page.tsx:574:          Para Gmail/Google Workspace, use senha de app. Para domínio próprio, informe o SMTP do provedor. SMS e WhatsApp agora também podem ser homologados nos blocos abaixo.
+frontend/src/app/admin/notifications/page.tsx:602:          Para produção em servidor público, prefira configurar credenciais por .env/secret manager. Esta opção salva o SMTP no banco local para permitir homologação operacional imediata.
+frontend/src/app/admin/notifications/page.tsx:633:            <input placeholder="Twilio Auth Token" type="password" value={smsForm.auth_token} onChange={(e) => setSmsForm({ ...smsForm, auth_token: e.target.value })} style={inputStyle} />
+frontend/src/app/admin/notifications/page.tsx:635:            <input placeholder="Zenvia API Token" type="password" value={smsForm.api_token} onChange={(e) => setSmsForm({ ...smsForm, api_token: e.target.value })} style={inputStyle} />
+frontend/src/app/admin/notifications/page.tsx:636:            <input placeholder="Zenvia remetente / TotalVoice token" value={smsForm.from_name} onChange={(e) => setSmsForm({ ...smsForm, from_name: e.target.value })} style={inputStyle} />
+frontend/src/app/admin/notifications/page.tsx:637:            <input placeholder="TotalVoice Access Token" type="password" value={smsForm.access_token} onChange={(e) => setSmsForm({ ...smsForm, access_token: e.target.value })} style={inputStyle} />
+frontend/src/app/admin/notifications/page.tsx:673:            <input placeholder="Zenvia API Token" type="password" value={whatsappForm.api_token} onChange={(e) => setWhatsappForm({ ...whatsappForm, api_token: e.target.value })} style={inputStyle} />
+frontend/src/app/admin/notifications/page.tsx:675:            <input placeholder="Meta Access Token" type="password" value={whatsappForm.access_token} onChange={(e) => setWhatsappForm({ ...whatsappForm, access_token: e.target.value })} style={inputStyle} />
+frontend/src/app/admin/scheduler/page.tsx:77:  const [tokenInput, setTokenInput] = useState("");
+frontend/src/app/admin/scheduler/page.tsx:80:  function getAuthHeaders(token = adminToken) {
+frontend/src/app/admin/scheduler/page.tsx:99:      const cleanedToken = tokenInput.trim();
+frontend/src/app/admin/scheduler/page.tsx:102:        throw new Error("Informe o token administrativo.");
+frontend/src/app/admin/scheduler/page.tsx:142:        throw new Error("Sessão administrativa expirada ou token inválido.");
+frontend/src/app/admin/scheduler/page.tsx:161:  async function loadHistoryWithToken(token: string) {
+frontend/src/app/admin/scheduler/page.tsx:173:        headers: getAuthHeaders(token),
+frontend/src/app/admin/scheduler/page.tsx:178:      throw new Error("Sessão administrativa expirada ou token inválido.");
+frontend/src/app/admin/scheduler/page.tsx:195:      if (err instanceof Error && err.message.includes("token inválido")) {
+frontend/src/app/admin/scheduler/page.tsx:238:        throw new Error("Sessão administrativa expirada ou token inválido.");
+frontend/src/app/admin/scheduler/page.tsx:262:    params.set("admin_token", adminToken);
+frontend/src/app/admin/scheduler/page.tsx:286:        throw new Error("Sessão administrativa expirada ou token inválido.");
+frontend/src/app/admin/scheduler/page.tsx:322:        throw new Error("Sessão administrativa expirada ou token inválido.");
+frontend/src/app/admin/scheduler/page.tsx:358:        throw new Error("Sessão administrativa expirada ou token inválido.");
+frontend/src/app/admin/scheduler/page.tsx:394:        throw new Error("Sessão administrativa expirada ou token inválido.");
+frontend/src/app/admin/scheduler/page.tsx:464:            Informe o token administrativo para acessar o Scheduler.
+frontend/src/app/admin/scheduler/page.tsx:468:            type="password"
+frontend/src/app/admin/scheduler/page.tsx:469:            value={tokenInput}
+frontend/src/app/admin/system-health/page.tsx:69:  const [token, setToken] = useState(DEFAULT_ADMIN_TOKEN);
+frontend/src/app/admin/system-health/page.tsx:119:    return `${API}/system/health/history/export.csv?admin_token=${encodeURIComponent(token)}&limit=1000`;
+frontend/src/app/admin/system-health/page.tsx:123:    return `${API}/system/health/report.pdf?admin_token=${encodeURIComponent(token)}`;
+frontend/src/app/admin/system-health/page.tsx:145:          <input value={token} onChange={(e) => setToken(e.target.value)} type="password" style={inputStyle} />
+frontend/src/app/admin/users/page.tsx:75:    password: "",
+frontend/src/app/admin/users/page.tsx:169:      setForm({ name: "", email: "", password: "", role: "cliente", active: true, project_ids: [], allowed_modules: [] });
+frontend/src/app/admin/users/page.tsx:245:    setMessage("Redefinindo senha...");
+frontend/src/app/admin/users/page.tsx:247:      await api(`/auth/users/${selectedUser.id}/reset-password`, { method: "POST", body: JSON.stringify({ password: newPassword }) });
+frontend/src/app/admin/users/page.tsx:252:      setMessage(err instanceof Error ? err.message : "Erro ao redefinir senha.");
+frontend/src/app/admin/users/page.tsx:263:    <AppShell title="Usuários e Perfis" subtitle="Gestão de acesso, edição de usuários, redefinição de senha, exclusão controlada e auditoria.">
+frontend/src/app/admin/users/page.tsx:285:            <input placeholder="Senha inicial" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required style={inputStyle} />
+frontend/src/app/admin/users/page.tsx:300:          <h2 style={{ marginTop: 0, color: "#101828" }}>Editar usuário / redefinir senha</h2>
+frontend/src/app/admin/users/page.tsx:339:                <strong style={{ color: "#93370D" }}>Redefinir senha</strong>
+frontend/src/app/admin/users/page.tsx:340:                <p style={{ color: "#93370D", fontSize: 12, margin: "4px 0 10px" }}>Use quando o usuário esquecer a senha ou quando for necessário entregar uma senha temporária.</p>
+frontend/src/app/admin/users/page.tsx:342:                  <input placeholder="Nova senha" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} style={inputStyle} />
+frontend/src/app/admin/users/page.tsx:343:                  <button onClick={resetPassword} disabled={!newPassword || loading} style={buttonStyle}>Redefinir senha</button>
+frontend/src/app/alerts/inbox/page.tsx:74:  const [token, setToken] = useState(DEFAULT_ADMIN_TOKEN);
+frontend/src/app/alerts/inbox/page.tsx:165:          <input value={token} onChange={(e) => setToken(e.target.value)} style={inputStyle} type="password" />
+frontend/src/app/alerts/reports/page.tsx:41:  const [token, setToken] = useState(DEFAULT_ADMIN_TOKEN);
+frontend/src/app/alerts/reports/page.tsx:96:          <input value={token} onChange={(e) => setToken(e.target.value)} style={inputStyle} type="password" />
+frontend/src/app/alerts/sla/page.tsx:67:  const [token, setToken] = useState(DEFAULT_ADMIN_TOKEN);
+frontend/src/app/alerts/sla/page.tsx:156:          <input value={token} onChange={(e) => setToken(e.target.value)} style={inputStyle} type="password" />
+frontend/src/app/login/page.tsx:10:  const [password, setPassword] = useState("");
+frontend/src/app/login/page.tsx:22:        body: JSON.stringify({ email, password }),
+frontend/src/app/login/page.tsx:30:      setAuthSession(data.access_token, data.user);
+frontend/src/app/login/page.tsx:55:          <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" required style={inputStyle} />
+frontend/src/app/login/page.tsx:62:          Primeiro acesso: use as credenciais administrativas configuradas no ambiente. Altere a senha após criar os usuários reais.
+frontend/src/app/page.tsx:158:        const token =
+frontend/src/app/page.tsx:160:            ? localStorage.getItem("tvfiscal_auth_token")
+frontend/src/app/page.tsx:166:        if (token) {
+frontend/src/app/page.tsx:167:          headers.Authorization = `Bearer ${token}`;
+frontend/src/app/projects/page.tsx:93:  const [token, setToken] = useState("");
+frontend/src/app/projects/page.tsx:94:  const [tokenInput, setTokenInput] = useState("");
+frontend/src/app/projects/page.tsx:110:  const authenticated = Boolean(token);
+frontend/src/app/projects/page.tsx:177:    const cleaned = tokenInput.trim();
+frontend/src/app/projects/page.tsx:179:      setError("Informe o token administrativo.");
+frontend/src/app/projects/page.tsx:299:          <input value={tokenInput} onChange={(e) => setTokenInput(e.target.value)} placeholder="Token administrativo" style={inputStyle} />
+frontend/src/app/projects/page.tsx:301:            <button type="button" onClick={login} style={primaryButtonStyle}>Usar token</button>
+frontend/src/components/AppShell.tsx:49:    const token = getAuthToken();
+frontend/src/components/AppShell.tsx:51:    if (!token || !current) {
+frontend/src/components/EditorialConsole.tsx:11:  const bearer = localStorage.getItem("tvfiscal_auth_token") || "";
+frontend/src/components/EditorialConsole.tsx:81:  const [token, setToken] = useState("");
+frontend/src/components/EditorialConsole.tsx:123:    if (!token.trim()) {
+frontend/src/components/EditorialConsole.tsx:124:      setError("Informe o token administrativo para executar a coleta editorial.");
+frontend/src/components/EditorialConsole.tsx:130:      localStorage.setItem(ADMIN_TOKEN_KEY, token.trim());
+frontend/src/components/EditorialConsole.tsx:144:    if (!token.trim()) {
+frontend/src/components/EditorialConsole.tsx:145:      setError("Informe o token administrativo para reprocessar a qualidade editorial.");
+frontend/src/components/EditorialConsole.tsx:151:      localStorage.setItem(ADMIN_TOKEN_KEY, token.trim());
+frontend/src/components/EditorialConsole.tsx:201:          <input value={token} onChange={(e) => setToken(e.target.value)} placeholder="Token admin" style={inputStyle} />
+frontend/src/lib/apiClient.ts:1:export const ADMIN_TOKEN_KEY = "tvfiscal_admin_token";
+frontend/src/lib/apiClient.ts:2:const SESSION_TOKEN_KEY = "tvfiscal_auth_token";
+frontend/src/lib/apiClient.ts:60:    const token = getSessionToken();
+frontend/src/lib/apiClient.ts:61:    if (token) {
+frontend/src/lib/apiClient.ts:62:      headers.Authorization = `Bearer ${token}`;
+frontend/src/lib/auth.ts:12:const TOKEN_KEY = "tvfiscal_auth_token";
+frontend/src/lib/auth.ts:28:export function setAuthSession(token: string, user: AuthUser) {
+frontend/src/lib/auth.ts:30:  localStorage.setItem(TOKEN_KEY, token);
+frontend/src/lib/auth.ts:41:  const token = getAuthToken();
+frontend/src/lib/auth.ts:42:  return token ? { Authorization: `Bearer ${token}` } : {};
+frontend/src/lib/auth.ts:54:  const token = getAuthToken();
+frontend/src/lib/auth.ts:55:  if (!token) return false;
+frontend/src/lib/auth.ts:72:      const token = getAuthToken();
+frontend/src/lib/auth.ts:73:      if (token) headers.set("Authorization", `Bearer ${token}`);
+docker-compose.yml:37:      MINIO_ROOT_PASSWORD: minio12345
+docker-compose.yml:50:      ADMIN_TOKEN: ${ADMIN_TOKEN:-troque-este-token-admin}
+docker-compose.yml:52:      SECRET_KEY: ${SECRET_KEY:-troque-esta-chave-secreta-longa}
+docker-compose.yml:58:      MINIO_SECRET_KEY: minio12345
+.env.production.example:11:ADMIN_TOKEN=troque-este-token-admin
+.env.production.example:12:SECRET_KEY=troque-esta-chave-secreta-longa
+.env.production.example:20:POSTGRES_PASSWORD=troque-senha-postgres
+.env.production.example:21:DATABASE_URL=postgresql+psycopg://tvfiscal:troque-senha-postgres@postgres:5432/tvfiscal
+.env.production.example:30:MINIO_ROOT_PASSWORD=troque-senha-minio
+.env.production.example:50:SMTP_PASSWORD=senha-ou-senha-app
+.env.production.example:66:NEXT_PUBLIC_ADMIN_TOKEN=troque-este-token-admin
+scripts/smoke_test_pos_restore.sh:6:TOKEN="tvfiscal-admin-2026"
+scripts/smoke_test_strict_auth.sh:5:ADMIN_TOKEN="${ADMIN_TOKEN:-troque-este-token-admin}"
+scripts/smoke_test_strict_auth.sh:21:echo "3) Scheduler com admin_token via query deve falhar"
+scripts/smoke_test_strict_auth.sh:22:STATUS=$(curl -s -o /tmp/tvfiscal_strict_query_test.json -w "%{http_code}" "$BASE_URL/admin/scheduler/status?admin_token=$ADMIN_TOKEN")
+scripts/smoke_test_strict_auth.sh:24:  echo "ERRO: admin_token via query retornou 200 em modo strict."
+scripts/smoke_test_strict_auth.sh:28:echo "OK query admin_token bloqueada com HTTP $STATUS"

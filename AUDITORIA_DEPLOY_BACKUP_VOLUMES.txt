@@ -1,0 +1,195 @@
+docker-compose.backup-volume.override.yml:1:# Use com: docker compose -f docker-compose.yml -f docker-compose.backup-volume.override.yml up -d --build --force-recreate backend frontend
+docker-compose.backup-volume.override.yml:2:# Mantém os backups fora do container para não serem perdidos em rebuild/recreate.
+docker-compose.backup-volume.override.yml:6:      BACKUP_DIR: /app/backups
+docker-compose.backup-volume.override.yml:7:      AUTO_BACKUP_ENABLED: "true"
+docker-compose.backup-volume.override.yml:8:      AUTO_BACKUP_INTERVAL_HOURS: "24"
+docker-compose.backup-volume.override.yml:9:      AUTO_BACKUP_CHECK_EVERY_MINUTES: "60"
+docker-compose.backup-volume.override.yml:10:      AUTO_BACKUP_INCLUDE_MINIO: "false"
+docker-compose.backup-volume.override.yml:13:    volumes:
+docker-compose.backup-volume.override.yml:14:      - ./data/backups:/app/backups
+docker-compose.local-postgres.override.yml:3:    volumes:
+docker-compose.local-postgres.override.yml:6:volumes:
+docker-compose.prod.yml:12:    volumes:
+docker-compose.prod.yml:24:    volumes:
+docker-compose.prod.yml:38:      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+docker-compose.prod.yml:39:      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+docker-compose.prod.yml:42:    volumes:
+docker-compose.prod.yml:61:    volumes:
+docker-compose.prod.yml:62:      - ./data/backups:/app/backups
+docker-compose.prod.yml:85:volumes: {}
+docker-compose.yml:12:    volumes:
+docker-compose.yml:29:    volumes:
+docker-compose.yml:36:      MINIO_ROOT_USER: minio
+docker-compose.yml:37:      MINIO_ROOT_PASSWORD: minio12345
+docker-compose.yml:41:    volumes:
+docker-compose.yml:56:      MINIO_ENDPOINT: minio:9000
+docker-compose.yml:57:      MINIO_ACCESS_KEY: minio
+docker-compose.yml:58:      MINIO_SECRET_KEY: minio12345
+docker-compose.yml:59:      MINIO_BUCKET: evidence
+docker-compose.yml:82:volumes:
+scripts/backup_prod.sh:8:OUT_DIR="./data/backups/manual_$STAMP"
+scripts/backup_prod.sh:11:echo "Gerando backup PostgreSQL..."
+scripts/backup_prod.sh:12:docker compose -f docker-compose.prod.yml exec -T postgres pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Fc > "$OUT_DIR/postgres_webmonitor.dump"
+scripts/backup_prod.sh:23:zip -r "./data/backups/tvfiscal_backup_$STAMP.zip" "$OUT_DIR"
+scripts/backup_prod.sh:25:echo "Backup criado: ./data/backups/tvfiscal_backup_$STAMP.zip"
+scripts/deploy_prod.sh:11:mkdir -p data/postgres data/redis data/minio data/backups data/exports data/logs
+backend/app/core/config.py:8:    MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT", "minio:9000")
+backend/app/core/config.py:9:    MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minio")
+backend/app/core/config.py:10:    MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minio12345")
+backend/app/core/config.py:11:    MINIO_BUCKET = os.getenv("MINIO_BUCKET", "evidence")
+backend/app/main.py:28:from app.services.backup_scheduler import start_auto_backup_scheduler
+backend/app/main.py:39:    backup_stop_event = start_auto_backup_scheduler()
+backend/app/main.py:46:        if backup_stop_event:
+backend/app/main.py:47:            backup_stop_event.set()
+backend/app/routers/maintenance.py:8:from app.services.backup_scheduler import auto_backup_status, run_auto_backup_once
+backend/app/routers/maintenance.py:11:    cleanup_old_backups,
+backend/app/routers/maintenance.py:12:    create_backup,
+backend/app/routers/maintenance.py:13:    delete_backup,
+backend/app/routers/maintenance.py:15:    get_backup_path,
+backend/app/routers/maintenance.py:16:    list_backups,
+backend/app/routers/maintenance.py:19:    backup_freshness,
+backend/app/routers/maintenance.py:54:    cleanup_old_backups: bool = True
+backend/app/routers/maintenance.py:55:    backup_retention_days: int = Field(default=15, ge=1, le=3650)
+backend/app/routers/maintenance.py:64:@router.post("/backup")
+backend/app/routers/maintenance.py:65:def run_backup(payload: BackupRequest, request: Request):
+backend/app/routers/maintenance.py:67:    result = create_backup(
+backend/app/routers/maintenance.py:77:@router.get("/backups")
+backend/app/routers/maintenance.py:78:def backups(request: Request):
+backend/app/routers/maintenance.py:80:    return list_backups()
+backend/app/routers/maintenance.py:83:@router.get("/backups/{filename}")
+backend/app/routers/maintenance.py:84:def download_backup(filename: str, request: Request):
+backend/app/routers/maintenance.py:87:        path = get_backup_path(filename)
+backend/app/routers/maintenance.py:95:@router.delete("/backups/{filename}")
+backend/app/routers/maintenance.py:96:def remove_backup(filename: str, request: Request):
+backend/app/routers/maintenance.py:99:        delete_backup(filename)
+backend/app/routers/maintenance.py:118:    if payload.cleanup_old_backups:
+backend/app/routers/maintenance.py:120:            result["old_backups"] = {"dry_run": True, "retention_days": payload.backup_retention_days}
+backend/app/routers/maintenance.py:122:            result["old_backups"] = cleanup_old_backups(payload.backup_retention_days)
+backend/app/routers/maintenance.py:126:@router.get("/backup-freshness")
+backend/app/routers/maintenance.py:127:def backup_freshness_status(request: Request):
+backend/app/routers/maintenance.py:129:    return backup_freshness()
+backend/app/routers/maintenance.py:132:@router.get("/auto-backup/status")
+backend/app/routers/maintenance.py:133:def auto_backup_status_route(request: Request):
+backend/app/routers/maintenance.py:135:    return auto_backup_status()
+backend/app/routers/maintenance.py:138:@router.post("/auto-backup/run")
+backend/app/routers/maintenance.py:139:def run_auto_backup(request: Request):
+backend/app/routers/maintenance.py:141:    return run_auto_backup_once(label="manual_auto")
+backend/app/services/backup_scheduler.py:9:from app.services.maintenance_service import create_backup, get_latest_backup_age_hours, list_backups
+backend/app/services/backup_scheduler.py:23:def auto_backup_status() -> Dict[str, Any]:
+backend/app/services/backup_scheduler.py:24:    age = get_latest_backup_age_hours()
+backend/app/services/backup_scheduler.py:26:        "enabled": _bool_env("AUTO_BACKUP_ENABLED", "false"),
+backend/app/services/backup_scheduler.py:27:        "interval_hours": _int_env("AUTO_BACKUP_INTERVAL_HOURS", 24),
+backend/app/services/backup_scheduler.py:28:        "check_every_minutes": _int_env("AUTO_BACKUP_CHECK_EVERY_MINUTES", 60),
+backend/app/services/backup_scheduler.py:29:        "include_minio": _bool_env("AUTO_BACKUP_INCLUDE_MINIO", "false"),
+backend/app/services/backup_scheduler.py:30:        "minio_max_objects": _int_env("AUTO_BACKUP_MINIO_MAX_OBJECTS", 5000),
+backend/app/services/backup_scheduler.py:31:        "backup_dir": os.getenv("BACKUP_DIR", "/app/backups"),
+backend/app/services/backup_scheduler.py:32:        "latest_backup_age_hours": age,
+backend/app/services/backup_scheduler.py:33:        "latest_backup": (list_backups().get("items") or [None])[0],
+backend/app/services/backup_scheduler.py:37:def run_auto_backup_once(label: str = "auto") -> Dict[str, Any]:
+backend/app/services/backup_scheduler.py:38:    include_minio = _bool_env("AUTO_BACKUP_INCLUDE_MINIO", "false")
+backend/app/services/backup_scheduler.py:39:    max_objects = _int_env("AUTO_BACKUP_MINIO_MAX_OBJECTS", 5000)
+backend/app/services/backup_scheduler.py:40:    result = create_backup(
+backend/app/services/backup_scheduler.py:61:            status = auto_backup_status()
+backend/app/services/backup_scheduler.py:64:                age = status.get("latest_backup_age_hours")
+backend/app/services/backup_scheduler.py:66:                    run_auto_backup_once(label="auto")
+backend/app/services/backup_scheduler.py:68:            print(f"[auto-backup] falha na rotina automática: {exc}")
+backend/app/services/backup_scheduler.py:69:        wait_seconds = max(60, _int_env("AUTO_BACKUP_CHECK_EVERY_MINUTES", 60) * 60)
+backend/app/services/backup_scheduler.py:73:def start_auto_backup_scheduler() -> Optional[threading.Event]:
+backend/app/services/backup_scheduler.py:74:    if not _bool_env("AUTO_BACKUP_ENABLED", "false"):
+backend/app/services/backup_scheduler.py:75:        print("[auto-backup] desativado. Configure AUTO_BACKUP_ENABLED=true para ativar backup automático.")
+backend/app/services/backup_scheduler.py:78:    thread = threading.Thread(target=_worker, args=(stop_event,), name="tvfiscal-auto-backup", daemon=True)
+backend/app/services/backup_scheduler.py:80:    print("[auto-backup] rotina automática iniciada")
+backend/app/services/docker-compose.local-postgres.override.yml:3:    volumes:
+backend/app/services/docker-compose.local-postgres.override.yml:6:volumes:
+backend/app/services/evidence_service.py:8:        endpoint_url=f"http://{settings.MINIO_ENDPOINT}",
+backend/app/services/evidence_service.py:9:        aws_access_key_id=settings.MINIO_ACCESS_KEY,
+backend/app/services/evidence_service.py:10:        aws_secret_access_key=settings.MINIO_SECRET_KEY,
+backend/app/services/evidence_service.py:17:    bucket_name = settings.MINIO_BUCKET
+backend/app/services/evidence_service.py:30:        Bucket=settings.MINIO_BUCKET,
+backend/app/services/evidence_service.py:36:    public_url = f"http://localhost:9000/{settings.MINIO_BUCKET}/{key}"
+backend/app/services/evidence_service.py:44:        Bucket=settings.MINIO_BUCKET,
+backend/app/services/evidence_service.py:50:    public_url = f"http://localhost:9000/{settings.MINIO_BUCKET}/{key}"
+backend/app/services/maintenance_service.py:23:BACKUP_DIR = Path(os.getenv("BACKUP_DIR", "/app/backups"))
+backend/app/services/maintenance_service.py:48:def _ensure_backup_dir() -> Path:
+backend/app/services/maintenance_service.py:66:def _run_pg_dump(output_file: Path) -> Optional[str]:
+backend/app/services/maintenance_service.py:67:    if not shutil.which("pg_dump"):
+backend/app/services/maintenance_service.py:68:        return "pg_dump não encontrado no container backend. Rebuild o backend com o Dockerfile V38."
+backend/app/services/maintenance_service.py:76:        "pg_dump",
+backend/app/services/maintenance_service.py:95:        return "pg_dump excedeu o tempo limite de 240s."
+backend/app/services/maintenance_service.py:98:        return f"Falha no pg_dump: {detail[:1200]}"
+backend/app/services/maintenance_service.py:104:        endpoint_url=f"http://{settings.MINIO_ENDPOINT}",
+backend/app/services/maintenance_service.py:105:        aws_access_key_id=settings.MINIO_ACCESS_KEY,
+backend/app/services/maintenance_service.py:106:        aws_secret_access_key=settings.MINIO_SECRET_KEY,
+backend/app/services/maintenance_service.py:119:        for page in paginator.paginate(Bucket=settings.MINIO_BUCKET):
+backend/app/services/maintenance_service.py:127:                body = client.get_object(Bucket=settings.MINIO_BUCKET, Key=key)["Body"].read()
+backend/app/services/maintenance_service.py:141:def create_backup(
+backend/app/services/maintenance_service.py:149:    backup_dir = _ensure_backup_dir()
+backend/app/services/maintenance_service.py:154:    filename = f"tvfiscal_backup_{stamp}{safe_label}.zip"
+backend/app/services/maintenance_service.py:155:    zip_path = backup_dir / filename
+backend/app/services/maintenance_service.py:167:            "minio_bucket": settings.MINIO_BUCKET,
+backend/app/services/maintenance_service.py:168:            "backup_version": "V40",
+backend/app/services/maintenance_service.py:173:            err = _run_pg_dump(db_dump_path)
+backend/app/services/maintenance_service.py:204:def list_backups() -> Dict[str, Any]:
+backend/app/services/maintenance_service.py:205:    backup_dir = _ensure_backup_dir()
+backend/app/services/maintenance_service.py:207:    for path in sorted(backup_dir.glob("*.zip"), key=lambda p: p.stat().st_mtime, reverse=True)[:MAX_BACKUP_LIST]:
+backend/app/services/maintenance_service.py:216:    return {"backup_dir": str(backup_dir), "items": items, "retention_days": BACKUP_RETENTION_DAYS}
+backend/app/services/maintenance_service.py:221:def get_latest_backup_age_hours() -> Optional[float]:
+backend/app/services/maintenance_service.py:222:    backups = list_backups().get("items") or []
+backend/app/services/maintenance_service.py:223:    if not backups:
+backend/app/services/maintenance_service.py:225:    latest = backups[0]
+backend/app/services/maintenance_service.py:238:def backup_freshness() -> Dict[str, Any]:
+backend/app/services/maintenance_service.py:239:    backups = list_backups().get("items") or []
+backend/app/services/maintenance_service.py:240:    age_hours = get_latest_backup_age_hours()
+backend/app/services/maintenance_service.py:243:        message = "Nenhum backup encontrado. Gere um backup em /admin/maintenance."
+backend/app/services/maintenance_service.py:246:        message = f"Último backup tem {age_hours:.1f}h, acima do limite crítico de {BACKUP_ERROR_HOURS}h."
+backend/app/services/maintenance_service.py:249:        message = f"Último backup tem {age_hours:.1f}h, acima do alvo operacional de {BACKUP_WARNING_HOURS}h."
+backend/app/services/maintenance_service.py:259:        "latest_backup": backups[0] if backups else None,
+backend/app/services/maintenance_service.py:260:        "backup_count": len(backups),
+backend/app/services/maintenance_service.py:263:def get_backup_path(filename: str) -> Path:
+backend/app/services/maintenance_service.py:264:    backup_dir = _ensure_backup_dir().resolve()
+backend/app/services/maintenance_service.py:265:    candidate = (backup_dir / filename).resolve()
+backend/app/services/maintenance_service.py:266:    if backup_dir not in candidate.parents and candidate != backup_dir:
+backend/app/services/maintenance_service.py:273:def delete_backup(filename: str) -> bool:
+backend/app/services/maintenance_service.py:274:    path = get_backup_path(filename)
+backend/app/services/maintenance_service.py:279:def cleanup_old_backups(retention_days: int = BACKUP_RETENTION_DAYS) -> Dict[str, Any]:
+backend/app/services/maintenance_service.py:280:    backup_dir = _ensure_backup_dir()
+backend/app/services/maintenance_service.py:283:    for path in backup_dir.glob("*.zip"):
+backend/app/services/maintenance_service.py:499:    backup_dir = _ensure_backup_dir()
+backend/app/services/maintenance_service.py:500:    backups = list_backups()["items"]
+backend/app/services/maintenance_service.py:501:    disk = shutil.disk_usage(str(backup_dir))
+backend/app/services/maintenance_service.py:509:    freshness = backup_freshness()
+backend/app/services/maintenance_service.py:512:        "backup_dir": str(backup_dir),
+backend/app/services/maintenance_service.py:513:        "backup_count": len(backups),
+backend/app/services/maintenance_service.py:514:        "latest_backup": backups[0] if backups else None,
+backend/app/services/maintenance_service.py:515:        "backup_freshness": freshness,
+backend/app/services/maintenance_service.py:517:        "backup_warning_hours": BACKUP_WARNING_HOURS,
+backend/app/services/maintenance_service.py:518:        "backup_error_hours": BACKUP_ERROR_HOURS,
+backend/app/services/maintenance_service.py:519:        "auto_backup": {
+backend/app/services/maintenance_service.py:520:            "enabled": os.getenv("AUTO_BACKUP_ENABLED", "false").strip().lower() in {"1", "true", "yes", "sim", "on"},
+backend/app/services/maintenance_service.py:521:            "interval_hours": int(os.getenv("AUTO_BACKUP_INTERVAL_HOURS", "24")),
+backend/app/services/maintenance_service.py:522:            "include_minio": os.getenv("AUTO_BACKUP_INCLUDE_MINIO", "false").strip().lower() in {"1", "true", "yes", "sim", "on"},
+backend/app/services/maintenance_service.py:524:        "pg_dump_available": bool(shutil.which("pg_dump")),
+backend/app/services/maintenance_service.py:525:        "minio_bucket": settings.MINIO_BUCKET,
+backend/app/services/maintenance_service.py:538:    writer.writerow(["backup_count", status["backup_count"]])
+backend/app/services/maintenance_service.py:539:    writer.writerow(["latest_backup", json.dumps(status.get("latest_backup"), ensure_ascii=False)])
+backend/app/services/maintenance_service.py:540:    writer.writerow(["backup_freshness", json.dumps(status.get("backup_freshness"), ensure_ascii=False)])
+backend/app/services/maintenance_service.py:541:    writer.writerow(["auto_backup", json.dumps(status.get("auto_backup"), ensure_ascii=False)])
+backend/app/services/maintenance_service.py:543:    writer.writerow(["pg_dump_available", status["pg_dump_available"]])
+backend/app/services/maintenance_service.py:544:    writer.writerow(["backup_dir", status["backup_dir"]])
+backend/app/services/permissions_service.py:42:    "health": "Saúde, manutenção e backup",
+backend/app/services/permissions_service.py:88:    # Manutenção, backup e saúde operacional
+backend/app/services/system_health_service.py:24:from app.services.maintenance_service import backup_freshness
+backend/app/services/system_health_service.py:123:        endpoint_url=f"http://{settings.MINIO_ENDPOINT}",
+backend/app/services/system_health_service.py:124:        aws_access_key_id=settings.MINIO_ACCESS_KEY,
+backend/app/services/system_health_service.py:125:        aws_secret_access_key=settings.MINIO_SECRET_KEY,
+backend/app/services/system_health_service.py:129:    bucket = settings.MINIO_BUCKET
+backend/app/services/system_health_service.py:145:        "endpoint": settings.MINIO_ENDPOINT,
+backend/app/services/system_health_service.py:208:def _backup_check() -> Dict[str, Any]:
+backend/app/services/system_health_service.py:209:    freshness = backup_freshness()
+backend/app/services/system_health_service.py:212:        "message": freshness.get("message", "Status de backup indisponível."),
+backend/app/services/system_health_service.py:213:        "backup_count": freshness.get("backup_count", 0),
+backend/app/services/system_health_service.py:214:        "latest_backup": freshness.get("latest_backup"),
+backend/app/services/system_health_service.py:307:        _run_check("backup", "Backup", _backup_check),
+backend/app/services/system_health_service.py:343:    if by_service.get("backup", {}).get("status") != "ok":
+backend/app/services/system_health_service.py:344:        recs.append("Gerar backup em /admin/maintenance ou ativar AUTO_BACKUP_ENABLED=true para manter rotina de produção protegida.")
+backend/app/services/system_health_service.py:352:        recs.append("Ambiente operacional saudável. Manter rotina de backup, scheduler e alertas monitorados.")

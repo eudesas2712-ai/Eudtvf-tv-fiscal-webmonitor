@@ -1,0 +1,51 @@
+frontend/src/app/admin/users/page.tsx:10:    process.env.NEXT_PUBLIC_API_URL ||
+frontend/src/app/admin/users/page.tsx:11:    process.env.NEXT_PUBLIC_API_BASE ||
+frontend/src/app/admin/users/page.tsx:12:    "http://localhost:8000"
+frontend/src/app/login/page.tsx:6:const API = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:8000";
+frontend/src/app/login/page.tsx:9:  const [email, setEmail] = useState("admin@tvfiscal.local");
+frontend/src/app/page.tsx:160:            ? localStorage.getItem("tvfiscal_auth_token")
+frontend/src/components/AppShell.tsx:34:  { label: "API / Swagger", href: "http://localhost:8000/docs", module: "health", external: true, admin: true },
+frontend/src/components/EditorialConsole.tsx:11:  const bearer = localStorage.getItem("tvfiscal_auth_token") || "";
+frontend/src/lib/apiClient.ts:1:export const ADMIN_TOKEN_KEY = "tvfiscal_admin_token";
+frontend/src/lib/apiClient.ts:2:const SESSION_TOKEN_KEY = "tvfiscal_auth_token";
+frontend/src/lib/apiClient.ts:7:    process.env.NEXT_PUBLIC_API_URL ||
+frontend/src/lib/apiClient.ts:8:    process.env.NEXT_PUBLIC_API_BASE ||
+frontend/src/lib/apiClient.ts:9:    "http://localhost:8000"
+frontend/src/lib/auth.ts:12:const TOKEN_KEY = "tvfiscal_auth_token";
+frontend/src/lib/auth.ts:13:const USER_KEY = "tvfiscal_auth_user";
+frontend/src/lib/auth.ts:59:    return url.origin === window.location.origin || url.origin === "http://localhost:8000" || url.origin === "http://127.0.0.1:8000";
+backend/app/core/config.py:12:    CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000")
+backend/app/core/security.py:86:    cookie_token = request.cookies.get("tvfiscal_auth_token")
+backend/app/ingest/fetchers/http.py:6:UA = "TvFiscalWebMonitor/0.1 (+https://tvfiscal-pb.com.br)"
+backend/app/main.py:59:        "http://localhost:3000",
+backend/app/routers/maintenance.py:175:        headers={"Content-Disposition": "attachment; filename=tvfiscal_security_export.csv"},
+backend/app/routers/system_health.py:44:        headers={"Content-Disposition": "attachment; filename=tvfiscal_system_health_history.csv"},
+backend/app/routers/system_health.py:55:        headers={"Content-Disposition": "attachment; filename=tvfiscal_relatorio_tecnico_saude.pdf"},
+backend/app/services/auth_service.py:118:    email = normalize_email(os.getenv("DEFAULT_ADMIN_EMAIL") or os.getenv("APP_ADMIN_EMAIL") or "admin@tvfiscal.local")
+backend/app/services/backup_scheduler.py:78:    thread = threading.Thread(target=_worker, args=(stop_event,), name="tvfiscal-auto-backup", daemon=True)
+backend/app/services/editorial_report_generator.py:45:LOGO_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "assets", "logo_tvfiscal.png"))
+backend/app/services/editorial_report_generator.py:46:LOGO_HEADER_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "assets", "logo_tvfiscal_header.png"))
+backend/app/services/maintenance_service.py:154:    filename = f"tvfiscal_backup_{stamp}{safe_label}.zip"
+backend/app/services/notification_service.py:773:    sender = cfg.get("smtp_from") or user or "alertas@tvfiscal.local"
+backend/app/services/notification_service.py:828:                "smtp_from": os.getenv("SMTP_FROM") or os.getenv("SMTP_USER") or "alertas@tvfiscal.local",
+backend/app/services/notification_service.py:1607:                "smtp_from": os.getenv("SMTP_FROM") or os.getenv("SMTP_USER") or "alertas@tvfiscal.local",
+backend/app/services/ppt_generator.py:12:LOGO_HEADER_PATH = Path(__file__).resolve().parent.parent / "assets" / "logo_tvfiscal_header.png"
+backend/app/services/report_generator.py:22:    logo_header = BASE_DIR / "assets" / "logo_tvfiscal_header.png"
+backend/app/services/report_generator.py:23:    logo_default = BASE_DIR / "assets" / "logo_tvfiscal.png"
+backend/app/services/snapshot_scheduler.py:545:        name="tvfiscal_snapshot_scheduler",
+backend/app/services/visual_report_theme.py:30:LOGO_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "assets", "logo_tvfiscal.png"))
+backend/app/services/visual_report_theme.py:31:LOGO_HEADER_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "assets", "logo_tvfiscal_header.png"))
+docker-compose.local-frontend.override.yml:4:      NEXT_PUBLIC_API_BASE: http://localhost:8000
+docker-compose.local-frontend.override.yml:5:      NEXT_PUBLIC_API_URL: http://localhost:8000
+docker-compose.prod.yml:68:      test: ["CMD", "curl", "-f", "http://localhost:8000/health/live"]
+docker-compose.yml:60:      CORS_ORIGINS: http://localhost:3000
+docker-compose.yml:76:      NEXT_PUBLIC_API_BASE: http://backend:8000
+.env.production.example:7:PUBLIC_BASE_URL=https://painelon.tvfiscal-pb.com.br
+.env.production.example:8:NEXT_PUBLIC_API_BASE_URL=https://painelon.tvfiscal-pb.com.br/api
+.env.production.example:18:POSTGRES_DB=tvfiscal
+.env.production.example:19:POSTGRES_USER=tvfiscal
+.env.production.example:21:DATABASE_URL=postgresql+psycopg://tvfiscal:troque-senha-postgres@postgres:5432/tvfiscal
+.env.production.example:28:MINIO_PUBLIC_ENDPOINT=https://painelon.tvfiscal-pb.com.br/minio
+.env.production.example:29:MINIO_ROOT_USER=tvfiscal_minio
+.env.production.example:64:NEXT_PUBLIC_API_BASE=http://localhost:8000
+.env.production.example:65:CORS_ORIGINS=http://localhost:3000
