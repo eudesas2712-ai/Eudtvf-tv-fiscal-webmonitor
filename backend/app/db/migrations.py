@@ -311,3 +311,32 @@ def ensure_user_access_tables(engine) -> None:
     with engine.begin() as conn:
         for statement in statements:
             conn.execute(text(statement))
+
+def ensure_generated_reports_table(engine) -> None:
+    """Cria histórico de relatórios gerados e armazenados no MinIO."""
+    statements = [
+        "CREATE EXTENSION IF NOT EXISTS pgcrypto",
+        """
+        CREATE TABLE IF NOT EXISTS generated_reports (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            project_id UUID NOT NULL,
+            report_family VARCHAR(80) NOT NULL,
+            report_type VARCHAR(120) NOT NULL,
+            title VARCHAR(255),
+            filename VARCHAR(500) NOT NULL,
+            object_key VARCHAR(1024) NOT NULL,
+            public_url VARCHAR(2048),
+            content_type VARCHAR(120) DEFAULT 'application/pdf',
+            filters JSONB DEFAULT '{}'::jsonb,
+            file_size INTEGER,
+            generated_by VARCHAR(255),
+            created_at TIMESTAMP DEFAULT NOW()
+        )
+        """,
+        "CREATE INDEX IF NOT EXISTS ix_generated_reports_project_created ON generated_reports(project_id, created_at DESC)",
+        "CREATE INDEX IF NOT EXISTS ix_generated_reports_family_type ON generated_reports(project_id, report_family, report_type, created_at DESC)",
+    ]
+
+    with engine.begin() as conn:
+        for statement in statements:
+            conn.execute(text(statement))

@@ -1,4 +1,5 @@
 import boto3
+import os
 from botocore.client import Config
 from app.core.config import settings
 
@@ -33,7 +34,8 @@ def save_html_evidence(key: str, html_content: str):
         ContentType="text/html"
     )
 
-    public_url = f"http://localhost:9000/{settings.MINIO_BUCKET}/{key}"
+    public_base = os.getenv("EVIDENCE_PUBLIC_BASE_URL") or f"http://localhost:9000/{settings.MINIO_BUCKET}"
+    public_url = f"{public_base.rstrip('/')}/{key}"
     return key, public_url
 
 def save_binary_evidence(key: str, content: bytes, content_type: str):
@@ -47,7 +49,8 @@ def save_binary_evidence(key: str, content: bytes, content_type: str):
         ContentType=content_type
     )
 
-    public_url = f"http://localhost:9000/{settings.MINIO_BUCKET}/{key}"
+    public_base = os.getenv("EVIDENCE_PUBLIC_BASE_URL") or f"http://localhost:9000/{settings.MINIO_BUCKET}"
+    public_url = f"{public_base.rstrip('/')}/{key}"
     return key, public_url
 
 def get_binary_from_url(url: str):

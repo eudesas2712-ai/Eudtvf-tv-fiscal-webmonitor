@@ -258,7 +258,13 @@ def get_configured_project_portals() -> list[dict]:
 def _collect_snapshot(project_id: str, base_url: str):
     url = f"{base_url}/intel/summary/{project_id}"
     try:
-        with urllib.request.urlopen(url, timeout=60) as response:
+        headers = {}
+        admin_token = os.getenv("ADMIN_TOKEN", "").strip()
+        if admin_token:
+            headers["X-Admin-Token"] = admin_token
+
+        request = urllib.request.Request(url, headers=headers)
+        with urllib.request.urlopen(request, timeout=60) as response:
             response.read()
 
         message = "Snapshot automático coletado com sucesso."

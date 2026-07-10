@@ -3,7 +3,7 @@ set -e
 
 PROJECT_ID="9b972aa2-f8a4-483b-a7d1-e979d86482fb"
 API="http://localhost:8000"
-TOKEN="tvfiscal-admin-2026"
+TOKEN=$(grep -E "^ADMIN_TOKEN=" .env.production | cut -d= -f2- | tr -d '"')
 
 echo "== TV Fiscal WebMonitor · Smoke Test Pós-Restore =="
 
@@ -32,7 +32,7 @@ echo "6) Alertas"
 curl -fsS -H "X-Admin-Token: $TOKEN" "$API/alerts/summary/$PROJECT_ID" > /dev/null && echo "OK /alerts/summary"
 
 echo ""
-echo "7) Inteligência de Mercado"
+echo "7) Inteligência"
 curl -fsS -H "X-Admin-Token: $TOKEN" "$API/intel/summary/$PROJECT_ID" > /dev/null && echo "OK /intel/summary"
 
 echo ""

@@ -46,6 +46,7 @@ services:
       - "127.0.0.1:9001:9001"
 
   backend:
+    init: true
     build:
       context: ./backend
     restart: unless-stopped

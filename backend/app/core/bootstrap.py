@@ -14,6 +14,7 @@ from app.db.migrations import (
     ensure_system_health_tables,
     ensure_maintenance_v40_columns,
     ensure_user_access_tables,
+    ensure_generated_reports_table,
 )
 from app.scripts.seed_banner_items import seed_banner_items
 from app.services.auth_service import ensure_default_admin
@@ -35,6 +36,7 @@ def bootstrap_system() -> None:
     ensure_system_health_tables(engine)
     ensure_maintenance_v40_columns(engine)
     ensure_user_access_tables(engine)
+    ensure_generated_reports_table(engine)
     print("[bootstrap] tabelas verificadas/criadas")
 
     db = SessionLocal()

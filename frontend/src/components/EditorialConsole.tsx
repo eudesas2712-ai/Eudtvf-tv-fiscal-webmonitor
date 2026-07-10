@@ -103,7 +103,7 @@ export default function EditorialConsole() {
       const query = makeQuery({ ...filters, limit: "80" });
       const [loadedItems, loadedSummary] = await Promise.all([
         fetchJson<EditorialItem[]>(`${API_BASE}/editorial/items/${projectId}${query ? `?${query}` : ""}`),
-        fetchJson<Summary>(`${API_BASE}/editorial/summary/${projectId}`),
+        fetchJson<Summary>(`${API_BASE}/editorial/summary/${projectId}${reportQuery ? `?${reportQuery}` : ""}`),
       ]);
       setItems(Array.isArray(loadedItems) ? loadedItems : []);
       setSummary(loadedSummary);
@@ -165,6 +165,10 @@ export default function EditorialConsole() {
   const pdfUrl = `${API_BASE}/editorial/report-pdf/${projectId}${reportQuery ? `?${reportQuery}` : ""}`;
   const syntheticPdfUrl = `${API_BASE}/editorial/report-sintetico-pdf/${projectId}${reportQuery ? `?${reportQuery}` : ""}`;
   const analyticalPdfUrl = `${API_BASE}/editorial/report-analitico-pdf/${projectId}${reportQuery ? `?${reportQuery}` : ""}`;
+  const syntheticV3PdfUrl = `${API_BASE}/editorial/reports/synthetic-v3/${projectId}${reportQuery ? `?${reportQuery}` : ""}`;
+  const analyticalV3PdfUrl = `${API_BASE}/editorial/reports/analytic-expanded-v3/${projectId}${reportQuery ? `?${reportQuery}` : ""}`;
+  const syntheticSocialV3PdfUrl = `${API_BASE}/editorial-social/reports/synthetic-v3/${projectId}${reportQuery ? `?${reportQuery}` : ""}`;
+  const analyticalSocialV3PdfUrl = `${API_BASE}/editorial-social/reports/analytic-expanded-v3/${projectId}${reportQuery ? `?${reportQuery}` : ""}`;
 
   async function openReport(url: string, fallbackName: string) {
     setError(null);
@@ -185,6 +189,29 @@ export default function EditorialConsole() {
     } catch (err) {
       setError(err instanceof TypeError ? "Falha ao conectar ao backend na porta 8000. Verifique se o container backend está rodando." : err instanceof Error ? err.message : "Erro ao gerar relatório editorial.");
     }
+  }
+
+  function formatDateInputBR(value: string) {
+    if (!value) return "";
+    const parts = value.split("-");
+    if (parts.length !== 3) return value;
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
+
+  function currentEditorialFilterSummary() {
+    const parts = [];
+    if (filters.q.trim()) parts.push(`Busca: ${filters.q.trim()}`);
+    if (filters.source_name) parts.push(`Fonte: ${filters.source_name}`);
+    if (filters.term) parts.push(`Termo: ${filters.term}`);
+    if (filters.sentiment) parts.push(`Sentimento: ${sentimentLabel(filters.sentiment)}`);
+    if (filters.topic) parts.push(`Tema: ${filters.topic}`);
+    if (filters.date_from || filters.date_to) {
+      parts.push(`Período: ${filters.date_from ? formatDateInputBR(filters.date_from) : "início"} a ${filters.date_to ? formatDateInputBR(filters.date_to) : "hoje"}`);
+    }
+    if (parts.length === 0) {
+      return "Recorte atual: geral, todas as fontes, sem termo, sentimento, tema ou período restrito.";
+    }
+    return `Recorte atual: ${parts.join(" · ")}`;
   }
 
   return (
@@ -213,11 +240,69 @@ export default function EditorialConsole() {
         Qualidade editorial ativa: termos e marcas são detectados por palavra/frase completa, reduzindo falsos positivos como “Amil” dentro de outras palavras. Páginas de categoria/listagem são filtradas. Os novos relatórios seguem o padrão SmartReport: sintético executivo com dashboard e analítico expandido com clipping, transcrição possível e amostras de evidência.
       </div>
 
+      <section style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: 18, padding: 18, boxShadow: "0 12px 30px rgba(15, 23, 42, 0.06)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
+          <div>
+            <div style={{ color: "#b00020", fontWeight: 900, fontSize: 12, letterSpacing: 1, textTransform: "uppercase" }}>
+              Relatórios Editorial Premium V3
+            </div>
+            <h3 style={{ margin: "6px 0 4px", fontSize: 22, color: "#0f172a" }}>
+              Padrão executivo TV Fiscal
+            </h3>
+            <p style={{ margin: 0, color: "#64748b", fontSize: 13, lineHeight: 1.45 }}>
+              Geração dos modelos Sintético Executivo Premium V3 e Analítico Executivo Expandido Premium V3, usando os filtros do recorte atual.
+            </p>
+          </div>
+
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <button
+              onClick={() => openReport(syntheticV3PdfUrl, `EDITORIAL_SINTETICO_EXECUTIVO_PREMIUM_V3_${projectId}.pdf`)}
+              style={{ ...primaryButtonStyle, background: "#b00020" }}
+            >
+              Sintético Executivo Premium V3
+            </button>
+
+            <button
+              onClick={() => openReport(analyticalV3PdfUrl, `EDITORIAL_ANALITICO_EXECUTIVO_EXPANDIDO_PREMIUM_V3_${projectId}.pdf`)}
+              style={{ ...secondaryButtonStyle, borderColor: "#b00020", color: "#b00020" }}
+            >
+              Analítico Executivo Expandido V3
+            </button>
+
+              <button
+                onClick={() => openReport(syntheticSocialV3PdfUrl, `EDITORIAL_SOCIAL_SINTETICO_PREMIUM_V3_${projectId}.pdf`)}
+                style={{ ...secondaryButtonStyle, borderColor: "#7c3aed", color: "#7c3aed" }}
+              >
+                Sintético Editorial + Social V3
+              </button>
+
+              <button
+                onClick={() => openReport(analyticalSocialV3PdfUrl, `EDITORIAL_SOCIAL_ANALITICO_PREMIUM_V3_${projectId}.pdf`)}
+                style={{ ...secondaryButtonStyle, borderColor: "#7c3aed", color: "#7c3aed" }}
+              >
+                Analítico Editorial + Social V3
+              </button>
+
+                          <button
+            onClick={() => {
+              openReport(syntheticV3PdfUrl, `EDITORIAL_SINTETICO_EXECUTIVO_PREMIUM_V3_${projectId}.pdf`);
+              setTimeout(() => openReport(analyticalV3PdfUrl, `EDITORIAL_ANALITICO_EXECUTIVO_EXPANDIDO_PREMIUM_V3_${projectId}.pdf`), 900);
+              setTimeout(() => openReport(syntheticSocialV3PdfUrl, `EDITORIAL_SOCIAL_SINTETICO_PREMIUM_V3_${projectId}.pdf`), 1800);
+              setTimeout(() => openReport(analyticalSocialV3PdfUrl, `EDITORIAL_SOCIAL_ANALITICO_PREMIUM_V3_${projectId}.pdf`), 2700);
+            }}
+            style={secondaryButtonStyle}
+          >
+            Gerar pacote V3
+          </button>
+          </div>
+        </div>
+      </section>
+
       <section style={metricsGridStyle}>
-        <Metric title="Matérias" value={summary?.total_items || 0} hint="Itens editoriais coletados" />
-        <Metric title="Termos detectados" value={summary?.total_terms || 0} hint="Menções a termos/marcas" />
-        <Metric title="Fontes" value={summary?.sources_count || 0} hint="Portais com matérias" />
-        <Metric title="Temas" value={summary?.topics_count || 0} hint="Categorias editoriais" />
+        <Metric title="Matérias" value={summary?.total_items || 0} hint="Itens editoriais no recorte atual" />
+        <Metric title="Termos detectados" value={summary?.total_terms || 0} hint="Menções a termos/marcas no recorte atual" />
+        <Metric title="Fontes" value={summary?.sources_count || 0} hint="Fontes presentes no recorte atual" />
+        <Metric title="Temas" value={summary?.topics_count || 0} hint="Categorias editoriais no recorte atual" />
       </section>
 
       <section style={filterPanelStyle}>
@@ -248,6 +333,7 @@ export default function EditorialConsole() {
           <button onClick={load} disabled={loading} style={primaryButtonStyle}>{loading ? "Filtrando..." : "Aplicar filtros"}</button>
           <button onClick={() => setFilters({ q: "", source_name: "", term: "", sentiment: "", topic: "", date_from: "", date_to: "" })} style={ghostButtonStyle}>Limpar</button>
         </div>
+          <p style={{ margin: "12px 0 0", color: "#0f172a", fontSize: 13, fontWeight: 800 }}>{currentEditorialFilterSummary()}</p>
       </section>
 
       <section style={{ display: "grid", gap: 14 }}>

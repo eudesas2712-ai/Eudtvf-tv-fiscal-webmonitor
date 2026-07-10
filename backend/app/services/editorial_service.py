@@ -492,8 +492,29 @@ def editorial_rows(
     return results
 
 
-def editorial_summary(db: Session, project_id: str) -> dict:
-    rows = editorial_rows(db, project_id, limit=1000)
+def editorial_summary(
+    db: Session,
+    project_id: str,
+    q: str | None = None,
+    source_name: str | None = None,
+    term: str | None = None,
+    sentiment: str | None = None,
+    topic: str | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
+) -> dict:
+    rows = editorial_rows(
+        db=db,
+        project_id=project_id,
+        q=q,
+        source_name=source_name,
+        term=term,
+        sentiment=sentiment,
+        topic=topic,
+        date_from=date_from,
+        date_to=date_to,
+        limit=1000,
+    )
     sources = Counter(row["source_name"] or "Desconhecido" for row in rows)
     terms = Counter()
     sentiments = Counter(row["sentiment"] for row in rows)

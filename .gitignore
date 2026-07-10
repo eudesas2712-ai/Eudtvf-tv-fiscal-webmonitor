@@ -89,3 +89,8 @@ tmp/
 *.wav
 *.zip
 *.tar.gz
+data/minio/
+data/postgres/
+*.bak*
+*.bak_*
+STATUS_PRODUCAO_*.txt

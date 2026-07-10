@@ -7,6 +7,7 @@ from app.db.session import get_db
 from app.services.editorial_service import editorial_rows, editorial_summary, reclassify_editorial_items, run_editorial_collection
 from app.services.editorial_report_generator import build_editorial_analytical_pdf, build_editorial_synthetic_pdf
 from app.services.notification_service import evaluate_automatic_notification_rules, notification_config
+from app.services.report_storage_service import save_generated_pdf_report
 
 router = APIRouter(prefix="/editorial", tags=["editorial"])
 
@@ -70,8 +71,28 @@ def _report_html(project_id: str, rows: list[dict], summary: dict) -> str:
 
 
 @router.get("/summary/{project_id}")
-def summary(project_id: str, db: Session = Depends(get_db)):
-    return editorial_summary(db, project_id)
+def summary(
+    project_id: str,
+    q: str | None = Query(default=None),
+    source_name: str | None = Query(default=None),
+    term: str | None = Query(default=None),
+    sentiment: str | None = Query(default=None),
+    topic: str | None = Query(default=None),
+    date_from: str | None = Query(default=None),
+    date_to: str | None = Query(default=None),
+    db: Session = Depends(get_db),
+):
+    return editorial_summary(
+        db=db,
+        project_id=project_id,
+        q=q,
+        source_name=source_name,
+        term=term,
+        sentiment=sentiment,
+        topic=topic,
+        date_from=date_from,
+        date_to=date_to,
+    )
 
 
 @router.get("/items/{project_id}")
@@ -249,6 +270,54 @@ def editorial_report_pdf(
     )
 
 
+def _report_filters_payload(q, source_name, term, sentiment, topic, date_from, date_to):
+    return {
+        "q": q,
+        "source_name": source_name,
+        "term": term,
+        "sentiment": sentiment,
+        "topic": topic,
+        "date_from": date_from,
+        "date_to": date_to,
+    }
+
+
+def _try_save_editorial_report_history(
+    db,
+    *,
+    project_id,
+    report_type,
+    title,
+    filename,
+    pdf_bytes,
+    q,
+    source_name,
+    term,
+    sentiment,
+    topic,
+    date_from,
+    date_to,
+):
+    try:
+        save_generated_pdf_report(
+            db,
+            project_id=project_id,
+            report_family="editorial",
+            report_type=report_type,
+            title=title,
+            filename=filename,
+            pdf_bytes=pdf_bytes,
+            filters=_report_filters_payload(q, source_name, term, sentiment, topic, date_from, date_to),
+            generated_by="webmonitor",
+        )
+    except Exception as exc:
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        print(f"[report-history] falha ao salvar histórico editorial {report_type}: {exc}")
+
+
 def _editorial_filtered_rows(
     db: Session,
     project_id: str,
@@ -289,8 +358,33 @@ def editorial_report_synthetic_pdf(
     db: Session = Depends(get_db),
 ):
     rows = _editorial_filtered_rows(db, project_id, q, source_name, term, sentiment, topic, date_from, date_to)
-    summary = editorial_summary(db, project_id)
+    summary = editorial_summary(
+        db=db,
+        project_id=project_id,
+        q=q,
+        source_name=source_name,
+        term=term,
+        sentiment=sentiment,
+        topic=topic,
+        date_from=date_from,
+        date_to=date_to,
+    )
     pdf_bytes = build_editorial_synthetic_pdf(project_id, rows, summary)
+    _try_save_editorial_report_history(
+        db,
+        project_id=project_id,
+        report_type="synthetic_v3",
+        title="Sintético Executivo Premium V3",
+        filename=f"EDITORIAL_SINTETICO_EXECUTIVO_PREMIUM_V3_{project_id}.pdf",
+        pdf_bytes=pdf_bytes,
+        q=q,
+        source_name=source_name,
+        term=term,
+        sentiment=sentiment,
+        topic=topic,
+        date_from=date_from,
+        date_to=date_to,
+    )
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
@@ -312,12 +406,133 @@ def editorial_report_analytical_pdf(
     db: Session = Depends(get_db),
 ):
     rows = _editorial_filtered_rows(db, project_id, q, source_name, term, sentiment, topic, date_from, date_to)
-    summary = editorial_summary(db, project_id)
+    summary = editorial_summary(
+        db=db,
+        project_id=project_id,
+        q=q,
+        source_name=source_name,
+        term=term,
+        sentiment=sentiment,
+        topic=topic,
+        date_from=date_from,
+        date_to=date_to,
+    )
     pdf_bytes = build_editorial_analytical_pdf(project_id, rows, summary)
+    _try_save_editorial_report_history(
+        db,
+        project_id=project_id,
+        report_type="analytic_expanded_v3",
+        title="Analítico Executivo Expandido Premium V3",
+        filename=f"EDITORIAL_ANALITICO_EXECUTIVO_EXPANDIDO_PREMIUM_V3_{project_id}.pdf",
+        pdf_bytes=pdf_bytes,
+        q=q,
+        source_name=source_name,
+        term=term,
+        sentiment=sentiment,
+        topic=topic,
+        date_from=date_from,
+        date_to=date_to,
+    )
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",
         headers={"Content-Disposition": f'inline; filename="editorial_analitico_{project_id}.pdf"'},
+    )
+
+
+@router.get("/reports/synthetic-v3/{project_id}")
+@router.get("/report-sintetico-executivo-premium-v3-pdf/{project_id}")
+def editorial_report_synthetic_premium_v3_pdf(
+    project_id: str,
+    q: str | None = Query(default=None),
+    source_name: str | None = Query(default=None),
+    term: str | None = Query(default=None),
+    sentiment: str | None = Query(default=None),
+    topic: str | None = Query(default=None),
+    date_from: str | None = Query(default=None),
+    date_to: str | None = Query(default=None),
+    db: Session = Depends(get_db),
+):
+    rows = _editorial_filtered_rows(db, project_id, q, source_name, term, sentiment, topic, date_from, date_to)
+    summary = editorial_summary(
+        db=db,
+        project_id=project_id,
+        q=q,
+        source_name=source_name,
+        term=term,
+        sentiment=sentiment,
+        topic=topic,
+        date_from=date_from,
+        date_to=date_to,
+    )
+    pdf_bytes = build_editorial_synthetic_pdf(project_id, rows, summary)
+    _try_save_editorial_report_history(
+        db,
+        project_id=project_id,
+        report_type="synthetic_v3",
+        title="Sintético Executivo Premium V3",
+        filename=f"EDITORIAL_SINTETICO_EXECUTIVO_PREMIUM_V3_{project_id}.pdf",
+        pdf_bytes=pdf_bytes,
+        q=q,
+        source_name=source_name,
+        term=term,
+        sentiment=sentiment,
+        topic=topic,
+        date_from=date_from,
+        date_to=date_to,
+    )
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'inline; filename="EDITORIAL_SINTETICO_EXECUTIVO_PREMIUM_V3_{project_id}.pdf"'},
+    )
+
+
+@router.get("/reports/analytic-expanded-v3/{project_id}")
+@router.get("/report-analitico-executivo-expandido-premium-v3-pdf/{project_id}")
+def editorial_report_analytic_expanded_premium_v3_pdf(
+    project_id: str,
+    q: str | None = Query(default=None),
+    source_name: str | None = Query(default=None),
+    term: str | None = Query(default=None),
+    sentiment: str | None = Query(default=None),
+    topic: str | None = Query(default=None),
+    date_from: str | None = Query(default=None),
+    date_to: str | None = Query(default=None),
+    db: Session = Depends(get_db),
+):
+    rows = _editorial_filtered_rows(db, project_id, q, source_name, term, sentiment, topic, date_from, date_to)
+    summary = editorial_summary(
+        db=db,
+        project_id=project_id,
+        q=q,
+        source_name=source_name,
+        term=term,
+        sentiment=sentiment,
+        topic=topic,
+        date_from=date_from,
+        date_to=date_to,
+    )
+    pdf_bytes = build_editorial_analytical_pdf(project_id, rows, summary)
+    _try_save_editorial_report_history(
+        db,
+        project_id=project_id,
+        report_type="analytic_expanded_v3",
+        title="Analítico Executivo Expandido Premium V3",
+        filename=f"EDITORIAL_ANALITICO_EXECUTIVO_EXPANDIDO_PREMIUM_V3_{project_id}.pdf",
+        pdf_bytes=pdf_bytes,
+        q=q,
+        source_name=source_name,
+        term=term,
+        sentiment=sentiment,
+        topic=topic,
+        date_from=date_from,
+        date_to=date_to,
+    )
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'inline; filename="EDITORIAL_ANALITICO_EXECUTIVO_EXPANDIDO_PREMIUM_V3_{project_id}.pdf"'},
     )
 
 

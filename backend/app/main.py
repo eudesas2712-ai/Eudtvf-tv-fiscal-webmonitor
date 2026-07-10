@@ -28,6 +28,10 @@ from app.services.snapshot_scheduler import start_snapshot_scheduler
 from app.services.backup_scheduler import start_auto_backup_scheduler
 from app.db.session import SessionLocal
 from app.services.permissions_service import validate_request_permission
+from app.routers import social as social_router
+from app.routers import social_reports as social_reports_router
+from app.routers import editorial_social as editorial_social_router
+from app.routers.report_history import router as report_history_router
 
 
 @asynccontextmanager
@@ -100,6 +104,10 @@ app.include_router(system_health_router)
 app.include_router(system_health_public_router)
 app.include_router(market_intelligence.router)
 app.include_router(scheduler_admin.router)
+app.include_router(social_router.router)
+app.include_router(social_reports_router.router)
+app.include_router(editorial_social_router.router)
+app.include_router(report_history_router)
 
 
 @app.get("/health")

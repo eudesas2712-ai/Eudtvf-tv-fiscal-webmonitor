@@ -16,6 +16,7 @@ const menuItems: MenuItem[] = [
   { label: "Projetos monitorados", href: "/projects", module: "projects", admin: true },
   { label: "Matérias monitoradas", href: "/items", module: "editorial" },
   { label: "Monitoramento editorial", href: "/editorial", module: "editorial" },
+  { label: "Histórico de Relatórios V3", href: "/reports-history", module: "editorial" },
   { label: "Banners capturados", href: "/banners", module: "banners" },
   { label: "Evidências operacionais", href: "/evidencias", module: "evidences" },
   { label: "Inteligência de Mercado", href: "/intel", module: "intel" },

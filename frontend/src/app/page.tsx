@@ -241,6 +241,7 @@ export default function ExecutiveDashboardPage() {
             <ActionButton href="/projects" label="Projetos" />
             <ActionButton href="/intel" label="Intel Mercado" color="#1f4e79" />
             <ActionButton href="/editorial" label="Editorial" color="#0f766e" />
+            <ActionButton href="/social" label="Social Monitor" color="#9333ea" />
             <ActionButton href="/alerts/inbox" label="Caixa de Alertas" color="#7c2d12" />
             <ActionButton href="/alerts/sla" label="SLA" color="#6d28d9" />
           </div>

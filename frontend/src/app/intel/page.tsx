@@ -33,7 +33,7 @@ function authorizedFetch(input: RequestInfo | URL, init: RequestInit = {}, timeo
   return adminFetch(url, {
     ...init,
     signal: init.signal || controller.signal,
-    bearer: false,
+    bearer: true,
     admin: true,
     json: false,
   }).finally(() => window.clearTimeout(timeout));
@@ -251,10 +251,10 @@ export default function IntelPage() {
         setData(summaryJson);
 
         // Dados complementares não podem travar o painel Intel.
-        const evidenceQuery = `${API}/banners/${projectId}?limit=250${selectedSegment ? `&segment_id=${selectedSegment}` : ""}${selectedAdvertiser ? `&registry_advertiser_id=${selectedAdvertiser}` : ""}`;
+        const evidenceQuery = `${API}/banners/${projectId}?limit=50${selectedSegment ? `&segment_id=${selectedSegment}` : ""}${selectedAdvertiser ? `&registry_advertiser_id=${selectedAdvertiser}` : ""}`;
         const results = await Promise.allSettled([
           fetchJsonSafely(`${API}/intel/timeline/${projectId}`, 15000),
-          fetchJsonSafely(evidenceQuery, 15000),
+          fetchJsonSafely(evidenceQuery, 30000),
           fetchJsonSafely(`${API}/registry/segments`, 15000),
           fetchJsonSafely(`${API}/registry/advertisers`, 15000),
         ]);

@@ -435,6 +435,212 @@ def _sentiment_color(sentiment: str) -> colors.Color:
     return TVF_YELLOW
 
 
+
+def _topic_risk_level(topic_rows: list[dict]) -> str:
+    if not topic_rows:
+        return "Baixo"
+
+    high = sum(1 for r in topic_rows if _risk_from_row(r) == "Alto")
+    neg = sum(1 for r in topic_rows if str(r.get("sentiment") or "").lower() == "negativo")
+    ratio = neg / max(1, len(topic_rows))
+
+    if high >= 2 or ratio >= 0.35:
+        return "Alto"
+    if high >= 1 or ratio >= 0.20:
+        return "Médio/Alto"
+    if neg:
+        return "Médio"
+
+    return "Baixo"
+
+
+def _risk_reading_for_topic(topic: str, level: str, count: int) -> str:
+    t = (topic or "").lower()
+
+    if any(x in t for x in ["mobilidade", "trânsito", "transito", "zona azul", "viário", "viario"]):
+        return "Tema operacional sensível; exige comunicação técnica, cronograma, sinalização e orientação preventiva."
+
+    if any(x in t for x in ["saúde", "saude", "saae", "serviço", "servico", "esgoto", "iluminação", "iluminacao"]):
+        return "Cobrança de serviço público com risco de amplificação por bairro; recomenda resposta nominalizada e prazo."
+
+    if any(x in t for x in ["segurança", "seguranca", "gcm", "operação", "operacao"]):
+        return "Pode reforçar agenda positiva quando associado a prevenção, ordem pública e presença institucional."
+
+    if any(x in t for x in ["cultura", "são joão", "sao joao", "forró", "forro", "turismo", "literária", "literaria"]):
+        return "Ativo reputacional positivo; deve ser vinculado a organização, segurança, fluxo e prestação de serviço."
+
+    if any(x in t for x in ["política", "politica", "pgp", "governo", "prefeito", "agenda"]):
+        return "Alta exposição institucional; amplia visibilidade, mas também aumenta cobrança por entregas concretas."
+
+    if level in ["Alto", "Médio/Alto"]:
+        return "Tema com potencial de desgaste e repercussão; requer resposta objetiva, fonte oficial e acompanhamento."
+
+    return "Tema de acompanhamento regular, com baixo risco imediato no recorte analisado."
+
+
+def _append_premium_v3_final_analysis(
+    story: list,
+    rows: list[dict],
+    summary: dict | None = None,
+    project_label: str | None = None,
+    analytical: bool = False,
+):
+    """Acrescenta Radar de Riscos, SWOT, Recomendações, Metodologia e Conclusão no padrão Premium V3."""
+    s = _styles()
+    summary = summary or {}
+    counters = _counters(rows)
+    overall_risk = _overall_risk(rows)
+
+    topic_groups: dict[str, list[dict]] = {}
+    source_names = set()
+    positive_topics = []
+    negative_topics = []
+
+    for row in rows:
+        topic = str(row.get("topic") or "Geral")
+        topic_groups.setdefault(topic, []).append(row)
+
+        if row.get("source_name"):
+            source_names.add(str(row.get("source_name")))
+
+        sentiment = str(row.get("sentiment") or "").lower()
+        if sentiment == "positivo":
+            positive_topics.append(topic)
+        elif sentiment == "negativo":
+            negative_topics.append(topic)
+
+    top_topics = sorted(topic_groups.items(), key=lambda kv: len(kv[1]), reverse=True)[:8]
+
+    story.append(PageBreak())
+    story.append(Paragraph("Análise estratégica - V3", s["title"]))
+    story.append(Paragraph(
+        f"{_escape(project_label or 'Projeto editorial')} | Radar de riscos, SWOT, recomendações e conclusão executiva",
+        s["subtitle"],
+    ))
+    story.append(Spacer(1, 4 * mm))
+
+    story.append(Paragraph("Radar de riscos", s["h"]))
+
+    radar_data = [[
+        Paragraph("Risco / Tema", s["badge"]),
+        Paragraph("Nível", s["badge"]),
+        Paragraph("Leitura executiva", s["badge"]),
+    ]]
+
+    if top_topics:
+        for topic, topic_rows in top_topics:
+            level = _topic_risk_level(topic_rows)
+            radar_data.append([
+                Paragraph(_escape(topic), s["body"]),
+                Paragraph(_escape(level), s["body"]),
+                Paragraph(_escape(_risk_reading_for_topic(topic, level, len(topic_rows))), s["body"]),
+            ])
+    else:
+        radar_data.append([
+            Paragraph("Sem temas classificados", s["body"]),
+            Paragraph("Baixo", s["body"]),
+            Paragraph("Não há volume suficiente de ocorrências no recorte para leitura de risco.", s["body"]),
+        ])
+
+    radar = Table(radar_data, colWidths=[60 * mm, 28 * mm, 166 * mm], repeatRows=1)
+    radar.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), TVF_RED),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("GRID", (0, 0), (-1, -1), 0.25, TVF_BORDER),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("BACKGROUND", (0, 1), (-1, -1), colors.white),
+        ("LEFTPADDING", (0, 0), (-1, -1), 5),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 5),
+        ("TOPPADDING", (0, 0), (-1, -1), 4),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+    ]))
+    story.append(radar)
+    story.append(Spacer(1, 5 * mm))
+
+    positive_rank = [x for x, _ in Counter(positive_topics).most_common(4)]
+    negative_rank = [x for x, _ in Counter(negative_topics).most_common(4)]
+    topic_rank = [x for x, _ in counters["topics"].most_common(5)]
+
+    strengths = "; ".join(positive_rank) if positive_rank else "Pautas institucionais, culturais ou informativas com potencial de reforço reputacional."
+    weaknesses = "; ".join(negative_rank) if negative_rank else "Baixo volume de críticas explícitas no recorte, mas exige manutenção da vigilância editorial."
+    opportunities = "Comunicar respostas por tema, fonte oficial, cronograma e prestação de serviço; transformar exposição positiva em entregas percebidas."
+    threats = "Viralização de temas negativos, associação entre cobrança operacional e ausência de resposta, politização de serviços e amplificação por rádio/redes."
+
+    story.append(Paragraph("SWOT Síntese", s["h"]))
+
+    swot_data = [
+        [Paragraph("Eixo", s["badge"]), Paragraph("Leitura executiva", s["badge"])],
+        [Paragraph("Forças", s["body"]), Paragraph(_escape(strengths), s["body"])],
+        [Paragraph("Fraquezas", s["body"]), Paragraph(_escape(weaknesses), s["body"])],
+        [Paragraph("Oportunidades", s["body"]), Paragraph(_escape(opportunities), s["body"])],
+        [Paragraph("Ameaças", s["body"]), Paragraph(_escape(threats), s["body"])],
+    ]
+
+    swot = Table(swot_data, colWidths=[38 * mm, 216 * mm], repeatRows=1)
+    swot.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), TVF_RED),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("GRID", (0, 0), (-1, -1), 0.25, TVF_BORDER),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("BACKGROUND", (0, 1), (-1, -1), colors.white),
+        ("LEFTPADDING", (0, 0), (-1, -1), 5),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 5),
+        ("TOPPADDING", (0, 0), (-1, -1), 4),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+    ]))
+    story.append(swot)
+    story.append(Spacer(1, 5 * mm))
+
+    main_topics_text = ", ".join(topic_rank[:4]) if topic_rank else "temas editoriais monitorados"
+
+    story.append(Paragraph("Recomendações executivas", s["h"]))
+
+    rec_data = [
+        [Paragraph("Frente", s["badge"]), Paragraph("Recomendação", s["badge"])],
+        [Paragraph("Gestão / Cliente", s["body"]), Paragraph(f"Publicar boletim consolidado com respostas para {_escape(main_topics_text)}, priorizando prazos, responsáveis e próximos passos.", s["body"])],
+        [Paragraph("Comunicação", s["body"]), Paragraph("Separar a narrativa em três linhas: agenda positiva, resposta técnica aos pontos críticos e prestação de serviço por tema/bairro/fonte.", s["body"])],
+        [Paragraph("Operação", s["body"]), Paragraph("Criar respostas nominalizadas para temas de maior risco, com linguagem objetiva e evidência operacional.", s["body"])],
+        [Paragraph("Monitoramento", s["body"]), Paragraph("Acompanhar reincidência de fontes, termos negativos, temas sensíveis e evolução do sentimento nas próximas coletas.", s["body"])],
+    ]
+
+    rec = Table(rec_data, colWidths=[48 * mm, 206 * mm], repeatRows=1)
+    rec.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), TVF_RED),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("GRID", (0, 0), (-1, -1), 0.25, TVF_BORDER),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("BACKGROUND", (0, 1), (-1, -1), colors.white),
+        ("LEFTPADDING", (0, 0), (-1, -1), 5),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 5),
+        ("TOPPADDING", (0, 0), (-1, -1), 4),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+    ]))
+    story.append(rec)
+    story.append(Spacer(1, 5 * mm))
+
+    named_sources = sorted(source_names)
+    sources_text = "; ".join(named_sources[:18]) if named_sources else "Fontes digitais, rádio/áudio, TV/redes públicas e itens editoriais cadastrados no projeto, conforme base disponível."
+
+    story.append(Paragraph("Fontes, metodologia e observações", s["h"]))
+
+    methodology = (
+        f"Relatório gerado a partir do recorte editorial filtrado no WebMonitor. "
+        f"Base analisada: {len(rows)} ocorrências. Fontes nomeadas monitoradas: {sources_text}. "
+        f"Classificação por tema, sentimento, termos monitorados, fonte, evidência textual e risco editorial. "
+        f"Quando houver áudio, a transcrição literal depende de processamento ASR/Whisper; na ausência dela, o sistema utiliza resumo, metadados e síntese textual disponível."
+    )
+
+    story.append(Paragraph(_escape(methodology), s["body"]))
+    story.append(Spacer(1, 4 * mm))
+
+    conclusion = (
+        f"O recorte fecha com risco geral {overall_risk}. "
+        f"A recomendação central é transformar o monitoramento editorial em resposta executiva: consolidar temas críticos, comunicar providências, valorizar pautas positivas e acompanhar reincidências."
+    )
+
+    story.append(Paragraph("Conclusão executiva", s["h"]))
+    story.append(Paragraph(_escape(conclusion), s["body"]))
+
 def _synthetic_occurrence_table(rows: list[dict]) -> Table:
     s = _styles()
     table_rows = [["Data", "Fonte", "Tema", "Tom", "Observação executiva"]]
@@ -517,6 +723,7 @@ def build_editorial_synthetic_pdf(project_id: str, rows: list[dict], summary: di
     story.append(Paragraph("Ocorrências resumidas - fontes monitoradas", s["h"]))
     story.append(_synthetic_occurrence_table(rows))
 
+    _append_premium_v3_final_analysis(story, rows, summary or {}, project_label, analytical=False)
     doc.build(story, onFirstPage=_header_footer, onLaterPages=_header_footer)
     return buffer.getvalue()
 
@@ -630,6 +837,7 @@ def build_editorial_analytical_pdf(project_id: str, rows: list[dict], summary: d
         "Quando houver captura audiovisual real, o relatório poderá incluir transcrição sincronizada, QR Code, print preservado e arquivo anexado."
     )
     story.append(_card("Metodologia e evidência", Paragraph(methodology, s["body"]), width_mm=264, height_mm=28))
+    _append_premium_v3_final_analysis(story, rows, summary or {}, project_label, analytical=True)
     doc.build(story, onFirstPage=_header_footer, onLaterPages=_header_footer)
     return buffer.getvalue()
 
