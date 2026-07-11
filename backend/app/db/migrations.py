@@ -340,3 +340,17 @@ def ensure_generated_reports_table(engine) -> None:
     with engine.begin() as conn:
         for statement in statements:
             conn.execute(text(statement))
+
+def ensure_social_items_unique_index(engine) -> None:
+    """Garante índice único completo para upsert dos itens sociais."""
+
+    statements = [
+        """
+        CREATE UNIQUE INDEX IF NOT EXISTS ux_social_items_platform_external_full
+        ON social_items (platform, external_id)
+        """
+    ]
+
+    with engine.begin() as conn:
+        for statement in statements:
+            conn.execute(text(statement))

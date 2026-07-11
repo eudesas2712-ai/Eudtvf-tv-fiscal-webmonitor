@@ -15,57 +15,78 @@ def _rows(result):
 
 
 @router.get("/summary/{project_id}")
-def social_summary(project_id: str, db: Session = Depends(get_db)):
+def social_summary(
+    project_id: str,
+    platform: str | None = Query(None),
+    db: Session = Depends(get_db),
+):
+    platform = (platform or "").strip().lower() or None
+    item_filter = "AND platform = :platform" if platform else ""
+    source_filter = "AND platform = :platform" if platform else ""
+    params = {"project_id": project_id}
+    if platform:
+        params["platform"] = platform
+
     totals = db.execute(
-        text("""
+        text(f"""
             SELECT
                 COUNT(*)::int AS total_items,
                 COUNT(DISTINCT source_id)::int AS sources_with_items,
                 COUNT(*) FILTER (WHERE platform = 'youtube')::int AS youtube_items,
+                COUNT(*) FILTER (WHERE platform = 'x')::int AS x_items,
+                COUNT(*) FILTER (WHERE platform = 'instagram')::int AS instagram_items,
+                COUNT(*) FILTER (WHERE platform = 'facebook')::int AS facebook_items,
+                COUNT(*) FILTER (WHERE platform = 'linkedin')::int AS linkedin_items,
+                COUNT(*) FILTER (WHERE platform = 'tiktok')::int AS tiktok_items,
                 COUNT(*) FILTER (WHERE is_sponsored IS TRUE)::int AS sponsored_items
             FROM social_items
             WHERE project_id = CAST(:project_id AS uuid)
+              {item_filter}
         """),
-        {"project_id": project_id},
+        params,
     ).fetchone()
 
     sources = db.execute(
-        text("""
+        text(f"""
             SELECT platform, COUNT(*)::int AS total
             FROM social_sources
             WHERE project_id = CAST(:project_id AS uuid)
               AND active IS TRUE
+              {source_filter}
             GROUP BY platform
             ORDER BY total DESC
         """),
-        {"project_id": project_id},
+        params,
     )
 
     channels = db.execute(
-        text("""
+        text(f"""
             SELECT COALESCE(author_name, 'Não identificado') AS name, COUNT(*)::int AS count
             FROM social_items
             WHERE project_id = CAST(:project_id AS uuid)
+              {item_filter}
             GROUP BY COALESCE(author_name, 'Não identificado')
             ORDER BY count DESC
             LIMIT 10
         """),
-        {"project_id": project_id},
+        params,
     )
 
     latest = db.execute(
-        text("""
+        text(f"""
             SELECT id, platform, title, author_name, url, published_at, created_at, thumbnail_url
             FROM social_items
             WHERE project_id = CAST(:project_id AS uuid)
+              {item_filter}
             ORDER BY COALESCE(published_at, created_at) DESC
             LIMIT 10
         """),
-        {"project_id": project_id},
+        params,
     )
 
     return {
         "project_id": project_id,
+        "platform": platform,
         "summary": dict(totals._mapping) if totals else {},
         "sources_by_platform": _rows(sources),
         "top_channels": _rows(channels),
