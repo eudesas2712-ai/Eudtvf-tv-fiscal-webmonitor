@@ -359,7 +359,7 @@ def social_platform_status(project_id: str, db: Session = Depends(get_db)):
             WITH platforms(platform, label, connector_state, connector_status, sort_order) AS (
                 VALUES
                     ('youtube', 'YouTube', 'active', 'Ativo', 1),
-                    ('x', 'X / Twitter', 'ready', 'Preparado', 2),
+                    ('x', 'X / Twitter', 'active', 'Ativo', 2),
                     ('instagram', 'Instagram', 'pending', 'Pendente', 3),
                     ('facebook', 'Facebook', 'pending', 'Pendente', 4),
                     ('tiktok', 'TikTok', 'pending', 'Pendente', 5),
