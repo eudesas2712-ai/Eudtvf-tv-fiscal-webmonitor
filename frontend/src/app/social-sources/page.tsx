@@ -112,7 +112,7 @@ export default function SocialSourcesPage() {
     const label = platformLabel(sourcePlatform);
 
     try {
-      if (!["youtube", "x"].includes(sourcePlatform)) {
+      if (!["youtube", "x", "instagram", "facebook"].includes(sourcePlatform)) {
         setMessage(`Coleta manual para ${label} ainda não implementada. A fonte foi mantida cadastrada para ativação do conector na próxima etapa.`);
         return;
       }
@@ -121,7 +121,7 @@ export default function SocialSourcesPage() {
       params.set("source_id", source.id);
       params.set("max_results", sourcePlatform === "x" ? "10" : "15");
 
-      const endpoint = sourcePlatform === "x" ? "x" : "youtube";
+      const endpoint = sourcePlatform;
 
       const res = await adminFetch(`${API_BASE}/social/${endpoint}/collect/${DEFAULT_PROJECT_ID}?${params.toString()}`, {
         method: "POST",

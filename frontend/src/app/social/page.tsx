@@ -183,7 +183,7 @@ export default function SocialMonitorPage() {
     const label = platformLabel(platform);
 
     try {
-      if (!["youtube", "x"].includes(platform)) {
+      if (!["youtube", "x", "instagram", "facebook"].includes(platform)) {
         setMessage(`Coleta manual para ${label} ainda não implementada. Cadastre a fonte normalmente; o conector será habilitado na próxima etapa.`);
         return;
       }
@@ -193,7 +193,7 @@ export default function SocialMonitorPage() {
       if (sourceId) params.set("source_id", sourceId);
       if (q) params.set("query", q);
 
-      const endpoint = platform === "x" ? "x" : "youtube";
+      const endpoint = platform;
 
       const res = await adminFetch(`${API_BASE}/social/${endpoint}/collect/${DEFAULT_PROJECT_ID}?${params.toString()}`, {
         method: "POST",
@@ -749,7 +749,7 @@ export default function SocialMonitorPage() {
             <button style={buttonStyle} disabled={busy || !manualQuery.trim()} onClick={() => collectSocial(undefined, manualQuery)}>
               Coletar agora
             </button>
-            <p style={helpStyle}>Necessário configurar YOUTUBE_API_KEY no servidor.</p>
+            <p style={helpStyle}>YouTube requer YOUTUBE_API_KEY; X requer X_BEARER_TOKEN; Instagram/Facebook requerem token Meta.</p>
           </div>
         </div>
       </section>

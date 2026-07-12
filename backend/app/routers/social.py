@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.services.social_youtube_collector import collect_youtube
 from app.services.social_x_collector import collect_x
+from app.services.social_meta_collector import collect_meta
 
 
 router = APIRouter(prefix="/social", tags=["Social Monitor"])
@@ -461,3 +462,39 @@ def collect_x_route(
     db: Session = Depends(get_db),
 ):
     return collect_x(db, project_id=project_id, source_id=source_id, query=query, max_results=max_results)
+
+
+@router.post("/instagram/collect/{project_id}")
+def collect_instagram_route(
+    project_id: str,
+    query: str | None = Query(default=None),
+    source_id: str | None = Query(default=None),
+    max_results: int = Query(default=10, ge=1, le=100),
+    db: Session = Depends(get_db),
+):
+    return collect_meta(
+        db,
+        project_id=project_id,
+        platform="instagram",
+        source_id=source_id,
+        query=query,
+        max_results=max_results,
+    )
+
+
+@router.post("/facebook/collect/{project_id}")
+def collect_facebook_route(
+    project_id: str,
+    query: str | None = Query(default=None),
+    source_id: str | None = Query(default=None),
+    max_results: int = Query(default=10, ge=1, le=100),
+    db: Session = Depends(get_db),
+):
+    return collect_meta(
+        db,
+        project_id=project_id,
+        platform="facebook",
+        source_id=source_id,
+        query=query,
+        max_results=max_results,
+    )
